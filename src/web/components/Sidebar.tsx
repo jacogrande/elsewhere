@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type FormEvent, useRef, useState } from "react";
 import { api, type FeedSummary } from "../lib/api";
+import { type ModePreference, useColorMode } from "../lib/color-mode";
 import { refetchSoon } from "../lib/hooks";
 import type { Filter, ViewState } from "../lib/view-state";
 
@@ -87,7 +88,10 @@ export function Sidebar({ view, onNavigate, notify }: Props) {
         ))}
       </div>
 
-      <OpmlControls notify={notify} />
+      <div className="sidebar-footer">
+        <ModePicker />
+        <OpmlControls notify={notify} />
+      </div>
     </aside>
   );
 }
@@ -204,5 +208,29 @@ function OpmlControls({ notify }: { notify: (message: string) => void }) {
         Export OPML
       </a>
     </div>
+  );
+}
+
+const MODES: { value: ModePreference; label: string }[] = [
+  { value: "system", label: "Auto" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
+
+function ModePicker() {
+  const { preference, choose } = useColorMode();
+  return (
+    <fieldset className="mode-options" aria-label="Colour mode">
+      {MODES.map((m) => (
+        <button
+          type="button"
+          key={m.value}
+          aria-pressed={preference === m.value}
+          onClick={() => choose(m.value)}
+        >
+          {m.label}
+        </button>
+      ))}
+    </fieldset>
   );
 }
