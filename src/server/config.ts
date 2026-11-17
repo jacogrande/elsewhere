@@ -1,11 +1,17 @@
 import { z } from "zod";
 import { err, ok, type Result } from "../core/shared/result";
 
+/** Chosen by eval/embeddings (see RESULTS.md): tied for best on related reading, small 1024-dim vectors. */
+export const DEFAULT_EMBEDDING_MODEL = "mongodb/voyage-4";
+export const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+
 const schema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   HOST: z.string().min(1).default("127.0.0.1"),
   DATABASE_PATH: z.string().min(1).default("./data/elsewhere.db"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  OPENROUTER_API_KEY: z.string().optional(),
+  EMBEDDING_MODEL: z.string().min(1).default(DEFAULT_EMBEDDING_MODEL),
 });
 
 export type Config = {
@@ -13,6 +19,8 @@ export type Config = {
   host: string;
   databasePath: string;
   dev: boolean;
+  /** Embedding features are off when apiKey is null. */
+  embeddings: { model: string; baseUrl: string; apiKey: string | null };
 };
 
 export function loadConfig(env: Record<string, string | undefined>): Result<Config, string> {
@@ -21,5 +29,15 @@ export function loadConfig(env: Record<string, string | undefined>): Result<Conf
     return err(parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("\n"));
   }
   const c = parsed.data;
-  return ok({ port: c.PORT, host: c.HOST, databasePath: c.DATABASE_PATH, dev: c.NODE_ENV !== "production" });
+  return ok({
+    port: c.PORT,
+    host: c.HOST,
+    databasePath: c.DATABASE_PATH,
+    dev: c.NODE_ENV !== "production",
+    embeddings: {
+      model: c.EMBEDDING_MODEL,
+      baseUrl: OPENROUTER_BASE_URL,
+      apiKey: c.OPENROUTER_API_KEY?.trim() || null,
+    },
+  });
 }

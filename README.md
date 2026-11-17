@@ -13,7 +13,8 @@ bun run seed     # optional: add a handful of real feeds
 bun run dev      # http://localhost:3000
 ```
 
-Data lives in `./data/elsewhere.db`. Delete it to start over. Optional `.env`: `PORT`, `HOST`, `DATABASE_PATH`.
+Data lives in `./data/elsewhere.db`. Delete it to start over. Optional `.env`: `PORT`, `HOST`, `DATABASE_PATH`,
+`OPENROUTER_API_KEY` (enables embeddings; default model `mongodb/voyage-4`, override with `EMBEDDING_MODEL`).
 
 ```sh
 bun test         # all tests

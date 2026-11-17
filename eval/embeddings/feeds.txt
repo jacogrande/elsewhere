@@ -1,0 +1,36 @@
+# Eval corpus: small-web writers with overlapping topics, so "related across feeds" is meaningful.
+# AI and LLMs
+https://simonwillison.net/atom/entries/
+https://www.oneusefulthing.org/feed
+https://www.interconnects.ai/feed
+https://www.understandingai.org/feed
+https://www.seangoedecke.com/rss.xml
+# Software engineering and management
+https://danluu.com/atom.xml
+https://lethain.com/feeds.xml
+https://martinfowler.com/feed.atom
+https://www.hillelwayne.com/index.xml
+https://brooker.co.za/blog/rss.xml
+https://matklad.github.io/feed.xml
+https://jvns.ca/atom.xml
+https://blog.codinghorror.com/rss/
+# Web, CSS, design and UX
+https://blog.jim-nielsen.com/feed.xml
+https://adactio.com/journal/rss
+https://www.zachleat.com/web/feed/
+https://jakearchibald.com/posts.rss
+https://www.joshwcomeau.com/rss.xml
+https://alistapart.com/main/feed/
+https://maggieappleton.com/rss.xml
+# Economics, progress, science
+https://www.construction-physics.com/feed
+https://www.experimental-history.com/feed
+https://www.noahpinion.blog/feed
+https://www.astralcodexten.com/feed
+https://worksinprogress.co/feed/
+# Thinking, writing, history
+https://nesslabs.com/feed
+https://fs.blog/feed/
+https://acoup.blog/feed/
+https://www.robinsloan.com/feed.xml
+https://overreacted.io/rss.xml

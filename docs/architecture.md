@@ -350,7 +350,7 @@ export interface RelationJudge {
 ```
 
 - **One OpenAI-compatible adapter** (base URL, key, model) covers Ollama, llama.cpp, vLLM, OpenRouter and the major vendors. That is the "bring your own key or local model" story, configured in settings.
-- **Default embedder:** EmbeddingGemma or Qwen3-Embedding-0.6B via Ollama (context capped), with an OpenAI-compatible embeddings adapter as the alternative.
+- **Default embedder:** `mongodb/voyage-4` via OpenRouter (`OPENROUTER_API_KEY`, override with `EMBEDDING_MODEL`), embedding whole articles (title + text, up to ~4k tokens) at 1024 dims. Chosen by `eval/embeddings` (see `RESULTS.md`): tied for best on related reading; `qwen/qwen3-embedding-8b` is the close, cheaper alternative. No local fallback for now: without a key, embedding features are simply off.
 - **Jev or any hosted judge** is just another `RelationJudge` adapter. Nothing depends on it.
 - **Prompts are data,** kept in `app/<context>/prompts.ts` and versioned. The prompt version is stored with every LLM-derived row so results can be re-run when prompts improve.
 - **Evaluation harness:** `bun run eval:perspectives` runs extraction and judging against a hand-labeled set in `eval/` and reports precision per relation, especially for `contrasting`. Perspectives features stay behind a setting until this passes a threshold we set.
