@@ -14,7 +14,8 @@ bun run dev      # http://localhost:3000
 ```
 
 Data lives in `./data/elsewhere.db`. Delete it to start over. Optional `.env`: `PORT`, `HOST`, `DATABASE_PATH`,
-`OPENROUTER_API_KEY` (enables embeddings; default model `mongodb/voyage-4`, override with `EMBEDDING_MODEL`).
+`OPENROUTER_API_KEY` (enables related reading; models `EMBEDDING_MODEL`, default `mongodb/voyage-4`, and
+`EXTRACTION_MODEL`, default `anthropic/claude-haiku-5.5`).
 
 ```sh
 bun test         # all tests
@@ -32,14 +33,16 @@ bun run format   # auto-format
 - Full-text search (SQLite FTS5)
 - OPML import and export
 - Feed health (failing, paused after repeated parse errors, gone on 410) with manual refresh
+- With an OpenRouter key: a "Read next" rail of related articles from your other feeds, with the ideas each
+  shares with the one you're reading (see [architecture §18](docs/architecture.md))
 - Keyboard: `j`/`k` next/previous, `s` star, `m` read/unread, `o` open original, `/` search, `Esc` close
 
 ## Layout
 
 ```
-src/core/      pure functions: parsing, identity, scheduling, sanitizing, queries (test-first)
+src/core/      pure functions: parsing, identity, scheduling, sanitizing, queries, ranking (test-first)
 src/app/       use cases and ports
-src/adapters/  SQLite, HTTP fetcher, clock/logger
+src/adapters/  SQLite, HTTP fetcher, OpenRouter (embeddings + LLM), clock/logger
 src/server/    Hono API, job worker, scheduler, entry point
 src/web/       React SPA
 migrations/    plain SQL, applied at startup

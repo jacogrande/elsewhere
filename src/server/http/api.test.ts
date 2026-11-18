@@ -63,6 +63,14 @@ describe("API", () => {
 
     const feeds = (await (await app.request("/api/feeds")).json()) as { feeds: { unreadCount: number }[] };
     expect(feeds.feeds[0]?.unreadCount).toBe(0);
+
+    // No AI configured: the rail is off, and clicks on missing articles 404.
+    expect(await (await app.request(`/api/articles/${id}/related`)).json()).toEqual({ status: "off" });
+    const click = await app.request(`/api/articles/${id}/related-clicks`, {
+      method: "POST",
+      ...json({ toId: 999, rank: 0 }),
+    });
+    expect(click.status).toBe(404);
   });
 
   test("answers domain errors with problem JSON", async () => {
@@ -90,6 +98,7 @@ describe("API", () => {
 
   test("404s unknown things", async () => {
     expect((await app.request("/api/articles/42")).status).toBe(404);
+    expect((await app.request("/api/articles/42/related")).status).toBe(404);
     expect((await app.request("/api/feeds/42", { method: "DELETE" })).status).toBe(404);
     expect((await app.request("/api/nope")).status).toBe(404);
   });

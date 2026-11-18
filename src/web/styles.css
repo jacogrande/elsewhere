@@ -437,10 +437,92 @@ select {
   min-height: 0;
   padding: 40px 52px 80px;
   background: var(--reader);
+  container-type: inline-size;
 }
-.reader > article {
+.reader-body {
   max-width: 690px;
   margin: 0 auto;
+}
+
+/* Read next: below the article, or beside it when the reader is wide enough. */
+.related {
+  margin-top: 56px;
+  padding-top: 14px;
+  border-top: 3px double var(--ink);
+}
+.related-title {
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.related ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.related li + li {
+  border-top: 1px solid var(--line);
+}
+.related-item {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.related-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.related-meta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.related-headline {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.22;
+}
+.related-item:hover .related-headline {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.related-why {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--accent);
+}
+.related-why-label {
+  font-style: normal;
+  font-weight: 600;
+}
+@container (min-width: 880px) {
+  /* Only when the rail is there, so the article stays centred without it. */
+  .reader-body:has(> .related) {
+    max-width: 990px;
+    display: grid;
+    grid-template-columns: minmax(0, 690px) 240px;
+    gap: 44px;
+    align-items: start;
+  }
+  .related {
+    position: sticky;
+    top: 0;
+    margin-top: 6px;
+    padding: 0 0 0 22px;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
 }
 .reader-empty {
   display: grid;

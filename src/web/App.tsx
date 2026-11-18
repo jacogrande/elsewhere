@@ -1,7 +1,9 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Component, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArticleList } from "./components/ArticleList";
 import { Reader } from "./components/Reader";
 import { Sidebar } from "./components/Sidebar";
+import type { ArticleDetail } from "./lib/api";
 import { useArticleList, useUpdateArticle, useViewState } from "./lib/hooks";
 import { neighborId } from "./lib/nav";
 
@@ -10,6 +12,7 @@ export function App() {
   const list = useArticleList(view);
   const items = useMemo(() => list.data?.pages.flatMap((p) => p.items) ?? [], [list.data]);
   const update = useUpdateArticle();
+  const qc = useQueryClient();
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -27,7 +30,10 @@ export function App() {
         if (e.key === "Escape") target.blur();
         return;
       }
-      const current = items.find((a) => a.id === view.articleId);
+      // The open article may not be in the list (e.g. opened from "Read next").
+      const current =
+        items.find((a) => a.id === view.articleId) ??
+        qc.getQueryData<ArticleDetail>(["article", view.articleId]);
       const ids = items.map((a) => a.id);
       switch (e.key) {
         case "j":
@@ -60,13 +66,17 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, view.articleId, navigate, update.mutate, list.hasNextPage, list.fetchNextPage]);
+  }, [items, view.articleId, navigate, update.mutate, list.hasNextPage, list.fetchNextPage, qc]);
 
   return (
     <div className="app" data-reading={view.articleId !== null}>
       <Sidebar view={view} onNavigate={navigate} notify={notify} />
       <ArticleList view={view} list={list} items={items} onNavigate={navigate} notify={notify} />
-      <Reader articleId={view.articleId} onClose={() => navigate({ articleId: null })} />
+      <Reader
+        articleId={view.articleId}
+        onClose={() => navigate({ articleId: null })}
+        onOpen={(id) => navigate({ articleId: id })}
+      />
       {toast && (
         <div className="toast" role="status">
           {toast}

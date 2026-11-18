@@ -24,6 +24,18 @@ describe("job store", () => {
     expect(jobs.claim(0, 1, 1000)).toHaveLength(1);
   });
 
+  test("re-enqueuing a key replaces its failed row", () => {
+    const db = testDatabase();
+    const jobs = createJobStore(db);
+    for (let i = 0; i < 3; i++) {
+      jobs.enqueue(pollJob(1), 0);
+      const [job] = jobs.claim(0, 1, 1000);
+      jobs.fail(job?.id ?? 0, `boom ${i}`);
+    }
+    const rows = db.query("SELECT status, last_error AS error FROM jobs").all();
+    expect(rows).toEqual([{ status: "failed", error: "boom 2" }]);
+  });
+
   test("retries later and recovers expired leases", () => {
     const jobs = createJobStore(testDatabase());
     jobs.enqueue(pollJob(1), 0);

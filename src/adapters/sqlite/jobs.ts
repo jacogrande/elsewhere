@@ -4,8 +4,14 @@ import type { JobKind, JobRequest } from "../../core/jobs/types";
 
 export type ClaimedJob = { id: number; kind: JobKind; payload: unknown; attempts: number };
 
-/** Inserts a job unless one with the same dedupe key is already pending. Use inside other transactions too. */
+/**
+ * Inserts a job unless one with the same dedupe key is already pending. Use inside other transactions too.
+ * Re-enqueuing a key replaces its old failed row, so a job that keeps failing keeps only its latest failure.
+ */
 export function insertJob(db: Database, job: JobRequest, now: number): void {
+  db.query("DELETE FROM jobs WHERE dedupe_key = $dedupeKey AND status = 'failed'").run({
+    dedupeKey: job.dedupeKey,
+  });
   db.query(
     `INSERT OR IGNORE INTO jobs (kind, payload, run_at, dedupe_key, created_at)
      VALUES ($kind, $payload, $runAt, $dedupeKey, $now)`,

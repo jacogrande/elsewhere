@@ -16,7 +16,7 @@ These rules apply everywhere. When in doubt, re-read them.
 3. **Ports and adapters.** The application talks to the outside world only through small TypeScript interfaces (ports). Concrete technology (SQLite, Ollama, Exa, HTTP) lives in adapters that implement those ports. Swapping an adapter never touches the core.
 4. **Domain-driven, by bounded context.** Code is grouped by what it means (feeds, knowledge, perspectives), not by technical layer alone. Each context owns its model and its tables.
 5. **Errors are values.** Expected failures are returned as typed `Result`s, never thrown. Exceptions mean a bug and go to a top-level handler.
-6. **Works without AI.** Every LLM feature is an enhancement on top of a working zero-LLM baseline (feeds, search, embeddings, concepts). A missing or failing model degrades features; it never breaks the app.
+6. **Works without AI.** Every AI feature (embeddings, concepts, related reading) is an enhancement on top of a working zero-AI baseline (feeds, reading, search). A missing or failing model degrades features; it never breaks the app.
 7. **Pragmatic over pure.** No DI container, no event bus library, no class hierarchies, no generic repository. Plain functions, plain objects, plain SQL where it's clearer. Add abstraction when a second real use appears, not before.
 
 ---
@@ -165,8 +165,8 @@ The cheap, always-on half of the graph.
 
 - **Model:** `Concept` (stable id, label, aliases, optional Wikidata QID), `ArticleConcept`, `RelatedEdge` (article↔article, kind, weight, provenance).
 - **Pure:** noun-phrase candidate extraction; concept normalization and alias merging; co-occurrence weighting; choosing kNN "related" edges from similarity scores; mapping fresh clusters onto existing stable concept ids (so ids don't drift); deciding which clusters need an LLM label.
-- **Ports:** `Embedder`, `VectorIndex`, `ConceptRepo`, `LanguageModel` (optional, cluster labels only), `EntityLinker` (optional).
-- **Rule:** LLM calls happen **per cluster, never per article.**
+- **Ports:** `Embedder`, `LanguageModel`, `KnowledgeRepo` (see §18 for what's built).
+- **Rule:** one LLM extraction **per article, once**, stored with its prompt version and reused by every feature. Nothing calls an LLM at read time; comparing articles is set arithmetic over stored concepts.
 
 ### 5.4 Perspectives (positions)
 
@@ -308,7 +308,7 @@ One SQLite file, WAL mode, foreign keys on. Each context owns its tables; table 
 |---|---|
 | feeds | `feeds_feed`, `feeds_entry` |
 | library | `library_article`, `library_article_fts` (FTS5), `library_tag`, `library_article_tag` |
-| knowledge | `knowledge_chunk`, `knowledge_vec` (sqlite-vec, 256-dim Matryoshka), `knowledge_concept`, `knowledge_article_concept`, `knowledge_edge` |
+| knowledge | `knowledge_embedding`, `knowledge_extraction`, `knowledge_concept`, `knowledge_concept_label`, `knowledge_article_concept`, `knowledge_related_click` (later: `knowledge_chunk` for passage search, sqlite-vec at scale) |
 | perspectives | `persp_issue`, `persp_position`, `persp_claim`, `persp_relation` |
 | discovery | `disc_candidate`, `disc_source_edge` |
 | system | `jobs`, `settings` |
@@ -497,7 +497,7 @@ Deployment (compiled binary, Docker, hosting, backups, auth, SSRF hardening for 
 | Own feed fetcher behind a port, not Miniflux | Keeps the stack Bun-only. A Miniflux/FreshRSS adapter can implement `FeedFetcher` later if fetching becomes a maintenance burden. |
 | SQLite only, no graph DB | A personal graph fits in tables. Kuzu's 2025 archival shows the risk of niche graph engines. |
 | No GraphRAG | Independent benchmarks show plain hybrid RAG wins on lookups at a fraction of the tokens. The graph is for navigation. |
-| Lazy concept graph, LLM per cluster | Cheap, incremental, and works without an LLM. |
+| Concepts from one stored LLM extraction per article | Linear in articles, runs offline, reusable by every feature; per-pair LLM calls grow with reading and can't be reused. |
 | Separate stance step | Embeddings can't distinguish agreement from disagreement. |
 | `Result` values over exceptions | Failure paths become visible in types and tests. |
 | Jobs table over a message broker | One process, one file, transactional enqueue. |
@@ -541,3 +541,23 @@ Phase 1 follows this document with these pragmatic simplifications. Revisit them
 - **`core/shared/html-libs.ts`** loads htmlparser2 and sanitize-html through `require()`. sanitize-html (CommonJS) requires htmlparser2 (ESM-only), and Bun fails that when an `import` of htmlparser2 is still loading. Never import htmlparser2 directly.
 - **Plain CSS**, no Tailwind or component library.
 - **Deferred:** folders, entry tombstones and retention, WebSub, SSRF protection (local-only, and you add the URLs), full-text scraping, Google Reader / Fever APIs.
+
+---
+
+## 18. Knowledge and the related rail, as built
+
+The first slice of the Knowledge context: every article is embedded and has its concepts extracted, and the reader shows a "Read next" rail of related articles from *other* feeds, each with the ideas it shares with the current one.
+
+**Pipeline (background jobs, all optional).** Without `OPENROUTER_API_KEY` none of this runs and the reader works as before.
+
+1. **Embed** (`knowledge.embed`): title + text, capped at ~4k tokens, embedded with voyage-4 into one unit vector per article (`knowledge_embedding`). If the provider rejects a batch, its texts are retried one at a time and only the ones that fail alone are recorded as failed.
+2. **Extract** (`knowledge.extract`): one LLM call per article (default `anthropic/claude-haiku-5.5`, about $0.0005 each) returns concepts with salience, entities, claims with quotes, and open questions. The raw JSON is stored in `knowledge_extraction` with its model and `PROMPT_VERSION`; bumping the version re-extracts, and a failed re-extraction keeps the earlier data. Only concepts are used today; claim quotes are unverified and must pass quote verification (§5.4) before anything shows them. The schema is lenient per item: a malformed entity or claim is dropped, and only "no usable concept" fails an article. Stubs under 80 words are skipped.
+3. **Link concepts** (same job, separate step; `linked_at`): each label is normalized and looked up in `knowledge_concept_label`; unseen labels are embedded and merged into an existing concept at cosine ≥ 0.86, else they become a new concept. Because linking is its own step, a failure here never discards a paid extraction. Label embeddings can't separate synonyms from neighbours ("TypeScript"/"JavaScript" 0.75 vs "LLMs"/"large language models" 0.67), so the threshold is strict and the prompt asks for canonical full names. Missed merges are the accepted failure mode; wrong merges are worse. If an overlapping run created the same concept first, the writer reuses it.
+
+**Scheduling and failures.** The minute scheduler enqueues an embed run and an extract run whenever work is waiting (dedupe keys `embed` and `extract`), which covers new articles and backfill with no other triggers. Each run stops starting batches after 90 s, inside the job lease. AI failures are returned to the worker, not thrown: retryable ones (rate limits, outages, auth, billing) back the job off; finished batches are kept. If *every* input in a batch is refused, that's treated as a configuration problem (say, a mistyped model id) and backed off, rather than recording every article as failed. A job that keeps failing keeps only its latest failed row.
+
+**Ranking** (`core/knowledge/related.ts`, pure): k-NN (30, at most 2 per feed) over all vectors excluding the article's own feed → keep similarity in [0.45, 0.97) (below is noise, calibrated by eye for voyage-4; above is the same post syndicated) → relevance = similarity + 0.15 × IDF-weighted concept overlap → MMR (λ 0.7) with one pick per feed → top 5, each with up to 3 shared concepts, rarest first. The scan is brute force over every vector, synchronous on the server: about 100 ms to load and 30 ms to score at 20k articles. Cache vectors in memory or move to sqlite-vec before the library gets that big.
+
+**API and UI.** `GET /api/articles/:id/related` → `{status: "off" | "pending" | "ready", items}`; an article whose embedding failed is `ready` with no items. The rail polls while pending, for up to ~3 minutes. It sits beside the article when the reader is at least 880 px wide and below it otherwise. `POST /api/articles/:id/related-clicks` logs which picks get opened (stars and reads already carry timestamps), for tuning later.
+
+**Known limits.** Changing `EMBEDDING_MODEL` re-embeds articles, but existing concepts only match new labels by exact text until re-extracted. An article that fails with a *retryable* error every time (rare) is retried on every run. The 0.45 floor and the boost weight were set by eye on a small corpus; revisit with an eval once the library grows.

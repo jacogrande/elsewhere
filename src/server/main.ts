@@ -1,3 +1,4 @@
+import { createOpenRouter } from "../adapters/ai/openrouter";
 import { loadMigrations, MIGRATIONS_DIR, migrate, openDatabase } from "../adapters/sqlite/db";
 import index from "../web/index.html";
 import { loadConfig } from "./config";
@@ -10,12 +11,12 @@ if (!config.ok) {
   console.error(`Invalid configuration:\n${config.error}`);
   process.exit(1);
 }
-const { port, host, databasePath, dev } = config.value;
+const { port, host, databasePath, dev, ai } = config.value;
 
 const db = openDatabase(databasePath);
 const applied = migrate(db, loadMigrations(MIGRATIONS_DIR));
 
-const deps = buildDeps(db);
+const deps = buildDeps(db, { ai: ai ? createOpenRouter(ai) : null });
 const api = buildApi(deps);
 if (applied.length) deps.logger.info("db.migrated", { applied });
 
@@ -38,7 +39,11 @@ const server = Bun.serve({
 const worker = startWorker(deps);
 const scheduler = startScheduler(deps);
 
-deps.logger.info("server.started", { url: server.url.toString(), database: databasePath });
+deps.logger.info("server.started", {
+  url: server.url.toString(),
+  database: databasePath,
+  ai: ai ? { embedding: ai.embeddingModel, extraction: ai.extractionModel } : "off (no OPENROUTER_API_KEY)",
+});
 
 let stopping = false;
 const shutdown = async () => {

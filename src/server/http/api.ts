@@ -2,6 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { exportOpml, importOpml, refreshFeed, subscribe } from "../../app/feeds";
+import { recordRelatedClick, relatedArticles } from "../../app/knowledge";
 import { getArticle, listArticles, markAllRead, updateArticle } from "../../app/library";
 import type { Deps } from "../deps";
 import { type Problem, problem } from "./errors";
@@ -84,6 +85,25 @@ export function buildApi(deps: Deps) {
       if (!result.ok) return problem(c, result.error);
       return c.json(result.value, 200);
     })
+    .get("/:id/related", validate("param", idParam), (c) => {
+      const result = relatedArticles(deps)(c.req.valid("param").id);
+      if (!result.ok) return problem(c, result.error);
+      return c.json(result.value, 200);
+    })
+    .post(
+      "/:id/related-clicks",
+      validate("param", idParam),
+      validate(
+        "json",
+        z.object({ toId: z.number().int().positive(), rank: z.number().int().min(0).max(100) }),
+      ),
+      (c) => {
+        const { toId, rank } = c.req.valid("json");
+        const result = recordRelatedClick(deps)({ fromId: c.req.valid("param").id, toId, rank });
+        if (!result.ok) return problem(c, result.error);
+        return c.body(null, 204);
+      },
+    )
     .patch(
       "/:id",
       validate("param", idParam),

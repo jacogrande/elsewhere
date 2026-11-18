@@ -1,9 +1,14 @@
+import type { z } from "zod";
 import type { FetchOutcome } from "../core/feeds/fetch-outcome";
 import type { OpmlFeed } from "../core/feeds/opml";
 import type { FeedHealth, FeedStateSnapshot, RefreshPlan } from "../core/feeds/refresh";
 import type { JobRequest } from "../core/jobs/types";
+import type { ArticleConcepts, ConceptPlan } from "../core/knowledge/concepts";
+import type { Extraction } from "../core/knowledge/extraction";
+import type { ConceptLink, Embedded } from "../core/knowledge/related";
 import type { EntryForArticle, NewArticle } from "../core/library/article";
 import type { Cursor } from "../core/library/query";
+import type { Result } from "../core/shared/result";
 
 /*
  * Ports: everything the use cases need from the outside world.
@@ -107,6 +112,8 @@ export interface ArticleRepo {
   insertMany(articles: NewArticle[], now: number): number;
   list(query: ArticleListQuery): ArticleListItem[];
   get(id: number): ArticleDetail | null;
+  /** List items for the given ids, in no particular order; missing ids are skipped. */
+  byIds(ids: number[]): ArticleListItem[];
   /** Highest article id right now; the upper bound for "mark all read". */
   maxId(): number;
   setRead(id: number, read: boolean, now: number): boolean;
@@ -119,4 +126,64 @@ export interface ArticleRepo {
 
 export interface JobQueue {
   enqueue(job: JobRequest, now: number): void;
+}
+
+// AI ----------------------------------------------------------------------------
+
+/** Every AI failure, as data. Retryable ones back the job off; the rest are recorded per article. */
+export type AiError =
+  | { type: "unavailable" | "rate_limited" | "timeout"; retryable: true; detail: string }
+  | { type: "rejected" | "invalid_response"; retryable: false; detail: string };
+
+export interface Embedder {
+  readonly model: string;
+  /** Unit-length vectors, one per text, in order. Never rejects. */
+  embed(texts: string[]): Promise<Result<Float32Array[], AiError>>;
+}
+
+export interface LanguageModel {
+  readonly model: string;
+  /** Asks for JSON and validates it; a reply that doesn't parse is `invalid_response`. Never rejects. */
+  generate<T>(req: { system: string; input: string; schema: z.ZodType<T> }): Promise<Result<T, AiError>>;
+}
+
+// Knowledge ---------------------------------------------------------------------
+
+/** The AI the knowledge features need; null in deps when no API key is configured. */
+export type Ai = { embedder: Embedder; llm: LanguageModel };
+
+export type ArticleText = { id: number; title: string; text: string };
+
+export interface KnowledgeRepo {
+  /** Articles without an embedding (or a recorded failure) for `model`, newest first. */
+  pendingEmbeddings(model: string, limit: number): ArticleText[];
+  saveEmbeddings(
+    model: string,
+    rows: { articleId: number; vector: Float32Array | null; error: string | null }[],
+    now: number,
+  ): void;
+  embeddingStatus(articleId: number, model: string): "none" | "failed" | "ok";
+  /** Every stored vector for `model`. Brute force: ~100 ms to load at 20k articles; sqlite-vec after that. */
+  vectors(model: string): Embedded[];
+
+  /** Articles not yet extracted with this model and prompt version, newest first. */
+  pendingExtractions(model: string, promptVersion: number, limit: number): ArticleText[];
+  /** Stores extraction results. A failure keeps any earlier successful data (and its links). */
+  saveExtractions(
+    meta: { model: string; promptVersion: number },
+    results: { articleId: number; data: Extraction | null; error: string | null }[],
+    now: number,
+  ): void;
+  /** Extractions whose concepts haven't been linked yet. */
+  unlinked(limit: number): ArticleConcepts[];
+  /** Concept ids for normalized labels already seen. */
+  knownLabels(keys: string[]): Map<string, number>;
+  conceptVectors(model: string): { id: number; vector: Float32Array }[];
+  /** Applies a concept plan and marks the articles linked, replacing their old links, atomically. */
+  saveLinks(embeddingModel: string, articleIds: number[], plan: ConceptPlan, now: number): void;
+  /** Concept links for the given articles, with each concept's document frequency. */
+  conceptLinks(articleIds: number[]): Map<number, ConceptLink[]>;
+  extractedCount(): number;
+
+  recordRelatedClick(click: { fromId: number; toId: number; rank: number }, now: number): boolean;
 }

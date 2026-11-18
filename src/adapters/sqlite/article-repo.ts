@@ -73,6 +73,16 @@ export function createArticleRepo(db: Database): ArticleRepo {
       return row ? (toItem(row) as ArticleDetail) : null;
     },
 
+    byIds(ids) {
+      return db
+        .query<Row, { ids: string }>(
+          `SELECT ${LIST_COLUMNS} FROM library_article a JOIN feeds_feed f ON f.id = a.feed_id
+           WHERE a.id IN (SELECT value FROM json_each($ids))`,
+        )
+        .all({ ids: JSON.stringify(ids) })
+        .map(toItem);
+    },
+
     maxId() {
       return db.query<{ id: number | null }, []>("SELECT max(id) AS id FROM library_article").get()?.id ?? 0;
     },

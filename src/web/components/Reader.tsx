@@ -3,8 +3,17 @@ import { useEffect, useRef } from "react";
 import { api } from "../lib/api";
 import { readingTime } from "../lib/format";
 import { useUpdateArticle } from "../lib/hooks";
+import { RelatedRail } from "./RelatedRail";
 
-export function Reader({ articleId, onClose }: { articleId: number | null; onClose: () => void }) {
+export function Reader({
+  articleId,
+  onClose,
+  onOpen,
+}: {
+  articleId: number | null;
+  onClose: () => void;
+  onOpen: (id: number) => void;
+}) {
   const article = useQuery({
     queryKey: ["article", articleId],
     queryFn: () => api.article(articleId ?? 0),
@@ -48,55 +57,58 @@ export function Reader({ articleId, onClose }: { articleId: number | null; onClo
       {article.isPending && <p className="muted pad">Loading…</p>}
       {article.isError && <p className="error pad">{article.error.message}</p>}
       {data && (
-        <article>
-          <header className="reader-header">
-            <p className="reader-meta">
-              <span>{data.feedTitle}</span>
-              {data.author && <span>{data.author}</span>}
-              {data.publishedAt && (
-                <time dateTime={new Date(data.publishedAt).toISOString()}>
-                  {new Date(data.publishedAt).toLocaleDateString(undefined, { dateStyle: "long" })}
-                </time>
-              )}
-              {data.wordCount > 0 && <span>{readingTime(data.wordCount)}</span>}
-            </p>
-            <h1>
-              {data.url ? (
-                <a href={data.url} target="_blank" rel="noopener noreferrer">
-                  {data.title}
-                </a>
-              ) : (
-                data.title
-              )}
-            </h1>
-            <div className="reader-actions">
-              <button
-                type="button"
-                onClick={() => update.mutate({ id: data.id, change: { starred: !data.starred } })}
-              >
-                {data.starred ? "★ Starred" : "☆ Star"}
-              </button>
-              <button
-                type="button"
-                onClick={() => update.mutate({ id: data.id, change: { read: !data.isRead } })}
-              >
-                Mark {data.isRead ? "unread" : "read"}
-              </button>
-              {data.url && (
-                <a className="button" href={data.url} target="_blank" rel="noopener noreferrer">
-                  Open original ↗
-                </a>
-              )}
-            </div>
-          </header>
-          {data.html ? (
-            // Sanitized on the server (core/library/article.ts) with an allowlist.
-            // biome-ignore lint/security/noDangerouslySetInnerHtml: server-sanitized HTML
-            <div className="prose" dangerouslySetInnerHTML={{ __html: data.html }} />
-          ) : (
-            <p className="muted">This entry has no content in the feed. Open the original to read it.</p>
-          )}
-        </article>
+        <div className="reader-body">
+          <article>
+            <header className="reader-header">
+              <p className="reader-meta">
+                <span>{data.feedTitle}</span>
+                {data.author && <span>{data.author}</span>}
+                {data.publishedAt && (
+                  <time dateTime={new Date(data.publishedAt).toISOString()}>
+                    {new Date(data.publishedAt).toLocaleDateString(undefined, { dateStyle: "long" })}
+                  </time>
+                )}
+                {data.wordCount > 0 && <span>{readingTime(data.wordCount)}</span>}
+              </p>
+              <h1>
+                {data.url ? (
+                  <a href={data.url} target="_blank" rel="noopener noreferrer">
+                    {data.title}
+                  </a>
+                ) : (
+                  data.title
+                )}
+              </h1>
+              <div className="reader-actions">
+                <button
+                  type="button"
+                  onClick={() => update.mutate({ id: data.id, change: { starred: !data.starred } })}
+                >
+                  {data.starred ? "★ Starred" : "☆ Star"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => update.mutate({ id: data.id, change: { read: !data.isRead } })}
+                >
+                  Mark {data.isRead ? "unread" : "read"}
+                </button>
+                {data.url && (
+                  <a className="button" href={data.url} target="_blank" rel="noopener noreferrer">
+                    Open original ↗
+                  </a>
+                )}
+              </div>
+            </header>
+            {data.html ? (
+              // Sanitized on the server (core/library/article.ts) with an allowlist.
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: server-sanitized HTML
+              <div className="prose" dangerouslySetInnerHTML={{ __html: data.html }} />
+            ) : (
+              <p className="muted">This entry has no content in the feed. Open the original to read it.</p>
+            )}
+          </article>
+          <RelatedRail articleId={data.id} onOpen={onOpen} />
+        </div>
       )}
     </section>
   );

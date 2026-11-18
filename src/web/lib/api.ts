@@ -9,6 +9,7 @@ export type FeedSummary = InferResponseType<typeof client.api.feeds.$get, 200>["
 export type ArticlePage = InferResponseType<typeof client.api.articles.$get, 200>;
 export type ArticleItem = ArticlePage["items"][number];
 export type ArticleDetail = InferResponseType<(typeof client.api.articles)[":id"]["$get"], 200>;
+export type RelatedReading = InferResponseType<(typeof client.api.articles)[":id"]["related"]["$get"], 200>;
 
 /** A failed API call, carrying the server's problem details. */
 export class ApiError extends Error {
@@ -60,6 +61,15 @@ export const api = {
     call<ArticleDetail>(client.api.articles[":id"].$get({ param: { id: String(id) } })),
   updateArticle: (id: number, change: { read?: boolean; starred?: boolean }) =>
     call<ArticleDetail>(client.api.articles[":id"].$patch({ param: { id: String(id) }, json: change })),
+  related: (id: number) =>
+    call<RelatedReading>(client.api.articles[":id"].related.$get({ param: { id: String(id) } })),
+  relatedClick: (fromId: number, toId: number, rank: number) =>
+    call<void>(
+      client.api.articles[":id"]["related-clicks"].$post({
+        param: { id: String(fromId) },
+        json: { toId, rank },
+      }),
+    ),
   markAllRead: (feedId: number | null, upToId: number) =>
     call<{ marked: number }>(client.api.articles["mark-read"].$post({ json: { feedId, upToId } })),
 
