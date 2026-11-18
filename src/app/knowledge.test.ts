@@ -5,7 +5,8 @@ import { testDatabase } from "../adapters/sqlite/db";
 import { createJobStore } from "../adapters/sqlite/jobs";
 import { createKnowledgeRepo } from "../adapters/sqlite/knowledge-repo";
 import { fakeSystem } from "../adapters/system/system";
-import type { Extraction } from "../core/knowledge/extraction";
+import { type Extraction, PROMPT_VERSION } from "../core/knowledge/extraction";
+import type { ConceptLink } from "../core/knowledge/related";
 import { normalize } from "../core/knowledge/vector";
 import { err, ok } from "../core/shared/result";
 import {
@@ -203,8 +204,9 @@ describe("extractPending", () => {
     expect(await extractPending(d)()).toEqual(ok({ extracted: 2, failed: 0, newConcepts: 2 }));
 
     const links = d.knowledge.conceptLinks([ids.A as number, ids.B as number]);
-    const a = links.get(ids.A as number) ?? [];
-    const b = links.get(ids.B as number) ?? [];
+    const strip = (cs: ConceptLink[] = []) => cs.map(({ vector: _, ...c }) => c);
+    const a = strip(links.get(ids.A as number));
+    const b = strip(links.get(ids.B as number));
     // Newest first: B is extracted first, so its spelling becomes the concept's label.
     expect(b).toEqual([{ id: 1, label: "Queue theory", weight: 0.6, df: 2 }]);
     expect(a).toContainEqual({ id: 1, label: "Queue theory", weight: 1, df: 2 });
@@ -217,7 +219,7 @@ describe("extractPending", () => {
     const llm = fakeLlm({ A: { type: "invalid_response", retryable: false, detail: "bad json" } });
     const d = deps({ embedder: fakeEmbedder(), llm });
     expect(await extractPending(d)()).toEqual(ok({ extracted: 0, failed: 1, newConcepts: 0 }));
-    expect(d.knowledge.pendingExtractions("fake-llm", 1, 10)).toEqual([]);
+    expect(d.knowledge.pendingExtractions("fake-llm", PROMPT_VERSION, 10)).toEqual([]);
   });
 
   test("a retryable failure keeps the rest of the batch and leaves that article pending", async () => {
@@ -231,7 +233,9 @@ describe("extractPending", () => {
     });
     const d = deps({ embedder: fakeEmbedder(), llm });
     expect(await extractPending(d)()).toMatchObject({ ok: false, error: { type: "unavailable" } });
-    expect(d.knowledge.pendingExtractions("fake-llm", 1, 10).map((a) => a.id)).toEqual([ids.B as number]);
+    expect(d.knowledge.pendingExtractions("fake-llm", PROMPT_VERSION, 10).map((a) => a.id)).toEqual([
+      ids.B as number,
+    ]);
   });
 
   test("when every reply is refused it's a configuration problem: back off, record nothing", async () => {
@@ -245,7 +249,7 @@ describe("extractPending", () => {
       ok: false,
       error: { type: "unavailable", retryable: true },
     });
-    expect(d.knowledge.pendingExtractions("fake-llm", 1, 10)).toHaveLength(2);
+    expect(d.knowledge.pendingExtractions("fake-llm", PROMPT_VERSION, 10)).toHaveLength(2);
   });
 
   test("if linking fails, the extraction is kept and later linked without calling the LLM again", async () => {
@@ -258,7 +262,7 @@ describe("extractPending", () => {
     const d = deps({ embedder, llm });
 
     expect(await extractPending(d)()).toMatchObject({ ok: false, error: { type: "unavailable" } });
-    expect(d.knowledge.pendingExtractions("fake-llm", 1, 10)).toEqual([]);
+    expect(d.knowledge.pendingExtractions("fake-llm", PROMPT_VERSION, 10)).toEqual([]);
     expect(d.knowledge.unlinked(10)).toHaveLength(1);
     expect(db.query("SELECT kind FROM jobs WHERE kind = 'knowledge.extract'").all()).toEqual([]);
     enqueueKnowledgeWork(d)();
@@ -270,6 +274,34 @@ describe("extractPending", () => {
     expect(d.knowledge.conceptLinks([ids.A as number]).get(ids.A as number)?.[0]?.label).toBe(
       "Load shedding",
     );
+  });
+
+  test("broad topics are linked too, at a lower weight", async () => {
+    const ids = seed([{ feed: 1, title: "A", text: words("queue") }]);
+    const d = deps({ embedder: fakeEmbedder(), llm: fakeLlm({}) });
+    d.knowledge.saveExtractions(
+      { model: "fake-llm", promptVersion: PROMPT_VERSION },
+      [
+        {
+          articleId: ids.A as number,
+          data: {
+            concepts: [{ label: "Load shedding", salience: "main" }],
+            topics: ["reliability"],
+            entities: [],
+            claims: [],
+            questions: [],
+          },
+          error: null,
+        },
+      ],
+      0,
+    );
+    await extractPending(d)();
+    const links = d.knowledge.conceptLinks([ids.A as number]).get(ids.A as number) ?? [];
+    expect(links.map((l) => [l.label, l.weight])).toEqual([
+      ["Load shedding", 1],
+      ["reliability", 0.5],
+    ]);
   });
 
   test("a failed re-extraction keeps the earlier data and links", async () => {

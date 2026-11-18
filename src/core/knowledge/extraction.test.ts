@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { EXTRACT_MAX_CHARS, extractionInput, extractionSchema, MAX_CONCEPTS } from "./extraction";
+import {
+  EXTRACT_MAX_CHARS,
+  extractionInput,
+  extractionSchema,
+  linkableConcepts,
+  MAX_CONCEPTS,
+} from "./extraction";
 
 describe("extractionSchema", () => {
   test("accepts a full extraction", () => {
@@ -53,6 +59,32 @@ describe("extractionSchema", () => {
     expect(parsed.claims).toHaveLength(1);
     expect(parsed.claims[0]?.claim.length).toBe(400);
     expect(parsed.questions).toEqual([]);
+  });
+});
+
+describe("topics", () => {
+  test("keeps up to 3 broad topics", () => {
+    const parsed = extractionSchema.parse({
+      concepts: [{ label: "Load shedding", salience: "main" }],
+      topics: ["distributed systems", "", "reliability", "operations", "queues"],
+    });
+    expect(parsed.topics).toEqual(["distributed systems", "reliability", "operations"]);
+  });
+
+  test("are linked alongside concepts, marked as topics", () => {
+    const parsed = extractionSchema.parse({
+      concepts: [{ label: "Load shedding", salience: "main" }],
+      topics: ["reliability"],
+    });
+    expect(linkableConcepts(parsed)).toEqual([
+      { label: "Load shedding", salience: "main" },
+      { label: "reliability", salience: "topic" },
+    ]);
+  });
+
+  test("older extractions without topics still link their concepts", () => {
+    const old = { concepts: [{ label: "CRDTs", salience: "main" }] } as never;
+    expect(linkableConcepts(old)).toEqual([{ label: "CRDTs", salience: "main" }]);
   });
 });
 

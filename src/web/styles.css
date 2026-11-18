@@ -162,15 +162,78 @@ select {
   padding: 7px 12px;
 }
 
-/* Layout: sidebar | list | reader, separated by hairlines. */
+/* Layout: icon strip | list | reader, separated by hairlines. The sidebar lives in a drawer. */
 .app {
   display: grid;
-  grid-template-columns: 260px 390px minmax(0, 1fr);
+  grid-template-columns: 72px 390px minmax(0, 1fr);
   height: 100%;
 }
 
-/* Sidebar */
+/* Icon strip */
+.rail-nav {
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 14px;
+}
+.rail-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 60px;
+  padding: 10px 0 8px;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rail-button:hover {
+  background: var(--hover);
+}
+.rail-button[aria-expanded="true"] {
+  background: var(--selected);
+  color: var(--accent);
+}
+
+/* Feeds drawer: the full sidebar, sliding over the list from the left. */
+.drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: min(300px, 86vw);
+  z-index: 20;
+  display: flex;
+  transform: translateX(-100%);
+  transition: transform 0.18s ease;
+  box-shadow: 0 0 0 1px var(--line);
+}
+.drawer[data-open="true"] {
+  transform: none;
+  box-shadow:
+    0 0 0 1px var(--line),
+    8px 0 30px rgb(0 0 0 / 0.18);
+}
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+  background: rgb(0 0 0 / 0.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer {
+    transition: none;
+  }
+}
+
+/* Sidebar (inside the drawer) */
 .sidebar {
+  flex: 1;
   background: var(--sidebar);
   border-right: 1px solid var(--line);
   display: flex;
@@ -458,6 +521,20 @@ select {
   text-transform: uppercase;
   color: var(--muted);
 }
+.related-group + .related-group {
+  margin-top: 18px;
+}
+.related-group-title {
+  margin: 10px 0 0;
+  font-size: 15px;
+  font-weight: 650;
+  font-style: italic;
+}
+.related-group-note {
+  margin: 0 0 2px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
 .related ol {
   list-style: none;
   margin: 0;
@@ -502,17 +579,13 @@ select {
   font-style: italic;
   color: var(--accent);
 }
-.related-why-label {
-  font-style: normal;
-  font-weight: 600;
-}
-@container (min-width: 880px) {
+@container (min-width: 760px) {
   /* Only when the rail is there, so the article stays centred without it. */
   .reader-body:has(> .related) {
-    max-width: 990px;
+    max-width: 970px;
     display: grid;
-    grid-template-columns: minmax(0, 690px) 240px;
-    gap: 44px;
+    grid-template-columns: minmax(0, 690px) 230px;
+    gap: 40px;
     align-items: start;
   }
   .related {
@@ -639,7 +712,7 @@ select {
 /* Narrow screens: one column at a time */
 @media (max-width: 1000px) {
   .app {
-    grid-template-columns: 230px minmax(0, 1fr);
+    grid-template-columns: 72px minmax(0, 1fr);
   }
   .reader {
     display: none;
@@ -658,12 +731,9 @@ select {
 }
 @media (max-width: 640px) {
   .app {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: 60px minmax(0, 1fr);
   }
-  .sidebar {
-    display: none;
-  }
-  .app[data-reading="true"] .reader {
-    grid-column: 1;
+  .rail-button {
+    width: 52px;
   }
 }

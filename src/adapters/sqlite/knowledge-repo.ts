@@ -1,7 +1,7 @@
 import type { Database } from "bun:sqlite";
 import type { KnowledgeRepo } from "../../app/ports";
 import type { ConceptRef } from "../../core/knowledge/concepts";
-import { type Extraction, MIN_EXTRACT_WORDS } from "../../core/knowledge/extraction";
+import { type Extraction, linkableConcepts, MIN_EXTRACT_WORDS } from "../../core/knowledge/extraction";
 import type { ConceptLink } from "../../core/knowledge/related";
 
 export const toBlob = (v: Float32Array) => new Uint8Array(v.buffer, v.byteOffset, v.byteLength);
@@ -126,7 +126,10 @@ export function createKnowledgeRepo(db: Database): KnowledgeRepo {
            WHERE data IS NOT NULL AND linked_at IS NULL ORDER BY article_id DESC LIMIT $limit`,
         )
         .all({ limit })
-        .map((r) => ({ articleId: r.articleId, concepts: (JSON.parse(r.data) as Extraction).concepts }));
+        .map((r) => ({
+          articleId: r.articleId,
+          concepts: linkableConcepts(JSON.parse(r.data) as Extraction),
+        }));
     },
 
     saveLinks(embeddingModel, articleIds, plan, now) {
@@ -174,15 +177,17 @@ export function createKnowledgeRepo(db: Database): KnowledgeRepo {
 
     conceptLinks(articleIds) {
       const rows = db
-        .query<ConceptLink & { articleId: number }, { ids: string }>(
-          `SELECT ac.article_id AS articleId, c.id, c.label, ac.weight,
+        .query<Omit<ConceptLink, "vector"> & { articleId: number; vector: Uint8Array }, { ids: string }>(
+          `SELECT ac.article_id AS articleId, c.id, c.label, ac.weight, c.vector,
                   (SELECT count(*) FROM knowledge_article_concept x WHERE x.concept_id = c.id) AS df
            FROM knowledge_article_concept ac JOIN knowledge_concept c ON c.id = ac.concept_id
            WHERE ac.article_id IN (SELECT value FROM json_each($ids))`,
         )
         .all({ ids: JSON.stringify(articleIds) });
       const out = new Map<number, ConceptLink[]>();
-      for (const { articleId, ...link } of rows) out.set(articleId, [...(out.get(articleId) ?? []), link]);
+      for (const { articleId, vector, ...link } of rows) {
+        out.set(articleId, [...(out.get(articleId) ?? []), { ...link, vector: fromBlob(vector) }]);
+      }
       return out;
     },
 

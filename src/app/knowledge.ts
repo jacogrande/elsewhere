@@ -7,7 +7,7 @@ import {
   extractionSchema,
   PROMPT_VERSION,
 } from "../core/knowledge/extraction";
-import { nearest, RELATED, rankRelated } from "../core/knowledge/related";
+import { nearest, RELATED, rankRelated, type SharedConcept } from "../core/knowledge/related";
 import { embeddingText } from "../core/knowledge/vector";
 import { err, ok, type Result } from "../core/shared/result";
 import type { ArticleNotFound } from "./library";
@@ -201,7 +201,7 @@ export const extractPending =
     return ok(done);
   };
 
-export type RelatedItem = ArticleListItem & { shared: { id: number; label: string }[] };
+export type RelatedItem = ArticleListItem & { kind: "conceptual" | "semantic"; shared: SharedConcept[] };
 /** `off`: no AI configured. `pending`: this article isn't embedded yet (a failed embedding is `ready`, empty). */
 export type RelatedReading =
   | { status: "off" }
@@ -225,10 +225,12 @@ export const relatedArticles =
     const links = deps.knowledge.conceptLinks([id, ...near.map((c) => c.id)]);
     const ranked = rankRelated({
       n: RELATED.n,
+      similarN: RELATED.similarN,
       lambda: RELATED.lambda,
       conceptBoost: RELATED.conceptBoost,
       minSimilarity: RELATED.minSimilarity,
       maxSimilarity: RELATED.maxSimilarity,
+      closeConcept: RELATED.closeConcept,
       target: { concepts: links.get(id) ?? [] },
       candidates: near.map((c) => ({ ...c, concepts: links.get(c.id) ?? [] })),
       totalArticles: deps.knowledge.extractedCount(),
@@ -236,7 +238,7 @@ export const relatedArticles =
     const byId = new Map(deps.articles.byIds(ranked.map((r) => r.id)).map((a) => [a.id, a]));
     const items = ranked.flatMap((r) => {
       const article = byId.get(r.id);
-      return article ? [{ ...article, shared: r.shared }] : [];
+      return article ? [{ ...article, kind: r.kind, shared: r.shared }] : [];
     });
     return ok({ status: "ready", items });
   };

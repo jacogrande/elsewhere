@@ -14,6 +14,7 @@ export function App() {
   const update = useUpdateArticle();
   const qc = useQueryClient();
   const [toast, setToast] = useState<string | null>(null);
+  const [feedsOpen, setFeedsOpen] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const notify = useCallback((message: string) => {
@@ -58,7 +59,8 @@ export function App() {
           document.getElementById("search")?.focus();
           break;
         case "Escape":
-          navigate({ articleId: null });
+          if (feedsOpen) setFeedsOpen(false);
+          else navigate({ articleId: null });
           break;
         default:
           return;
@@ -66,11 +68,35 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [items, view.articleId, navigate, update.mutate, list.hasNextPage, list.fetchNextPage, qc]);
+  }, [items, view.articleId, navigate, update.mutate, list.hasNextPage, list.fetchNextPage, qc, feedsOpen]);
 
   return (
     <div className="app" data-reading={view.articleId !== null}>
-      <Sidebar view={view} onNavigate={navigate} notify={notify} />
+      <nav className="rail-nav" aria-label="Main">
+        <button
+          type="button"
+          className="rail-button"
+          aria-expanded={feedsOpen}
+          aria-controls="feeds-drawer"
+          onClick={() => setFeedsOpen((open) => !open)}
+        >
+          <FeedsIcon />
+          <span>Feeds</span>
+        </button>
+      </nav>
+      {feedsOpen && (
+        <div className="drawer-backdrop" aria-hidden="true" onClick={() => setFeedsOpen(false)} />
+      )}
+      <div id="feeds-drawer" className="drawer" data-open={feedsOpen} inert={!feedsOpen}>
+        <Sidebar
+          view={view}
+          onNavigate={(patch) => {
+            navigate(patch);
+            setFeedsOpen(false);
+          }}
+          notify={notify}
+        />
+      </div>
       <ArticleList view={view} list={list} items={items} onNavigate={navigate} notify={notify} />
       <Reader
         articleId={view.articleId}
@@ -83,6 +109,25 @@ export function App() {
         </div>
       )}
     </div>
+  );
+}
+
+/** A feed icon: a dot and two arcs. */
+function FeedsIcon() {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <circle cx="5.5" cy="18.5" r="1.6" fill="currentColor" stroke="none" />
+      <path d="M4 11a9 9 0 0 1 9 9" strokeLinecap="round" />
+      <path d="M4 4a16 16 0 0 1 16 16" strokeLinecap="round" />
+    </svg>
   );
 }
 

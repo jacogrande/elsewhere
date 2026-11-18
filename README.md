@@ -33,8 +33,9 @@ bun run format   # auto-format
 - Full-text search (SQLite FTS5)
 - OPML import and export
 - Feed health (failing, paused after repeated parse errors, gone on 410) with manual refresh
-- With an OpenRouter key: a "Read next" rail of related articles from your other feeds, with the ideas each
-  shares with the one you're reading (see [architecture §18](docs/architecture.md))
+- With an OpenRouter key: a "Read next" rail of related articles from your other feeds, each showing the idea
+  it shares with the one you're reading (see [architecture §18](docs/architecture.md))
+- Feeds, views, OPML and colour mode live in the Feeds drawer (the icon at the far left)
 - Keyboard: `j`/`k` next/previous, `s` star, `m` read/unread, `o` open original, `/` search, `Esc` close
 
 ## Layout

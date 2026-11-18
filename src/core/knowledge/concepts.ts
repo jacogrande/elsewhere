@@ -9,7 +9,13 @@ import { dot } from "./vector";
  */
 export const MATCH_THRESHOLD = 0.86;
 
-export const SALIENCE_WEIGHT: Record<Salience, number> = { main: 1, supporting: 0.6, mention: 0.3 };
+/** Topics are broad, so a shared topic counts for less than a shared main concept. */
+export const SALIENCE_WEIGHT: Record<Salience, number> = {
+  main: 1,
+  supporting: 0.6,
+  topic: 0.5,
+  mention: 0.3,
+};
 
 export function normalizeLabel(label: string): string {
   return label
