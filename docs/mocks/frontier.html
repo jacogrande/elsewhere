@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontier Instrument</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Design kit: "Instrument panel". Dark-first, mono numerals, amber + cyan. */
+:root {
+  --bg: #0a0d10;
+  --panel: #10151a;
+  --panel-2: #151c22;
+  --grid: #1c252d;
+  --line: #26313b;
+  --ink: #d3dde4;
+  --ink-2: #a9b7c2;
+  --dim: #66788a;
+  --cyan: #3fd4e4;
+  --cyan-dim: rgba(63,212,228,.14);
+  --amber: #ffb547;
+  --amber-dim: rgba(255,181,71,.16);
+  --glow: 0 0 0 1px rgba(63,212,228,.25), 0 0 24px rgba(63,212,228,.08);
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --sans: "Space Grotesk", system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #e7ebee; --panel: #f6f8f9; --panel-2: #eef2f4; --grid: #dbe2e7; --line: #c9d3da; --ink: #17212a; --ink-2: #3a4955; --dim: #687986;
+    --cyan: #0a8796; --cyan-dim: rgba(10,135,150,.12); --amber: #b5650a; --amber-dim: rgba(181,101,10,.12); --glow: 0 0 0 1px rgba(10,135,150,.2); color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #e7ebee; --panel: #f6f8f9; --panel-2: #eef2f4; --grid: #dbe2e7; --line: #c9d3da; --ink: #17212a; --ink-2: #3a4955; --dim: #687986;
+  --cyan: #0a8796; --cyan-dim: rgba(10,135,150,.12); --amber: #b5650a; --amber-dim: rgba(181,101,10,.12); --glow: 0 0 0 1px rgba(10,135,150,.2); color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 14px/1.45 var(--sans);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 32px 32px; background-position: -1px -1px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.mono { font-family: var(--mono); }
+
+.shell { max-width: 1280px; margin: 0 auto; padding: 16px 16px 120px; display: grid; gap: 12px; }
+header.bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
+.logo { font: 700 13px var(--mono); letter-spacing: .18em; text-transform: uppercase; display: flex; gap: 10px; align-items: center; }
+.logo i { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+.logo span { color: var(--dim); font-weight: 400; letter-spacing: .1em; }
+.readouts { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.ro { border: 1px solid var(--line); border-radius: 4px; padding: 4px 10px; min-width: 96px; background: var(--panel-2); }
+.ro small { display: block; font: 500 9.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.ro b { font: 500 18px/1.2 var(--mono); color: var(--cyan); font-variant-numeric: tabular-nums; }
+.ro.amber b { color: var(--amber); }
+.ro .d { font: 400 11px var(--mono); color: var(--amber); margin-left: 4px; }
+.btn { border: 1px solid var(--line); background: var(--panel-2); color: var(--ink-2); border-radius: 4px; padding: 6px 10px; cursor: pointer; font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.btn:hover { border-color: var(--cyan); color: var(--cyan); }
+@media (max-width: 640px) { .readouts { margin-left: 0; } .ro { min-width: 0; flex: 1 1 40%; } }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+@media (max-width: 960px) { .grid { grid-template-columns: minmax(0,1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.ph { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--line); font: 500 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.ph b { color: var(--ink-2); font-weight: 500; }
+.ph .led { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); display: inline-block; margin-right: 8px; box-shadow: 0 0 6px var(--cyan); }
+.cap { padding: 8px 12px 12px; font-size: 12px; color: var(--dim); border-top: 1px solid var(--line); }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 12px; font: 400 11px var(--mono); color: var(--ink-2); border-top: 1px solid var(--line); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.right { display: grid; gap: 12px; }
+
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--mono); }
+.field-svg { margin: 0 auto; }
+.field-wrap { overflow-x: auto; scrollbar-width: thin; }
+@media (max-width: 600px) { .field-svg { width: 620px; max-width: none; } }
+.sector-arc { fill: none; stroke: var(--amber); stroke-opacity: .35; stroke-width: 2; }
+.c-fill { fill: var(--cyan); stroke: var(--cyan); stroke-width: 1.2; }
+.c-ring { fill: none; stroke: var(--amber); stroke-width: 1.6; opacity: 0; transition: opacity .4s; }
+.c-ring.on { opacity: 1; animation: pulse 2.6s ease-in-out infinite; }
+@keyframes pulse { 50% { stroke-opacity: .35; stroke-width: 3.5; } }
+@media (prefers-reduced-motion: reduce) { .c-ring.on { animation: none; } }
+.c-label { font-size: 12px; fill: var(--ink-2); transition: fill .2s; }
+.c-label.unknown { fill: var(--dim); }
+.c-g { cursor: default; transition: opacity .2s; }
+.c-g.hl .c-fill { stroke: var(--amber); stroke-width: 2.5; }
+.c-g.hl .c-label { fill: var(--amber); font-weight: 700; }
+.dimmed .c-g:not(.hl) { opacity: .28; }
+.terr { fill: var(--cyan-dim); stroke: var(--cyan); stroke-width: 1; stroke-dasharray: 3 3; }
+.guide { fill: none; stroke: var(--line); stroke-width: 1; }
+.spoke { stroke: var(--line); stroke-width: 1; }
+.clabel { font-size: 11px; letter-spacing: .16em; fill: var(--dim); text-transform: uppercase; }
+.hl-edge { stroke: var(--amber); stroke-width: 1.2; stroke-dasharray: 2 3; fill: none; }
+
+.curve { fill: none; stroke: var(--cyan); stroke-width: 2; }
+.band { fill: var(--amber-dim); }
+.axis { stroke: var(--line); }
+.tick { font-size: 10px; fill: var(--dim); }
+.zone { font-size: 10px; letter-spacing: .16em; fill: var(--dim); }
+.zone.f { fill: var(--amber); }
+.dot { cursor: pointer; transition: r .15s; }
+.dot.unread { fill: var(--amber); stroke: var(--panel); stroke-width: 1.5; }
+.dot.read { fill: var(--panel); stroke: var(--dim); stroke-width: 1.2; }
+.dot.session { fill: var(--panel); stroke: var(--cyan); stroke-width: 2; }
+.dot.hl { stroke: var(--ink); stroke-width: 2.5; }
+.dot-label { font-size: 11px; fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; pointer-events: none; }
+
+/* Ranked list */
+.queue { list-style: none; margin: 0; padding: 0; }
+.row { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); transition: background .15s; }
+.row:last-child { border-bottom: 0; }
+.row.hl { background: var(--panel-2); box-shadow: inset 2px 0 0 var(--amber); }
+.row .rk { font: 500 12px var(--mono); color: var(--dim); text-align: right; }
+.row .t { font-weight: 600; font-size: 14.5px; line-height: 1.3; }
+.row .w { font-size: 12px; color: var(--dim); }
+.row .ex { margin-top: 4px; font-size: 12.5px; color: var(--ink-2); }
+.row .ex .k { color: var(--cyan); }
+.row .ex .n { color: var(--amber); }
+.row .ex .v { font-family: var(--mono); font-size: 11px; color: var(--dim); }
+.meter { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.meter .tr { flex: 0 1 160px; height: 4px; background: var(--grid); border-radius: 2px; overflow: hidden; }
+.meter .fl { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--amber)); }
+.meter .num { font: 500 11px var(--mono); color: var(--ink); }
+.fin { border: 1px solid var(--cyan); color: var(--cyan); background: transparent; border-radius: 4px; padding: 6px 10px; cursor: pointer; font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.fin:hover, .fin:focus-visible { background: var(--cyan); color: var(--bg); }
+.fin:disabled { opacity: .4; cursor: wait; }
+@media (max-width: 560px) { .row { grid-template-columns: 24px minmax(0,1fr); } .row .fin { grid-column: 2; justify-self: start; } }
+.qfoot { padding: 10px 12px; font: 400 11px var(--mono); color: var(--dim); border-top: 1px solid var(--line); }
+
+/* Inspector + log */
+.insp { padding: 10px 12px 12px; font: 400 12px/1.6 var(--mono); }
+.insp .h { font-family: var(--sans); font-weight: 600; font-size: 14px; margin-bottom: 6px; color: var(--ink); }
+.insp table { width: 100%; border-collapse: collapse; }
+.insp td { padding: 2px 0; }
+.insp td.r { text-align: right; font-variant-numeric: tabular-nums; }
+.insp .bar { display: inline-block; height: 6px; background: var(--cyan); vertical-align: middle; border-radius: 1px; }
+.insp .bar.u { background: var(--amber); }
+.insp .eq { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); color: var(--ink-2); }
+.insp .eq b { color: var(--amber); font-weight: 500; }
+.log { list-style: none; margin: 0; padding: 6px 12px 10px; font: 400 11.5px/1.5 var(--mono); color: var(--ink-2); max-height: 220px; overflow-y: auto; }
+.log li { padding: 5px 0; border-bottom: 1px dashed var(--line); animation: slide .4s ease both; }
+.log li:last-child { border-bottom: 0; }
+.log .ts { color: var(--dim); }
+.log .up { color: var(--cyan); }
+.log .fr { color: var(--amber); }
+.log .empty { color: var(--dim); animation: none; }
+@keyframes slide { from { opacity: 0; transform: translateY(-4px); } }
+.bottom { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+@media (max-width: 960px) { .bottom { grid-template-columns: minmax(0,1fr); } }
+
+.tip { position: fixed; z-index: 50; pointer-events: none; background: var(--panel); border: 1px solid var(--amber); border-radius: 4px; padding: 6px 8px; font: 400 11.5px/1.4 var(--mono); color: var(--ink); max-width: 260px; opacity: 0; transition: opacity .1s; }
+.tip.on { opacity: 1; }
+
+/* Mock badge */
+.badge { position: fixed; right: 16px; bottom: 16px; z-index: 40; max-width: 290px; background: var(--panel); border: 1px solid var(--amber); border-radius: 6px; padding: 10px 12px; font-size: 12px; line-height: 1.45; color: var(--ink-2); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+.badge .bt { display: flex; justify-content: space-between; gap: 8px; font: 500 10.5px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--amber); margin-bottom: 4px; }
+.badge a { color: var(--cyan); }
+.badge button { border: 0; background: none; cursor: pointer; color: var(--dim); padding: 0 4px; }
+.badge.min p { display: none; }
+@media (max-width: 560px) { .badge { left: 16px; max-width: none; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="bar">
+    <div class="logo"><i></i>Elsewhere <span>/ frontier instrument</span></div>
+    <div class="readouts" aria-live="polite">
+      <div class="ro"><small>Known</small><b id="roKnown">0</b><span class="d" id="roKnownD"></span></div>
+      <div class="ro amber"><small>Frontier</small><b id="roFront">0</b></div>
+      <div class="ro"><small>Mean known</small><b id="roMean">0</b></div>
+      <div class="ro amber"><small>Top score</small><b id="roTop">0</b></div>
+    </div>
+    <button class="btn" id="resetBtn" type="button">Reset</button>
+    <button class="btn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">Light</button>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-label="Concept field">
+      <div class="ph"><span><span class="led"></span>CH-01 · <b>Concept field</b></span><span id="fieldMeta"></span></div>
+      <div class="field-wrap" id="fieldWrap"><svg class="field-svg" id="field" viewBox="-120 -14 880 668" role="img" aria-label="Radial map of concepts: filled bubbles are known, amber rings mark the frontier"></svg></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--cyan)"></i>known (fill = how well)</span>
+        <span><i class="sw" style="border:2px solid var(--amber)"></i>frontier: one hop from known</span>
+        <span><i class="sw" style="border:1px solid var(--dim)"></i>beyond reach</span>
+        <span><i class="sw" style="background:var(--cyan-dim);border:1px dashed var(--cyan);border-radius:2px"></i>your territory</span>
+      </div>
+      <div class="cap">Each sector is one cluster. A concept's distance from the centre is how unfamiliar it was when this session started; the dashed territory grows outward as concepts cross <span class="mono">known ≥ 0.50</span>.</div>
+    </section>
+
+    <div class="right">
+      <section class="panel" aria-label="Berlyne curve">
+        <div class="ph"><span><span class="led"></span>CH-02 · <b>Interest vs novelty</b></span><span>Berlyne 1960</span></div>
+        <svg id="curve" viewBox="0 0 600 300" role="img" aria-label="Inverted U curve with each article plotted by how novel it is to you"></svg>
+        <div class="legend">
+          <span><i class="sw" style="background:var(--amber)"></i>unread</span>
+          <span><i class="sw" style="border:1px solid var(--dim)"></i>already read</span>
+          <span><i class="sw" style="border:2px solid var(--cyan)"></i>finished this session</span>
+        </div>
+      </section>
+      <section class="panel" aria-label="Inspector">
+        <div class="ph"><span><span class="led"></span>CH-04 · <b>Machinery</b></span><span id="inspTag">hover anything</span></div>
+        <div class="insp" id="insp"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <section class="panel" aria-label="Frontier queue">
+      <div class="ph"><span><span class="led"></span>CH-03 · <b>Frontier queue</b></span><span>top 6 unread · ranked by frontier score</span></div>
+      <ol class="queue" id="queue"></ol>
+      <div class="qfoot" id="qfoot"></div>
+    </section>
+    <section class="panel" aria-label="Session log">
+      <div class="ph"><span><span class="led"></span>CH-05 · <b>Session log</b></span><span id="logCount">0 events</span></div>
+      <ul class="log" id="log"><li class="empty">Press “I finished this” on a piece. Its concepts gain knowledge and the frontier moves.</li></ul>
+    </section>
+  </div>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+
+<aside class="badge" id="badge" aria-label="About this mock">
+  <div class="bt"><span>Mock · Knowledge frontier</span><span><a href="index.html">All mocks</a> <button type="button" id="badgeMin" aria-label="Collapse note">–</button></span></div>
+  <p style="margin:0">Articles are ranked by how half-familiar they are: <span class="mono">score = 4·f·(1−f)</span>, where <span class="mono">f</span> is the share of an article's concepts you already know. Finishing a piece raises what you know, so the ranking moves with you.</p>
+</aside>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const E = window.ELSEWHERE;
+  const $ = (s) => document.querySelector(s);
+  const NS = "http://www.w3.org/2000/svg";
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const QUEUE = 6, GAIN = 0.45, KNOWN = 0.5;
+
+  /* Page state: our own copy of `known` and article states, so data.js stays untouched. */
+  const K0 = Object.fromEntries(E.concepts.map((c) => [c.id, c.known]));
+  let K = { ...K0 };
+  let ST = Object.fromEntries(E.articles.map((a) => [a.id, a.state]));
+  let session = new Set(), logItems = [], busy = false, hover = null;
+
+  /* Soft familiarity: share of concepts known, with a smooth threshold at 0.5 so dots move continuously.
+     (data.js's familiarity() uses a hard ≥ 0.5 cut-off; same idea.) */
+  const soft = (k) => 1 / (1 + Math.exp(-(k - KNOWN) * 10));
+  const fam = (a) => a.concepts.reduce((s, c) => s + soft(K[c]), 0) / a.concepts.length;
+  const score = (a) => { const f = fam(a); return 4 * f * (1 - f); };
+  const isKnown = (c) => K[c] >= KNOWN;
+  const coOcc = {};
+  E.concepts.forEach((c) => (coOcc[c.id] = new Set()));
+  E.articles.forEach((a) => a.concepts.forEach((x) => a.concepts.forEach((y) => x !== y && coOcc[x].add(y))));
+  const isFrontier = (c) => !isKnown(c) && [...coOcc[c]].some(isKnown);
+  const label = (c) => E.concept(c).label;
+
+  /* ---------- CH-01 field geometry ---------- */
+  const CX = 320, CY = 320, R0 = 66, RSPAN = 196;
+  const pos = {};
+  E.clusters.forEach((cl, i) => {
+    const centre = (-90 + i * 72) * Math.PI / 180;
+    const cs = E.concepts.filter((c) => c.cluster === cl.id).sort((a, b) => b.known - a.known);
+    const spread = 60 * Math.PI / 180;
+    // interleave angular slots so concepts at similar radii sit far apart (keeps labels legible)
+    const slots = [...cs.keys()].filter((i) => i % 2 === 0).concat([...cs.keys()].filter((i) => i % 2 === 1));
+    cs.forEach((c, j) => {
+      const t = cs.length === 1 ? 0 : slots[j] / (cs.length - 1) - 0.5;
+      const ang = centre + t * spread * (cs.length > 4 ? 1 : 0.8);
+      const r = R0 + (1 - c.known) * RSPAN;
+      pos[c.id] = { ang, r, x: CX + Math.cos(ang) * r, y: CY + Math.sin(ang) * r, size: 7 + 2 * E.articles.filter((a) => a.concepts.includes(c.id)).length };
+    });
+  });
+  const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent && parent.appendChild(n); return n; };
+
+  const field = $("#field");
+  const defs = el("defs", {}, field);
+  defs.innerHTML = `<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+  [R0, R0 + RSPAN * 0.5, R0 + RSPAN].forEach((r) => el("circle", { cx: CX, cy: CY, r, class: "guide" }, field));
+  E.clusters.forEach((cl, i) => {
+    const a = (-90 + i * 72 + 36) * Math.PI / 180;
+    el("line", { x1: CX + Math.cos(a) * 30, y1: CY + Math.sin(a) * 30, x2: CX + Math.cos(a) * 300, y2: CY + Math.sin(a) * 300, class: "spoke" }, field);
+    // sector label set along an outer arc (reversed on the lower half so it reads left to right)
+    const a0 = (-90 + i * 72 - 34) * Math.PI / 180, a1 = (-90 + i * 72 + 34) * Math.PI / 180, lr = 308;
+    const mid = -90 + i * 72, lower = Math.sin(mid * Math.PI / 180) > 0.2;
+    const [s0, s1] = lower ? [a1, a0] : [a0, a1];
+    const rr = lower ? lr + 9 : lr;
+    el("path", { id: `arc-${cl.id}`, d: `M${CX + Math.cos(s0) * rr},${CY + Math.sin(s0) * rr} A${rr},${rr} 0 0 ${lower ? 0 : 1} ${CX + Math.cos(s1) * rr},${CY + Math.sin(s1) * rr}`, fill: "none" }, defs);
+    el("path", { d: `M${CX + Math.cos(a0) * (lr + 12)},${CY + Math.sin(a0) * (lr + 12)} A${lr + 12},${lr + 12} 0 0 1 ${CX + Math.cos(a1) * (lr + 12)},${CY + Math.sin(a1) * (lr + 12)}`, class: "sector-arc" }, field);
+    const t = el("text", { class: "clabel" }, field);
+    const tp = el("textPath", { href: `#arc-${cl.id}`, startOffset: "50%", "text-anchor": "middle" }, t);
+    tp.textContent = cl.label;
+  });
+  const terr = el("path", { class: "terr" }, field);
+  const edgeLayer = el("g", {}, field);
+  const centre = el("text", { x: CX, y: CY + 4, "text-anchor": "middle", class: "clabel" }, field); centre.textContent = "you";
+  const nodes = {};
+  const SHORT = { curiosity: "Curiosity gaps", retries: "Retries", "local-first": "Local-first", density: "Info density", hierarchy: "Hierarchy", "calm-tech": "Calm tech", "littles-law": "Little's law" };
+  E.concepts.forEach((c) => {
+    const p = pos[c.id];
+    const g = el("g", { class: "c-g", "data-c": c.id, tabindex: 0, role: "button", "aria-label": c.label }, field);
+    const ring = el("circle", { cx: p.x, cy: p.y, r: p.size + 5, class: "c-ring", filter: "url(#glow)" }, g);
+    const fill = el("circle", { cx: p.x, cy: p.y, r: p.size, class: "c-fill" }, g);
+    const cos = Math.cos(p.ang), sin = Math.sin(p.ang);
+    const lx = p.x + cos * (p.size + 9), ly = p.y + sin * (p.size + 9) + 4 + (Math.abs(cos) < 0.35 ? sin * 6 : 0);
+    const txt = el("text", { x: lx, y: ly, "text-anchor": Math.abs(cos) < 0.35 ? "middle" : cos > 0 ? "start" : "end", class: "c-label" }, g);
+    txt.textContent = SHORT[c.id] || c.label;
+    nodes[c.id] = { g, ring, fill, txt };
+  });
+
+  function territoryPath() {
+    const pts = [];
+    const N = 120;
+    for (let i = 0; i < N; i++) {
+      const th = (i / N) * Math.PI * 2 - Math.PI / 2;
+      let r = R0 - 14;
+      for (const c of E.concepts) {
+        const p = pos[c.id];
+        const w = Math.max(0, Math.min(1, (K[c.id] - 0.42) / 0.16)); // smooth step around 0.5
+        if (!w) continue;
+        let d = Math.abs(th - p.ang) % (Math.PI * 2); if (d > Math.PI) d = Math.PI * 2 - d;
+        const g = Math.exp(-((d / 0.3) ** 2));
+        r = Math.max(r, R0 - 14 + (p.r + p.size + 10 - (R0 - 14)) * w * g);
+      }
+      pts.push([CX + Math.cos(th) * r, CY + Math.sin(th) * r]);
+    }
+    // Catmull-Rom-ish smoothing via quadratic midpoints
+    let d = "";
+    for (let i = 0; i < N; i++) {
+      const a = pts[i], b = pts[(i + 1) % N];
+      const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      d += i === 0 ? `M${m[0].toFixed(1)},${m[1].toFixed(1)}` : `Q${a[0].toFixed(1)},${a[1].toFixed(1)} ${m[0].toFixed(1)},${m[1].toFixed(1)}`;
+    }
+    const a = pts[0], b = pts[1];
+    return d + `Q${a[0].toFixed(1)},${a[1].toFixed(1)} ${((a[0] + b[0]) / 2).toFixed(1)},${((a[1] + b[1]) / 2).toFixed(1)}Z`;
+  }
+
+  /* ---------- CH-02 curve ---------- */
+  const curve = $("#curve");
+  const PX = { l: 44, r: 576, t: 34, b: 254 };
+  const xOf = (nov) => PX.l + nov * (PX.r - PX.l);
+  const yOf = (s) => PX.b - s * (PX.b - PX.t);
+  el("rect", { x: xOf(0.25), y: PX.t - 14, width: xOf(0.75) - xOf(0.25), height: PX.b - PX.t + 14, class: "band" }, curve);
+  el("line", { x1: PX.l, y1: PX.b, x2: PX.r, y2: PX.b, class: "axis" }, curve);
+  el("line", { x1: PX.l, y1: PX.t - 14, x2: PX.l, y2: PX.b, class: "axis" }, curve);
+  [0, 0.5, 1].forEach((v) => { const t = el("text", { x: PX.l - 8, y: yOf(v) + 3, "text-anchor": "end", class: "tick" }, curve); t.textContent = v.toFixed(1); });
+  [["BORING", 0.1], ["FRONTIER", 0.5, "f"], ["BAFFLING", 0.9]].forEach(([s, x, f]) => { const t = el("text", { x: xOf(x), y: PX.t - 18, "text-anchor": "middle", class: "zone " + (f || "") }, curve); t.textContent = s; });
+  const xl = el("text", { x: (PX.l + PX.r) / 2, y: 288, "text-anchor": "middle", class: "tick" }, curve); xl.textContent = "novelty to you = 1 − f   →";
+  const xl0 = el("text", { x: PX.l, y: 272, "text-anchor": "start", class: "tick" }, curve); xl0.textContent = "all known";
+  const xl1 = el("text", { x: PX.r, y: 272, "text-anchor": "end", class: "tick" }, curve); xl1.textContent = "all new";
+  const yl = el("text", { x: 12, y: (PX.t + PX.b) / 2, "text-anchor": "middle", class: "tick", transform: `rotate(-90 12 ${(PX.t + PX.b) / 2})` }, curve); yl.textContent = "interest";
+  let cd = ""; for (let i = 0; i <= 60; i++) { const n = i / 60, f = 1 - n; cd += `${i ? "L" : "M"}${xOf(n).toFixed(1)},${yOf(4 * f * (1 - f)).toFixed(1)}`; }
+  el("path", { d: cd, class: "curve" }, curve);
+  const dotLayer = el("g", {}, curve);
+  const dots = {};
+  E.articles.forEach((a) => { dots[a.id] = el("circle", { r: 6, class: "dot", "data-a": a.id, tabindex: -1 }, dotLayer); });
+  const dotLabel = el("text", { class: "dot-label", "text-anchor": "middle" }, curve);
+
+  /* ---------- per-frame update of SVGs and readouts ---------- */
+  function draw() {
+    terr.setAttribute("d", territoryPath());
+    for (const c of E.concepts) {
+      const n = nodes[c.id], k = K[c.id];
+      n.fill.setAttribute("fill-opacity", (0.06 + 0.9 * k * k).toFixed(3));
+      n.fill.setAttribute("stroke-opacity", (0.35 + 0.65 * k).toFixed(3));
+      n.ring.classList.toggle("on", isFrontier(c.id));
+      n.txt.classList.toggle("unknown", !isKnown(c.id) && !isFrontier(c.id));
+    }
+    for (const a of E.articles) {
+      const d = dots[a.id], f = fam(a);
+      d.setAttribute("cx", xOf(1 - f).toFixed(1));
+      d.setAttribute("cy", yOf(4 * f * (1 - f)).toFixed(1));
+      d.setAttribute("class", `dot ${session.has(a.id) ? "session" : ST[a.id] === "unread" ? "unread" : "read"} ${hover && hover.type === "a" && hover.id === a.id ? "hl" : ""}`);
+      d.setAttribute("r", hover && hover.type === "a" && hover.id === a.id ? 9 : ST[a.id] === "unread" ? 6 : 4.5);
+    }
+    // keep hovered dot on top + label
+    if (hover && hover.type === "a") {
+      const d = dots[hover.id]; dotLayer.appendChild(d);
+      dotLabel.setAttribute("x", Math.min(PX.r - 80, Math.max(PX.l + 80, +d.getAttribute("cx"))));
+      dotLabel.setAttribute("y", +d.getAttribute("cy") < 70 ? +d.getAttribute("cy") + 24 : +d.getAttribute("cy") - 14);
+      dotLabel.textContent = E.article(hover.id).title.length > 44 ? E.article(hover.id).title.slice(0, 42) + "…" : E.article(hover.id).title;
+    } else dotLabel.textContent = "";
+    const known = E.concepts.filter((c) => isKnown(c.id)).length;
+    const known0 = E.concepts.filter((c) => K0[c.id] >= KNOWN).length;
+    $("#roKnown").textContent = `${known}/${E.concepts.length}`;
+    $("#roKnownD").textContent = known > known0 ? `+${known - known0}` : "";
+    $("#roFront").textContent = E.concepts.filter((c) => isFrontier(c.id)).length;
+    $("#roMean").textContent = (E.concepts.reduce((s, c) => s + K[c.id], 0) / E.concepts.length).toFixed(2);
+    const unread = E.articles.filter((a) => ST[a.id] === "unread");
+    $("#roTop").textContent = unread.length ? Math.max(...unread.map(score)).toFixed(2) : "–";
+    $("#fieldMeta").textContent = `${known} known · ${E.concepts.filter((c) => isFrontier(c.id)).length} frontier`;
+  }
+
+  /* ---------- CH-03 queue ---------- */
+  function explain(a) {
+    const kn = a.concepts.filter(isKnown).sort((x, y) => K[y] - K[x]);
+    const nw = a.concepts.filter((c) => !isKnown(c)).sort((x, y) => K[y] - K[x]);
+    const k = (c) => `<span class="k">${esc(label(c))}</span> <span class="v">${K[c].toFixed(2)}</span>`;
+    const n = (c) => `<span class="n">${esc(label(c))}</span> <span class="v">${K[c].toFixed(2)}</span>`;
+    const list = (arr, f) => arr.map(f).join(arr.length > 2 ? ", " : " and ");
+    if (!kn.length) return `No foothold yet: ${list(nw, n)} are all new to you.`;
+    if (!nw.length) return `Mostly familiar: you know ${list(kn, k)} already.`;
+    return `Builds on ${list(kn, k)} (known) and introduces ${list(nw, n)}.`;
+  }
+  function renderQueue(flip) {
+    const q = $("#queue");
+    const before = flip ? new Map([...q.children].map((li) => [li.dataset.a, li.getBoundingClientRect().top])) : new Map();
+    const unread = E.articles.filter((a) => ST[a.id] === "unread").map((a) => ({ a, s: score(a) })).sort((x, y) => y.s - x.s || a2n(x.a) - a2n(y.a));
+    const top = unread.slice(0, QUEUE);
+    q.innerHTML = top.map(({ a, s }, i) => {
+      const w = E.writer(a.writer);
+      return `<li class="row ${hover && hover.type === "a" && hover.id === a.id ? "hl" : ""}" data-a="${a.id}">
+        <span class="rk">${String(i + 1).padStart(2, "0")}</span>
+        <div><div class="t">${esc(a.title)}</div><div class="w">${esc(w.name)} · ${esc(w.blog)} · ${a.minutes} min</div>
+          <div class="ex">${explain(a)}</div>
+          <div class="meter"><span class="tr"><span class="fl" style="width:${(s * 100).toFixed(0)}%"></span></span><span class="num">${s.toFixed(2)}</span></div></div>
+        <button type="button" class="fin" data-fin="${a.id}" ${busy ? "disabled" : ""}>I finished this</button></li>`;
+    }).join("") || `<li class="row"><span></span><div class="t">Nothing unread left. That's everything.</div></li>`;
+    if (flip) [...q.children].forEach((li) => {
+      const old = before.get(li.dataset.a);
+      if (old === undefined) { li.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 400, easing: "ease-out" }); return; }
+      const dy = old - li.getBoundingClientRect().top;
+      if (Math.abs(dy) > 1) li.animate([{ transform: `translateY(${dy}px)` }, { transform: "none" }], { duration: 450, easing: "cubic-bezier(.2,.8,.2,1)" });
+    });
+    const rest = unread.length - top.length;
+    $("#qfoot").textContent = rest > 0 ? `${rest} more unread below the cut, scoring ${unread[QUEUE].s.toFixed(2)} or less. The queue stops at ${QUEUE}.` : "That's every unread piece.";
+  }
+  const a2n = (a) => +a.id.slice(1);
+
+  /* ---------- CH-04 inspector ---------- */
+  function inspect() {
+    const box = $("#insp");
+    let target = hover;
+    if (!target) { const first = $("#queue .row[data-a]"); target = first ? { type: "a", id: first.dataset.a, auto: true } : null; }
+    if (!target) { box.innerHTML = ""; return; }
+    if (target.type === "a") {
+      const a = E.article(target.id), f = fam(a), s = 4 * f * (1 - f);
+      $("#inspTag").textContent = target.auto ? "showing #1" : "article";
+      box.innerHTML = `<div class="h">${esc(a.title)}</div>
+        <table>${a.concepts.map((c) => `<tr><td>${esc(label(c))}</td><td class="r">k=${K[c].toFixed(2)}</td><td style="width:70px;padding-left:8px"><span class="bar ${isKnown(c) ? "" : "u"}" style="width:${(soft(K[c]) * 60).toFixed(0)}px"></span></td><td class="r">σ=${soft(K[c]).toFixed(2)}</td></tr>`).join("")}</table>
+        <div class="eq">f = mean σ(k) = <b>${f.toFixed(2)}</b><br>score = 4 · ${f.toFixed(2)} · ${(1 - f).toFixed(2)} = <b>${s.toFixed(2)}</b><br>zone: ${f > 0.75 ? "boring (too familiar)" : f < 0.25 ? "baffling (no foothold)" : "frontier"} · state: ${session.has(a.id) ? "finished this session" : ST[a.id]}</div>`;
+    } else {
+      const c = E.concept(target.id);
+      const arts = E.articles.filter((a) => a.concepts.includes(c.id));
+      $("#inspTag").textContent = "concept";
+      box.innerHTML = `<div class="h">${esc(c.label)}</div>
+        <table><tr><td>known now</td><td class="r">${K[c.id].toFixed(2)}</td></tr><tr><td>known at start</td><td class="r">${K0[c.id].toFixed(2)}</td></tr>
+        <tr><td>status</td><td class="r">${isKnown(c.id) ? "known" : isFrontier(c.id) ? "frontier" : "beyond reach"}</td></tr>
+        <tr><td>neighbours known</td><td class="r">${[...coOcc[c.id]].filter(isKnown).length}/${coOcc[c.id].size}</td></tr></table>
+        <div class="eq">${arts.length} articles: ${arts.map((a) => esc(a.title)).join(" · ")}</div>`;
+    }
+  }
+
+  /* ---------- hover wiring ---------- */
+  function setHover(h) {
+    hover = h;
+    const hlC = new Set(h ? (h.type === "a" ? E.article(h.id).concepts : [h.id]) : []);
+    field.classList.toggle("dimmed", !!h);
+    for (const c of E.concepts) nodes[c.id].g.classList.toggle("hl", hlC.has(c.id));
+    edgeLayer.innerHTML = "";
+    if (h && h.type === "a") {
+      const cs = E.article(h.id).concepts;
+      for (let i = 0; i < cs.length; i++) for (let j = i + 1; j < cs.length; j++) el("line", { x1: pos[cs[i]].x, y1: pos[cs[i]].y, x2: pos[cs[j]].x, y2: pos[cs[j]].y, class: "hl-edge" }, edgeLayer);
+    }
+    const hlA = new Set(h ? (h.type === "a" ? [h.id] : E.articles.filter((a) => a.concepts.includes(h.id)).map((a) => a.id)) : []);
+    document.querySelectorAll("#queue .row").forEach((r) => r.classList.toggle("hl", hlA.has(r.dataset.a)));
+    if (h && h.type === "c") for (const id of hlA) { dots[id].classList.add("hl"); }
+    draw();
+    if (h && h.type === "c") for (const id of hlA) { dots[id].setAttribute("class", dots[id].getAttribute("class") + " hl"); dots[id].setAttribute("r", 8); }
+    inspect();
+  }
+  const tip = $("#tip");
+  const showTip = (e, html) => { tip.innerHTML = html; tip.classList.add("on"); const x = Math.min(innerWidth - 270, e.clientX + 14); tip.style.left = x + "px"; tip.style.top = (e.clientY + 14) + "px"; };
+  const hideTip = () => tip.classList.remove("on");
+  curve.addEventListener("pointermove", (e) => {
+    const d = e.target.closest(".dot");
+    if (d) { if (!hover || hover.id !== d.dataset.a) setHover({ type: "a", id: d.dataset.a }); const a = E.article(d.dataset.a); showTip(e, `${esc(a.title)}<br><span style="color:var(--dim)">${esc(E.writer(a.writer).name)} · score ${score(a).toFixed(2)} · ${session.has(a.id) ? "finished now" : ST[a.id]}</span>`); }
+    else if (hover) { setHover(null); hideTip(); }
+  });
+  curve.addEventListener("pointerleave", () => { setHover(null); hideTip(); });
+  field.addEventListener("pointerover", (e) => { const g = e.target.closest(".c-g"); if (g) { setHover({ type: "c", id: g.dataset.c }); const c = g.dataset.c; showTip(e, `${esc(label(c))} · k=${K[c].toFixed(2)}<br><span style="color:var(--dim)">${isKnown(c) ? "known" : isFrontier(c) ? "frontier" : "beyond reach"}</span>`); } });
+  field.addEventListener("pointerout", (e) => { if (e.target.closest(".c-g") && !e.relatedTarget?.closest?.(".c-g")) { setHover(null); hideTip(); } });
+  field.addEventListener("focusin", (e) => { const g = e.target.closest(".c-g"); if (g) setHover({ type: "c", id: g.dataset.c }); });
+  field.addEventListener("focusout", () => setHover(null));
+  const q = $("#queue");
+  q.addEventListener("pointerover", (e) => { const r = e.target.closest(".row[data-a]"); if (r && (!hover || hover.id !== r.dataset.a)) setHover({ type: "a", id: r.dataset.a }); });
+  q.addEventListener("pointerleave", () => setHover(null));
+  q.addEventListener("focusin", (e) => { const r = e.target.closest(".row[data-a]"); if (r) setHover({ type: "a", id: r.dataset.a }); });
+
+  /* ---------- finishing: tween known values ---------- */
+  function finish(id) {
+    if (busy) return;
+    const a = E.article(id);
+    const from = { ...K }, to = { ...K };
+    a.concepts.forEach((c) => (to[c] = Math.min(1, K[c] + (1 - K[c]) * GAIN)));
+    const knownBefore = new Set(E.concepts.filter((c) => isKnown(c.id)).map((c) => c.id));
+    const frontBefore = new Set(E.concepts.filter((c) => isFrontier(c.id)).map((c) => c.id));
+    ST[id] = "finished"; session.add(id); busy = true; setHover(null); hideTip();
+    renderQueue(true);
+    const dur = reduce ? 1 : 1100, t0 = performance.now();
+    const ease = (t) => 1 - Math.pow(1 - t, 3);
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / dur), e = ease(t);
+      for (const c of a.concepts) K[c] = from[c] + (to[c] - from[c]) * e;
+      draw();
+      if (t < 1) return requestAnimationFrame(step);
+      busy = false;
+      const newlyKnown = E.concepts.filter((c) => isKnown(c.id) && !knownBefore.has(c.id)).map((c) => c.label);
+      const newFront = E.concepts.filter((c) => isFrontier(c.id) && !frontBefore.has(c.id)).map((c) => c.label);
+      const gains = a.concepts.map((c) => `${label(c)} ${from[c].toFixed(2)}→<span class="up">${to[c].toFixed(2)}</span>`).join(", ");
+      logItems.unshift(`<span class="ts">#${String(session.size).padStart(2, "0")}</span> Finished “${esc(a.title)}”.<br>${gains}.`
+        + (newlyKnown.length ? `<br><span class="up">Now known:</span> ${esc(newlyKnown.join(", "))}.` : "")
+        + (newFront.length ? `<br><span class="fr">Frontier moves out to:</span> ${esc(newFront.join(", "))}.` : ""));
+      $("#log").innerHTML = logItems.map((l) => `<li>${l}</li>`).join("");
+      $("#logCount").textContent = `${logItems.length} event${logItems.length === 1 ? "" : "s"}`;
+      renderQueue(true); inspect();
+      const next = $("#queue .fin"); next && next.focus({ preventScroll: true });
+    };
+    requestAnimationFrame(step);
+  }
+  q.addEventListener("click", (e) => { const b = e.target.closest("[data-fin]"); if (b) finish(b.dataset.fin); });
+
+  $("#resetBtn").addEventListener("click", () => {
+    if (busy) return;
+    K = { ...K0 }; ST = Object.fromEntries(E.articles.map((a) => [a.id, a.state])); session = new Set(); logItems = [];
+    $("#log").innerHTML = `<li class="empty">Reset. Press “I finished this” on a piece to move the frontier.</li>`; $("#logCount").textContent = "0 events";
+    draw(); renderQueue(true); inspect();
+  });
+  const themeBtn = $("#themeBtn");
+  const effDark = () => { const r = document.documentElement.dataset.theme; return r ? r === "dark" : !matchMedia("(prefers-color-scheme: light)").matches; };
+  themeBtn.textContent = effDark() ? "Light" : "Dark";
+  themeBtn.addEventListener("click", () => { document.documentElement.dataset.theme = effDark() ? "light" : "dark"; themeBtn.textContent = effDark() ? "Light" : "Dark"; });
+  $("#badgeMin").addEventListener("click", (e) => { const b = $("#badge"); b.classList.toggle("min"); e.currentTarget.textContent = b.classList.contains("min") ? "+" : "–"; });
+  if (innerWidth < 560) $("#badgeMin").click();
+
+  draw(); renderQueue(false); inspect();
+  const fw = $("#fieldWrap"); fw.scrollLeft = (fw.scrollWidth - fw.clientWidth) / 2;
+})();
+</script>
+</body>
+</html>

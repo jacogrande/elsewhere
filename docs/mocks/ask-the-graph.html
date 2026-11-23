@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask the Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #fbfaf8;
+  --ink: #1c1a22;
+  --muted: #696574;
+  --faint: #a29fac;
+  --border: #e5e2ea;
+  --violet: #6b52d1;
+  --violet-ink: #4f39b0;
+  --violet-soft: #efebfc;
+  --violet-line: #d6cdf7;
+  --teal: #23877a;
+  --teal-soft: #e3f3f0;
+  --amber: #a8650c;
+  --shadow: 0 1px 2px rgba(28, 26, 34, 0.04), 0 8px 24px rgba(28, 26, 34, 0.06);
+  --pop-shadow: 0 12px 40px rgba(28, 26, 34, 0.16);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131217; --surface: #1b1a21; --surface-2: #17161c; --ink: #ecebf2; --muted: #9c98aa; --faint: #6a6676;
+    --border: #2c2a35; --violet: #a896f7; --violet-ink: #c3b7fb; --violet-soft: rgba(168, 150, 247, 0.12); --violet-line: rgba(168, 150, 247, 0.32);
+    --teal: #5cc7b7; --teal-soft: rgba(92, 199, 183, 0.12); --amber: #e0a24a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25); --pop-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131217; --surface: #1b1a21; --surface-2: #17161c; --ink: #ecebf2; --muted: #9c98aa; --faint: #6a6676;
+  --border: #2c2a35; --violet: #a896f7; --violet-ink: #c3b7fb; --violet-soft: rgba(168, 150, 247, 0.12); --violet-line: rgba(168, 150, 247, 0.32);
+  --teal: #5cc7b7; --teal-soft: rgba(92, 199, 183, 0.12); --amber: #e0a24a;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25); --pop-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 15.5px/1.6 "Geist", system-ui, sans-serif; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+button, input { font: inherit; color: inherit; }
+.mono { font-family: "Geist Mono", ui-monospace, monospace; }
+
+/* ---------- top bar ---------- */
+.bar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.bar-in { max-width: 820px; margin: 0 auto; padding: 12px 20px; display: flex; align-items: center; gap: 12px; justify-content: space-between; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 500; letter-spacing: -0.01em; }
+.logo .dot { width: 22px; height: 22px; border-radius: 7px; background: var(--violet); display: grid; place-items: center; color: var(--surface); font-size: 13px; font-weight: 600; }
+.logo small { color: var(--muted); font-weight: 400; }
+.tools { display: flex; gap: 6px; align-items: center; }
+.tbtn { border: 1px solid var(--border); background: var(--surface); border-radius: 8px; padding: 5px 11px; font-size: 13px; cursor: pointer; color: var(--muted); display: inline-flex; gap: 7px; align-items: center; }
+.tbtn:hover { color: var(--ink); }
+.tbtn[aria-pressed="true"] { color: var(--violet-ink); border-color: var(--violet-line); background: var(--violet-soft); }
+.switch { width: 26px; height: 15px; border-radius: 8px; background: var(--border); position: relative; transition: background .15s; flex: none; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: var(--surface); transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.tbtn[aria-pressed="true"] .switch { background: var(--violet); }
+.tbtn[aria-pressed="true"] .switch::after { transform: translateX(11px); }
+@media (max-width: 560px) { .logo small, .tbtn .lbl-long { display: none; } }
+
+/* ---------- page ---------- */
+.wrap { max-width: 820px; margin: 0 auto; padding: 28px 20px 120px; }
+@media (max-width: 560px) { .wrap { padding: 20px 16px 120px; } .bar-in { padding: 10px 16px; } }
+.intro h1 { font-weight: 500; font-size: clamp(26px, 5vw, 34px); letter-spacing: -0.025em; line-height: 1.15; margin: 0 0 8px; }
+.intro p { color: var(--muted); margin: 0 0 20px; max-width: 60ch; }
+.intro .scope { font-size: 13px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.intro .scope b { color: var(--ink); font-weight: 500; }
+
+.composer { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 16px; transition: border-color .15s, box-shadow .15s; }
+.composer:focus-within { border-color: var(--violet-line); box-shadow: 0 0 0 4px var(--violet-soft), var(--shadow); }
+.composer input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 16px; padding: 9px 0; }
+.composer input::placeholder { color: var(--faint); }
+.ask { border: none; background: var(--violet); color: #fff; border-radius: 10px; padding: 9px 16px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+:root[data-theme="dark"] .ask { color: #16131f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ask { color: #16131f; } }
+.ask:disabled { opacity: .5; cursor: default; }
+.suggest { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 30px; }
+.sg { border: 1px solid var(--border); background: transparent; border-radius: 999px; padding: 5px 12px; font-size: 13.5px; cursor: pointer; color: var(--muted); }
+.sg:hover { color: var(--violet-ink); border-color: var(--violet-line); background: var(--violet-soft); }
+.sg .k { font-family: "Geist Mono", monospace; font-size: 11px; color: var(--faint); margin-right: 6px; }
+
+/* ---------- answer card ---------- */
+.thread { display: grid; gap: 22px; }
+.qa { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; animation: rise .3s ease-out; }
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+.qa-head { padding: 16px 20px 0; display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.qa-q { font-weight: 500; font-size: 18px; letter-spacing: -0.01em; }
+.qa-q::before { content: "Q"; font-family: "Geist Mono", monospace; font-size: 11px; color: var(--violet); border: 1px solid var(--violet-line); border-radius: 5px; padding: 1px 5px; margin-right: 10px; vertical-align: 3px; }
+.qa-meta { font-family: "Geist Mono", monospace; font-size: 11px; color: var(--faint); white-space: nowrap; }
+.qa-body { padding: 10px 20px 18px; }
+.thinking { font-family: "Geist Mono", monospace; font-size: 12.5px; color: var(--muted); padding: 6px 0; display: grid; gap: 4px; }
+.thinking .st { opacity: 0; animation: fadein .25s forwards; }
+.thinking .st::before { content: "›"; color: var(--violet); margin-right: 8px; }
+@keyframes fadein { to { opacity: 1; } }
+.answer { font-size: 16.5px; line-height: 1.7; margin: 4px 0 0; }
+.answer .s { animation: fadein .35s both; }
+.cite { display: inline-flex; align-items: center; justify-content: center; min-width: 19px; height: 18px; padding: 0 5px; margin: 0 1px; border-radius: 5px; vertical-align: 2px;
+  background: var(--violet-soft); color: var(--violet-ink); border: 1px solid var(--violet-line); font: 500 11px/1 "Geist Mono", monospace; cursor: pointer; }
+.cite:hover, .cite:focus-visible, .cite.on { background: var(--violet); color: var(--surface); border-color: var(--violet); outline: none; }
+.cite.nf { border-style: dashed; }
+
+.sec { margin-top: 20px; }
+.sec-h { font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; display: flex; gap: 8px; align-items: center; }
+.sec-h .rule { flex: 1; height: 1px; background: var(--border); }
+
+.sources { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.sources li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; padding: 7px 8px; border-radius: 8px; font-size: 14px; transition: background .2s; }
+.sources li.flash { background: var(--violet-soft); }
+.sources .n { font: 500 11.5px/22px "Geist Mono", monospace; color: var(--violet-ink); }
+.sources .t { font-weight: 500; }
+.sources .m { color: var(--muted); font-size: 13px; }
+.tag { display: inline-block; font: 500 10.5px/1 "Geist Mono", monospace; padding: 3px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); margin-left: 6px; vertical-align: 1px; text-transform: lowercase; }
+.tag.unread { color: var(--violet-ink); border-color: var(--violet-line); }
+.tag.nf { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 40%, transparent); }
+
+.debate { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.debate-q { padding: 10px 14px; font-weight: 500; background: var(--surface-2); border-bottom: 1px solid var(--border); font-size: 14.5px; }
+.debate-sides { display: grid; grid-template-columns: 1fr 1fr; }
+@media (max-width: 560px) { .debate-sides { grid-template-columns: 1fr; } .debate-side + .debate-side { border-left: none !important; border-top: 1px solid var(--border); } }
+.debate-side { padding: 12px 14px; }
+.debate-side + .debate-side { border-left: 1px solid var(--border); }
+.debate-side .side { font: 500 11px/1 "Geist Mono", monospace; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.debate-side:nth-child(1) .side { color: var(--violet-ink); }
+.debate-side:nth-child(2) .side { color: var(--teal); }
+.debate-side blockquote { margin: 0 0 8px; font-size: 15px; line-height: 1.55; }
+.debate-side blockquote::before { content: "“"; color: var(--faint); }
+.debate-side blockquote::after { content: "”"; color: var(--faint); }
+.debate-side .who { font-size: 13px; color: var(--muted); }
+.debate-note { padding: 8px 14px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); background: var(--surface-2); }
+
+.picks { display: grid; gap: 8px; }
+.pick { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+.pick .t { font-weight: 500; }
+.pick .m { color: var(--muted); font-size: 13px; grid-column: 1 / 2; }
+.pick .why { font-size: 13.5px; grid-column: 1 / -1; }
+.pick .why em { font-style: normal; color: var(--violet-ink); }
+.pick .why b { font-weight: 500; }
+.fscore { grid-row: 1 / 3; grid-column: 2; text-align: right; font: 500 12px/1.3 "Geist Mono", monospace; color: var(--violet-ink); }
+.fscore .track { display: block; width: 64px; height: 4px; background: var(--border); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.fscore .track i { display: block; height: 100%; background: var(--violet); }
+.end-note { font-size: 12.5px; color: var(--faint); margin-top: 8px; }
+
+.followups { display: flex; flex-wrap: wrap; gap: 8px; }
+.fu { text-align: left; border: 1px dashed var(--violet-line); background: transparent; border-radius: 10px; padding: 7px 11px; font-size: 13.5px; cursor: pointer; color: var(--ink); max-width: 100%; }
+.fu:hover { background: var(--violet-soft); }
+.fu small { display: block; color: var(--muted); font-size: 11.5px; }
+
+.nomatch { border-left: 3px solid var(--amber); padding: 2px 0 2px 14px; }
+.who-might { display: grid; gap: 8px; margin-top: 10px; }
+.wm { padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; }
+.wm b { font-weight: 500; }
+.wm .m { color: var(--muted); font-size: 13px; }
+
+/* ---------- machinery ---------- */
+.trace { display: none; border-top: 1px dashed var(--border); background: var(--surface-2); padding: 14px 20px 16px; font-size: 13px; }
+body.mach .trace { display: block; }
+.trace h4 { margin: 0 0 6px; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--violet-ink); }
+.trace p { margin: 4px 0 10px; color: var(--muted); }
+.trace code { font-family: "Geist Mono", monospace; font-size: 12px; background: var(--violet-soft); color: var(--violet-ink); border-radius: 4px; padding: 1px 5px; }
+.tw { overflow-x: auto; }
+.trace table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+.trace th, .trace td { padding: 5px 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.trace th { font-weight: 500; color: var(--muted); font-size: 11px; }
+.trace td.n { font-family: "Geist Mono", monospace; text-align: right; }
+.trace tr.used td:first-child { color: var(--violet-ink); font-weight: 500; }
+.trace tr.drop td { color: var(--faint); }
+.bar-in-cell { display: inline-block; height: 5px; border-radius: 3px; background: var(--violet); vertical-align: middle; margin-left: 6px; }
+
+/* ---------- popover ---------- */
+.pop { position: fixed; z-index: 50; width: 330px; max-width: calc(100vw - 24px); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--pop-shadow); padding: 12px 14px; font-size: 13.5px; opacity: 0; pointer-events: none; transform: translateY(4px); transition: opacity .12s, transform .12s; }
+.pop.on { opacity: 1; transform: none; pointer-events: auto; }
+.pop .h { font: 500 11px/1.3 "Geist Mono", monospace; color: var(--muted); margin-bottom: 4px; }
+.pop .t { font-weight: 500; font-size: 15px; line-height: 1.35; margin-bottom: 8px; }
+.pop .passage { border-left: 2px solid var(--violet); padding-left: 10px; margin: 0 0 8px; line-height: 1.55; }
+.pop .f { font-size: 12px; color: var(--muted); }
+
+/* ---------- badge ---------- */
+.mock-badge { position: fixed; right: 12px; bottom: 12px; z-index: 20; max-width: min(300px, calc(100vw - 24px)); background: var(--ink); color: var(--bg); border-radius: 10px; padding: 9px 12px; font-size: 12px; line-height: 1.45; box-shadow: var(--pop-shadow); }
+.mock-badge .k { font-family: "Geist Mono", monospace; font-size: 10.5px; background: var(--violet); color: #fff; border-radius: 4px; padding: 1px 5px; margin-right: 6px; }
+.mock-badge a { color: inherit; }
+.mock-badge p { margin: 4px 0 0; opacity: .8; }
+.mock-badge.min p { display: none; }
+.mock-badge button { background: none; border: none; color: inherit; opacity: .6; cursor: pointer; float: right; padding: 0 0 0 8px; }
+.clear { margin-top: 18px; text-align: center; }
+.clear button { border: none; background: none; color: var(--faint); cursor: pointer; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
+</style>
+</head>
+<body>
+<div class="bar"><div class="bar-in">
+  <div class="logo"><span class="dot">E</span>Elsewhere <small>/ Ask your graph</small></div>
+  <div class="tools">
+    <button class="tbtn" id="machBtn" aria-pressed="false"><span class="switch"></span><span><span class="lbl-long">Show the </span>machinery</span></button>
+    <button class="tbtn" id="themeBtn" aria-label="Toggle light or dark">Light / dark</button>
+  </div>
+</div></div>
+
+<div class="wrap">
+  <section class="intro">
+    <h1>What have your writers said about…</h1>
+    <p>Answers come only from articles already in your graph. Every claim is cited, disagreements are shown side by side, and each answer ends with a few frontier picks, not an endless list.</p>
+    <div class="scope" id="scope"></div>
+  </section>
+
+  <form class="composer" id="form" autocomplete="off">
+    <input id="q" type="text" placeholder="Ask about an idea, e.g. backpressure, flashcards, who owns RSS…" aria-label="Your question">
+    <button class="ask" id="askBtn" type="submit">Ask</button>
+  </form>
+  <div class="suggest" id="suggest" aria-label="Suggested questions"></div>
+
+  <div class="thread" id="thread" aria-live="polite"></div>
+  <div class="clear" id="clearWrap" hidden><button id="clearBtn">Clear answers</button></div>
+</div>
+
+<div class="pop" id="pop" role="tooltip"></div>
+
+<div class="mock-badge" id="badge">
+  <button id="badgeMin" aria-label="Collapse note">–</button>
+  <span class="k">MOCK</span><a href="index.html">← All mocks</a> · Ask the graph
+  <p>Hybrid retrieval: a keyword search and a concept search each rank your articles, their ranks are fused, and the top passages are stitched into a cited answer (templated; no LLM in this mock).</p>
+</div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const E = window.ELSEWHERE;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- page-specific mock data ----------
+  // A clause per article, written so it can follow "argues that…". Paraphrases of each summary in data.js.
+  const GIST = {
+    a1: "unbounded queues only hide overload until it becomes a crisis, so you should bound them and decide up front what to drop",
+    a2: "tail latency is where users actually live, and picking a percentile target is really choosing which users to disappoint",
+    a3: "Little's law (L = λW) explains why a line seems to get long all at once",
+    a4: "waits explode once utilisation passes about 85%, which hospitals learned the hard way and servers keep forgetting",
+    a5: "retry storms turn a blip into an outage, and the fix is budgets, jitter and circuit breakers, in that order",
+    a6: "it's kinder to reject load at the door with a clear error than to let requests time out in the kitchen",
+    a10: "if an app stops working when the server does, the server owns the user's work, and local-first flips that",
+    a11: "rich text breaks naive CRDTs in surprising ways: bold over deleted ranges, overlapping links, split paragraphs",
+    a12: "a whole app can be one HTML file with no build and no server, and you lose less than you'd think",
+    a13: "every sync engine eventually reinvents a write-ahead log, idempotent operations and backpressure",
+    a14: "local-first breaks down once you need permissions, cross-user search or a single source of truth for money",
+    a20: "experts want more on screen, and whitespace-by-default treats every user like a first-time visitor",
+    a21: "most dashboards should be sorted tables, because a table answers twenty questions where a chart answers one",
+    a22: "when everything is ranked by visual weight nothing feels calm, so flatness can be a feature",
+    a23: "learning interfaces need the right friction in the right place, because perfectly smooth recall teaches nothing",
+    a24: "an app that needs a notification badge to get opened isn't useful enough yet",
+    a25: "removing information doesn't remove complexity; it moves it into the user's head",
+    a26: "density suits experts at desks but is miserable on a phone at a bus stop",
+    a30: "memories strengthen when you retrieve them just as they're slipping, which makes ease the enemy of learning",
+    a31: "writing a three-line summary from memory beats rereading, no flashcard app required",
+    a32: "curiosity comes from knowing enough to notice what you don't, so teaching should aim at the edges",
+    a33: "learning is fastest at roughly 85% success: any easier and you coast, any harder and you quit",
+    a40: "time-in-app stopped measuring value and started measuring compulsion the moment it became a target",
+    a41: "the endless feed was a deliberate choice, and the internal arguments against it lost",
+    a42: "engagement metrics, measured honestly and rotated often, still tell you real things",
+    a43: "RSS survived as a commons precisely because nobody could monetise it",
+    a44: "platform co-ops show that governance is the product",
+    a45: "finished articles, return visits a week later and \"did you learn something?\" are metrics that resist gaming",
+  };
+  // Words that point at each concept (stemmed at load). Multi-word phrases match the raw query.
+  const SYN = {
+    queues: ["queue", "queueing", "queuing", "line", "wait", "waiting", "buffer"],
+    "littles-law": ["little", "throughput", "arrival"],
+    backpressure: ["backpressure", "flow control", "overload"],
+    "tail-latency": ["latency", "p99", "percentile", "tail", "slow"],
+    retries: ["retry", "retries", "idempotency", "idempotent", "outage"],
+    "load-shedding": ["shed", "shedding", "overload", "reject", "capacity", "utilisation", "utilization"],
+    "local-first": ["local", "local-first", "offline", "device", "cloud", "server"],
+    crdts: ["crdt", "merge", "merging", "conflict"],
+    sync: ["sync", "syncing", "synchronisation", "synchronization", "replication"],
+    "rich-text-merge": ["rich text", "formatting", "editor", "collaborative editing"],
+    "single-file": ["single-file", "single file", "html", "build"],
+    density: ["density", "dense", "sparse", "whitespace", "clutter", "minimal"],
+    hierarchy: ["hierarchy", "flat", "visual weight", "emphasis"],
+    "calm-tech": ["calm", "notification", "badge", "quiet", "interrupt"],
+    tables: ["table", "chart", "dashboard", "visualisation", "visualization"],
+    incentives: ["incentive", "market", "money", "business"],
+    attention: ["attention", "engagement", "scroll", "feed", "addictive", "compulsion"],
+    commons: ["commons", "cooperative", "co-op", "ownership", "own", "rss"],
+    goodhart: ["goodhart", "metric", "measure", "measurement", "target", "kpi"],
+    retrieval: ["retrieval", "recall", "remember", "memory", "quiz", "flashcard"],
+    spacing: ["spaced", "spacing", "repetition", "review", "forgetting", "forget", "memory"],
+    "desirable-difficulty": ["difficulty", "friction", "struggle", "effort"],
+    curiosity: ["curiosity", "curious", "gap"],
+  };
+  const ISSUE_SYN = {
+    "unbounded-queues": ["bound", "bounded", "unbounded", "slack"],
+    "server-authority": ["server", "authority", "source of truth", "cloud"],
+    density: ["density", "dense", "sparse", "whitespace"],
+    hierarchy: ["hierarchy", "flat"],
+    "engagement-metrics": ["engagement", "metric"],
+  };
+  const SUGGESTIONS = ["queues", "local-first vs servers", "density", "engagement metrics", "how memory works", "sourdough baking"];
+
+  // ---------- text utils ----------
+  const STOP = new Set("a an the of to in on and or vs versus how does do did is are was were why who whom which what when it its for with me i my you your we our they their about said say says have has had should can could would will work works think thinks thought anything any there been between against explain tell writer writers wrote written from that this these those be by as at not no yes than then so if into out up more most less".split(" "));
+  function stem(w) {
+    w = w.replace(/'s$/, "").replace(/’s$/, "");
+    if (w.length > 4 && w.endsWith("ies")) return w.slice(0, -3) + "y";
+    if (w.length > 5 && w.endsWith("ing")) return w.slice(0, -3);
+    if (w.length > 4 && w.endsWith("es") && /(ss|x|ch|sh)es$/.test(w)) return w.slice(0, -2);
+    if (w.length > 3 && w.endsWith("s") && !w.endsWith("ss")) return w.slice(0, -1);
+    return w;
+  }
+  const tokens = (s) => s.toLowerCase().replace(/[^a-z0-9λ'’\- ]+/g, " ").split(/[\s]+/).flatMap((t) => t.includes("-") ? [t, ...t.split("-")] : [t]).filter((t) => t && !STOP.has(t)).map(stem).filter((t) => t.length > 1);
+  const SYN_STEM = Object.fromEntries(Object.entries(SYN).map(([c, ws]) => [c, ws.map((w) => (w.includes(" ") ? w : stem(w)))]));
+  const ISSUE_STEM = Object.fromEntries(Object.entries(ISSUE_SYN).map(([c, ws]) => [c, ws.map((w) => (w.includes(" ") ? w : stem(w)))]));
+
+  // ---------- keyword index (BM25) ----------
+  const docText = (a) => [a.title, a.title, a.summary, a.stance?.quote || "", ...(a.questions || []), E.writer(a.writer).name].join(" ");
+  const DOCS = E.articles.map((a) => ({ a, toks: tokens(docText(a)) }));
+  const avgLen = DOCS.reduce((s, d) => s + d.toks.length, 0) / DOCS.length;
+  const df = {};
+  for (const d of DOCS) for (const t of new Set(d.toks)) df[t] = (df[t] || 0) + 1;
+  const idf = (t) => Math.log(1 + (DOCS.length - (df[t] || 0) + 0.5) / ((df[t] || 0) + 0.5));
+  function bm25(qt) {
+    const k1 = 1.2, b = 0.75;
+    return DOCS.map((d) => {
+      let s = 0; const terms = [];
+      for (const t of new Set(qt)) {
+        const tf = d.toks.filter((x) => x === t).length;
+        if (!tf) continue;
+        s += idf(t) * (tf * (k1 + 1)) / (tf + k1 * (1 - b + b * d.toks.length / avgLen));
+        terms.push(t);
+      }
+      return { id: d.a.id, score: s, terms };
+    }).filter((x) => x.score > 0).sort((x, y) => y.score - x.score);
+  }
+
+  // ---------- concept matcher ----------
+  function matchConcepts(raw, qt) {
+    const low = raw.toLowerCase();
+    const hits = {};
+    for (const c of E.concepts) {
+      const why = [];
+      const label = c.label.toLowerCase();
+      if (low.includes(label)) why.push(c.label);
+      for (const w of SYN_STEM[c.id] || []) {
+        if (w.includes(" ") ? low.includes(w) : qt.includes(w)) why.push(w);
+      }
+      if (why.length) hits[c.id] = [...new Set(why)];
+    }
+    const issues = {};
+    for (const [i, ws] of Object.entries(ISSUE_STEM)) {
+      const why = ws.filter((w) => (w.includes(" ") ? low.includes(w) : qt.includes(w)));
+      if (why.length) issues[i] = why;
+    }
+    return { concepts: hits, issues };
+  }
+  function conceptSearch(m) {
+    const cs = Object.keys(m.concepts);
+    return E.articles.map((a) => {
+      const shared = a.concepts.filter((c) => cs.includes(c));
+      let s = shared.length / Math.sqrt(a.concepts.length);
+      const viaIssue = a.stance && m.issues[a.stance.issue];
+      if (viaIssue) s += 0.5;
+      return { id: a.id, score: s, shared, viaIssue: !!viaIssue };
+    }).filter((x) => x.score > 0).sort((x, y) => y.score - x.score);
+  }
+
+  // ---------- hybrid retrieval (reciprocal rank fusion) ----------
+  const K = 60;
+  function retrieve(raw) {
+    const qt = tokens(raw);
+    const kw = bm25(qt);
+    const m = matchConcepts(raw, qt);
+    const cn = conceptSearch(m);
+    const fused = {};
+    kw.forEach((x, i) => { fused[x.id] = fused[x.id] || { id: x.id }; Object.assign(fused[x.id], { kw: x.score, kwRank: i + 1, terms: x.terms }); });
+    cn.forEach((x, i) => { fused[x.id] = fused[x.id] || { id: x.id }; Object.assign(fused[x.id], { cn: x.score, cnRank: i + 1, shared: x.shared, viaIssue: x.viaIssue }); });
+    const list = Object.values(fused).map((f) => {
+      f.rrf = (f.kwRank ? 1 / (K + f.kwRank) : 0) + (f.cnRank ? 1 / (K + f.cnRank) : 0);
+      f.norm = f.rrf / (2 / (K + 1));
+      return f;
+    }).sort((x, y) => y.rrf - x.rrf);
+    const top = list[0]?.rrf || 0;
+    const maxKw = Math.max(0, ...kw.map((x) => x.score));
+    const anyConcept = cn.length > 0;
+    // Keep passages at least 40% as strong as the best one, max 5. When concepts matched,
+    // a keyword-only hit must be a strong one (≥ 60% of the best BM25) to count.
+    let kept = 0;
+    list.forEach((f) => {
+      const ok = f.rrf >= top * 0.4 && (!anyConcept || f.cn || (f.kw || 0) >= 0.6 * maxKw);
+      f.keep = ok && kept < 5; if (f.keep) kept++;
+      f.why = f.keep ? "kept" : !ok && anyConcept && !f.cn && f.rrf >= top * 0.4 ? "keyword only" : f.rrf < top * 0.4 ? "too weak" : "over limit";
+    });
+    return { qt, kw, cn, m, list };
+  }
+
+  // ---------- answer composer (templated) ----------
+  const ago = (d) => { const n = E.daysAgo(d); return n === 0 ? "today" : n === 1 ? "yesterday" : `${n} days ago`; };
+  const listJoin = (xs) => xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1];
+  const NUM = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven"];
+  const conceptPhrase = (label) => (/'s/.test(label) || /^[A-Z]{2}/.test(label) ? label : label[0].toLowerCase() + label.slice(1));
+  const clusterLabel = (id) => E.clusters.find((c) => c.id === id).label;
+  function compose(raw, R) {
+    const used = R.list.filter((f) => f.keep).map((f) => ({ ...f, a: E.article(f.id) }));
+    const followedHits = used.filter((u) => E.writer(u.a.writer).subscribed);
+    if (!followedHits.length) return { kind: "none", used };
+
+    const cites = []; // ordered article ids
+    const cite = (id) => { let i = cites.indexOf(id); if (i < 0) { cites.push(id); i = cites.length - 1; } return i + 1; };
+    const chip = (id) => { const n = cite(id); const nf = !E.writer(E.article(id).writer).subscribed; return `<button class="cite${nf ? " nf" : ""}" data-a="${id}" aria-label="Source ${n}">${n}</button>`; };
+
+    // Topic: concepts most shared among used passages.
+    const cc = {};
+    for (const u of used) for (const c of u.shared || []) cc[c] = (cc[c] || 0) + 1;
+    const topC = Object.entries(cc).sort((x, y) => y[1] - x[1]).slice(0, 2).map(([c]) => conceptPhrase(E.concept(c).label));
+    const topic = topC.length ? topC.join(" and ") : `“${raw.trim()}”`;
+
+    const writers = [...new Set(used.map((u) => u.a.writer))];
+    const nFollow = writers.filter((w) => E.writer(w).subscribed).length;
+    const clCount = {};
+    for (const w of writers) clCount[E.writer(w).cluster] = (clCount[E.writer(w).cluster] || 0) + 1;
+    const clSorted = Object.entries(clCount).sort((x, y) => y[1] - x[1]);
+    let angle;
+    if (clSorted.length === 1 || clSorted[0][1] / writers.length >= 0.6) angle = `mostly from the ${clusterLabel(clSorted[0][0]).toLowerCase().replace(/^(\w)/, (m) => m)} side`;
+    else angle = `from ${clSorted.length === 2 ? "two" : "several"} directions: ${listJoin(clSorted.map(([c]) => clusterLabel(c).toLowerCase()))}`;
+    const nw = writers.length;
+    const followNote = nFollow === nw ? "" : ` (${nFollow} you follow)`;
+    const sentences = [`${NUM[nw] || nw} ${nw === 1 ? "writer" : "writers"} in your graph${followNote} ${nw === 1 ? "has" : "have"} written about ${topic}, ${angle}.`];
+
+    // One sentence per writer, best passage first; later passages by the same writer add a citation.
+    const seen = new Map();
+    const firstStance = {};
+    const verbs = ["explains that", "points out that", "shows that", "notes that"];
+    let vi = 0;
+    for (const u of used) {
+      if (seen.has(u.a.writer)) { seen.get(u.a.writer).extra.push(u.id); continue; }
+      if (seen.size >= 3) continue;
+      seen.set(u.a.writer, { u, extra: [] });
+    }
+    // Writers you follow speak first; then the ones you don't.
+    const voices = [...seen.values()].sort((x, y) => E.writer(y.u.a.writer).subscribed - E.writer(x.u.a.writer).subscribed);
+    for (const { u, extra } of voices) {
+      const w = E.writer(u.a.writer);
+      let verb;
+      const st = u.a.stance;
+      if (st && firstStance[st.issue] && firstStance[st.issue] !== st.side) verb = "counters that";
+      else if (st) { verb = "argues that"; firstStance[st.issue] = firstStance[st.issue] || st.side; }
+      else verb = verbs[vi++ % verbs.length];
+      const name = w.subscribed ? w.name : `${w.name}, whom you don't follow yet,`;
+      sentences.push(`${name} ${verb} ${GIST[u.id]} ${chip(u.id)}${extra.map(chip).join("")}.`);
+    }
+
+    // Disagreement: stances on the same issue with different sides (pull in the opposing piece if needed).
+    const issueIds = [...new Set(used.filter((u) => u.a.stance).map((u) => u.a.stance.issue))];
+    let debate = null;
+    for (const iss of issueIds) {
+      // Only debates the question is about: the issue was named, or two retrieved passages take a side on it.
+      if (!R.m.issues[iss] && used.filter((u) => u.a.stance?.issue === iss).length < 2) continue;
+      const all = E.articles.filter((a) => a.stance?.issue === iss);
+      const sides = [...new Set(all.map((a) => a.stance.side))];
+      if (sides.length < 2) continue;
+      const rankOf = (a) => { const f = R.list.find((x) => x.id === a.id); return f ? f.rrf : 0; };
+      const pickSide = (s) => all.filter((a) => a.stance.side === s).sort((x, y) => rankOf(y) - rankOf(x))[0];
+      const ordered = sides.map((s) => pickSide(s)).sort((x, y) => rankOf(y) - rankOf(x)).slice(0, 2);
+      debate = { issue: E.issues.find((i) => i.id === iss), sides: ordered };
+      break;
+    }
+    if (debate) debate.sides.forEach((a) => cite(a.id));
+
+    // Read next: frontier picks among unread passages and their link neighbours.
+    const pool = new Set();
+    for (const u of used) {
+      pool.add(u.id);
+      u.a.links.forEach((l) => pool.add(l));
+      E.articles.filter((a) => a.links.includes(u.id)).forEach((a) => pool.add(a.id));
+    }
+    const picks = [...pool].map((id) => E.article(id)).filter((a) => a.state === "unread")
+      .map((a) => ({ a, f: E.frontier(a), inAnswer: used.some((u) => u.id === a.id) }))
+      .filter((p) => p.f > 0)
+      .sort((x, y) => y.f - x.f || (y.inAnswer - x.inAnswer))
+      .slice(0, 3);
+
+    // Follow-ups: open questions raised by the cited pieces.
+    const followups = [];
+    for (const id of cites) for (const q of E.article(id).questions || []) if (followups.length < 3) followups.push({ q, a: E.article(id) });
+
+    return { kind: "answer", used, sentences, cites, debate, picks, followups, pool: pool.size };
+  }
+
+  function whoMight(raw, R) {
+    const used = R.list.filter((f) => f.keep).map((f) => E.article(f.id));
+    if (used.length) {
+      const byW = {};
+      for (const a of used) (byW[a.writer] = byW[a.writer] || []).push(a);
+      return Object.entries(byW).map(([w, as]) => ({ w: E.writer(w), as, reason: "wrote about it" }));
+    }
+    const qt = R.qt;
+    return E.writers.map((w) => ({ w, s: tokens(w.bio + " " + w.blog).filter((t) => qt.includes(t)).length }))
+      .filter((x) => x.s > 0).sort((x, y) => y.s - x.s).slice(0, 2)
+      .map((x) => ({ w: x.w, as: [], reason: `nothing written on it yet, but their bio mentions “${[...new Set(tokens(x.w.bio + " " + x.w.blog).filter((t) => qt.includes(t)))].join(" ")}”` }));
+  }
+
+  // ---------- render ----------
+  const thread = $("#thread");
+  let qn = 0;
+  function render(raw) {
+    raw = raw.trim();
+    if (!raw) return;
+    qn++;
+    const R = retrieve(raw);
+    const A = compose(raw, R);
+    const card = document.createElement("article");
+    card.className = "qa";
+    card.innerHTML = `<div class="qa-head"><div class="qa-q">${esc(raw)}</div><div class="qa-meta">#${qn}</div></div>
+      <div class="qa-body"><div class="thinking"></div><div class="out"></div></div>
+      <div class="trace">${traceHTML(raw, R, A)}</div>`;
+    thread.prepend(card);
+    $("#clearWrap").hidden = false;
+
+    const conceptNames = Object.keys(R.m.concepts).map((c) => E.concept(c).label);
+    const steps = [
+      `parsed  ${R.qt.length ? R.qt.map((t) => `“${t}”`).join(" ") : "(no content words)"}`,
+      conceptNames.length ? `concepts  ${conceptNames.slice(0, 4).join(", ")}${conceptNames.length > 4 ? " …" : ""}` : "concepts  none matched",
+      `keyword search  ${R.kw.length} hit${R.kw.length === 1 ? "" : "s"} · concept search  ${R.cn.length} hit${R.cn.length === 1 ? "" : "s"}`,
+      `fused (RRF)  keeping ${R.list.filter((f) => f.keep).length} of ${R.list.length} passages`,
+    ];
+    const th = card.querySelector(".thinking");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const gapMs = reduce ? 0 : 230;
+    steps.forEach((s, i) => { const d = document.createElement("div"); d.className = "st"; d.style.animationDelay = (i * gapMs) + "ms"; d.textContent = s; th.appendChild(d); });
+    $("#askBtn").disabled = true;
+    setTimeout(() => {
+      th.remove();
+      card.querySelector(".out").innerHTML = answerHTML(raw, R, A);
+      wire(card);
+      $("#askBtn").disabled = false;
+    }, steps.length * gapMs + (reduce ? 0 : 260));
+  }
+
+  function answerHTML(raw, R, A) {
+    if (A.kind === "none") {
+      const wm = whoMight(raw, R);
+      return `<div class="nomatch"><p class="answer" style="margin:0">Your writers haven't covered this${wm.length ? "; here's who might." : "."}</p></div>
+        ${wm.length ? `<div class="who-might">${wm.map(({ w, as, reason }) => `<div class="wm"><b>${esc(w.name)}</b> · ${esc(w.blog)} <span class="tag nf">${w.subscribed ? "followed" : "not followed"}</span>
+          <div class="m">${esc(w.bio)}</div>
+          ${as.length ? `<div style="margin-top:4px">${as.map((a) => `“${esc(a.title)}”`).join(", ")} <span class="m">· ${reason}</span></div>` : `<div class="m" style="margin-top:4px">${reason}</div>`}</div>`).join("")}</div>`
+        : `<p class="end-note" style="font-size:14px;color:var(--muted)">Nothing among your ${E.articles.length} articles or ${E.writers.length} writers mentions it. In the real app, this is where Discovery would search the wider small web and suggest new writers (not in this mock).</p>`}
+        <div class="sec"><div class="sec-h">Try instead<span class="rule"></span></div><div class="followups">${SUGGESTIONS.slice(0, 4).map((s) => `<button class="fu" data-q="${esc(s)}">${esc(s)}</button>`).join("")}</div></div>`;
+    }
+    const src = A.cites.map((id, i) => {
+      const a = E.article(id), w = E.writer(a.writer);
+      return `<li data-src="${id}"><span class="n">[${i + 1}]</span><span><span class="t">${esc(a.title)}</span>
+        <span class="tag ${a.state === "unread" ? "unread" : ""}">${a.state}</span>${w.subscribed ? "" : `<span class="tag nf">not followed</span>`}
+        <div class="m">${esc(w.name)} · ${esc(w.blog)} · ${ago(a.date)} · ${a.minutes} min</div></span></li>`;
+    }).join("");
+    const n = (id) => A.cites.indexOf(id) + 1;
+    const debate = A.debate ? `<div class="sec"><div class="sec-h">Where they disagree<span class="rule"></span></div>
+      <div class="debate"><div class="debate-q">${esc(A.debate.issue.question)}</div><div class="debate-sides">
+      ${A.debate.sides.map((a) => `<div class="debate-side"><div class="side">${esc(A.debate.issue.sides[a.stance.side])}</div>
+        <blockquote>${esc(a.stance.quote)}</blockquote>
+        <div class="who">${esc(E.writer(a.writer).name)}, “${esc(a.title)}”, ${new Date(a.date).toLocaleDateString("en-GB", { month: "short", year: "numeric" })} <button class="cite${E.writer(a.writer).subscribed ? "" : " nf"}" data-a="${a.id}" aria-label="Source ${n(a.id)}">${n(a.id)}</button></div></div>`).join("")}
+      </div>${A.debate.sides[0].writer === A.debate.sides[1].writer ? `<div class="debate-note">Same writer on both sides, two months apart. Worth reading in order.</div>` : ""}</div></div>` : "";
+    const picks = A.picks.length ? `<div class="sec"><div class="sec-h">Read next · frontier picks<span class="rule"></span></div><div class="picks">
+      ${A.picks.map(({ a, f }) => {
+        const known = a.concepts.filter((c) => E.concept(c).known >= 0.5).map((c) => E.concept(c).label);
+        const fresh = E.newConcepts(a).map((c) => E.concept(c).label);
+        const w = E.writer(a.writer);
+        return `<div class="pick"><span class="t">${esc(a.title)}</span>
+          <span class="fscore">${f.toFixed(2)}<span class="track"><i style="width:${f * 100}%"></i></span></span>
+          <span class="m">${esc(w.name)}${w.subscribed ? "" : " (not followed)"} · ${a.minutes} min · unread</span>
+          <span class="why">Builds on <b>${esc(known.join(", "))}</b>, which you know, and introduces <em>${esc(fresh.join(", "))}</em>.</span></div>`;
+      }).join("")}</div>
+      <div class="end-note">${A.picks.length} pick${A.picks.length > 1 ? "s" : ""}, chosen from ${A.pool} nearby articles by how close each sits to the edge of what you know. That's all for this question.</div></div>` : "";
+    const fu = A.followups.length ? `<div class="sec"><div class="sec-h">Open questions they raise<span class="rule"></span></div><div class="followups">
+      ${A.followups.map(({ q, a }) => `<button class="fu" data-q="${esc(q)}"><small>${esc(E.writer(a.writer).name)} asks</small>${esc(q)}</button>`).join("")}</div></div>` : "";
+    return `<p class="answer">${A.sentences.map((s, i) => `<span class="s" style="animation-delay:${i * 120}ms">${s}</span>`).join(" ")}</p>
+      ${debate}
+      <div class="sec"><div class="sec-h">Sources<span class="rule"></span></div><ol class="sources">${src}</ol></div>
+      ${picks}${fu}`;
+  }
+
+  function traceHTML(raw, R, A) {
+    const cm = Object.entries(R.m.concepts);
+    const im = Object.entries(R.m.issues);
+    const rows = R.list.slice(0, 10);
+    const maxKw = Math.max(1e-9, ...R.list.map((f) => f.kw || 0));
+    return `<h4>Retrieval trace</h4>
+      <p>Query terms after stop-words and stemming: ${R.qt.length ? R.qt.map((t) => `<code>${esc(t)}</code>`).join(" ") : "<em>none</em>"}</p>
+      <p>Concept matches: ${cm.length ? cm.map(([c, why]) => `<code>${esc(E.concept(c).label)}</code> ← ${why.map((w) => esc(w)).join(", ")}`).join("; ") : "<em>none</em>"}${im.length ? `<br>Issue matches: ${im.map(([i]) => `<code>${esc(i)}</code>`).join(" ")} (+0.5 to stance-bearing pieces)` : ""}</p>
+      ${rows.length ? `<div class="tw"><table><thead><tr><th>Article</th><th>Writer</th><th style="text-align:right">BM25</th><th style="text-align:right">kw #</th><th style="text-align:right">Concept</th><th style="text-align:right">cn #</th><th style="text-align:right">RRF</th><th></th></tr></thead><tbody>
+        ${rows.map((f) => { const a = E.article(f.id); const c = A.cites ? A.cites.indexOf(f.id) + 1 : 0; return `<tr class="${f.keep ? "used" : "drop"}"><td>${c ? `[${c}] ` : ""}${esc(a.title.length > 38 ? a.title.slice(0, 36) + "…" : a.title)}</td><td>${esc(E.writer(a.writer).name.split(" ")[0])}</td>
+          <td class="n">${f.kw ? f.kw.toFixed(2) : "–"}<span class="bar-in-cell" style="width:${((f.kw || 0) / maxKw) * 36}px"></span></td><td class="n">${f.kwRank || "–"}</td>
+          <td class="n">${f.cn ? f.cn.toFixed(2) : "–"}</td><td class="n">${f.cnRank || "–"}</td><td class="n">${f.rrf.toFixed(4)}</td><td>${f.why}</td></tr>`; }).join("")}
+        </tbody></table></div>` : "<p><em>No passages scored above zero.</em></p>"}
+      <p style="margin-top:10px"><code>RRF = Σ 1/(${K} + rank)</code> over the keyword and concept rankings. Passages under 40% of the top RRF are dropped, and so are keyword-only hits that aren't strong when concepts matched; at most 5 kept. The answer is templated: one overview sentence, then one sentence per writer from a stored gist, each with its citation. ${A.kind === "answer" ? `Frontier picks use <code>frontier = 4·f·(1−f)</code>, f = share of an article's concepts you know (≥ 0.5).` : "No followed writer passed the cut, so the answer switches to “who might”."}</p>`;
+  }
+
+  // ---------- citation popover ----------
+  const pop = $("#pop");
+  let popFor = null, pinned = false;
+  function showPop(btn) {
+    const a = E.article(btn.dataset.a), w = E.writer(a.writer);
+    const passage = a.stance ? a.stance.quote : a.summary;
+    pop.innerHTML = `<div class="h">${esc(w.name)} · ${esc(w.blog)} · ${a.date}</div><div class="t">${esc(a.title)}</div>
+      <p class="passage">${esc(passage)}</p>
+      <div class="f">${a.stance ? "Quoted passage" : "Summary passage"} · ${a.minutes} min · ${a.state}${w.subscribed ? "" : " · from a writer you don't follow"}</div>`;
+    pop.classList.add("on"); popFor = btn;
+    document.querySelectorAll(".cite.on").forEach((c) => c.classList.remove("on")); btn.classList.add("on");
+    const r = btn.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+    let x = Math.min(Math.max(12, r.left + r.width / 2 - pw / 2), window.innerWidth - pw - 12);
+    let y = r.bottom + 8;
+    if (y + ph > window.innerHeight - 12) y = r.top - ph - 8;
+    pop.style.left = x + "px"; pop.style.top = Math.max(8, y) + "px";
+  }
+  function hidePop() { pop.classList.remove("on"); popFor?.classList.remove("on"); popFor = null; pinned = false; }
+  function flashSource(card, id) {
+    const li = card.querySelector(`.sources li[data-src="${id}"]`);
+    if (!li) return; li.classList.add("flash"); setTimeout(() => li.classList.remove("flash"), 900);
+  }
+  function wire(card) {
+    card.querySelectorAll(".cite").forEach((b) => {
+      b.addEventListener("mouseenter", () => { if (!pinned) showPop(b); flashSource(card, b.dataset.a); });
+      b.addEventListener("mouseleave", () => { if (!pinned) hidePop(); });
+      b.addEventListener("focus", () => showPop(b));
+      b.addEventListener("blur", () => { if (!pinned) hidePop(); });
+      b.addEventListener("click", (e) => { e.stopPropagation(); if (pinned && popFor === b) { hidePop(); return; } showPop(b); pinned = true; flashSource(card, b.dataset.a); });
+    });
+    card.querySelectorAll(".fu[data-q]").forEach((b) => b.addEventListener("click", () => ask(b.dataset.q)));
+  }
+  document.addEventListener("click", (e) => { if (pinned && !pop.contains(e.target)) hidePop(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") hidePop(); });
+  window.addEventListener("scroll", () => { if (popFor && !pinned) hidePop(); else if (popFor) showPop(popFor); }, { passive: true });
+
+  // ---------- controls ----------
+  function ask(q) { $("#q").value = q; render(q); window.scrollTo({ top: $("#form").getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" }); }
+  $("#form").addEventListener("submit", (e) => { e.preventDefault(); if ($("#askBtn").disabled) return; render($("#q").value); });
+  $("#suggest").innerHTML = SUGGESTIONS.map((s, i) => `<button class="sg" data-q="${esc(s)}"><span class="k">${i + 1}</span>${esc(s)}</button>`).join("");
+  $("#suggest").addEventListener("click", (e) => { const b = e.target.closest(".sg"); if (b && !$("#askBtn").disabled) ask(b.dataset.q); });
+  $("#clearBtn").addEventListener("click", () => { thread.innerHTML = ""; $("#clearWrap").hidden = true; qn = 0; hidePop(); });
+  $("#machBtn").addEventListener("click", (e) => { const on = document.body.classList.toggle("mach"); e.currentTarget.setAttribute("aria-pressed", String(on)); });
+  $("#themeBtn").addEventListener("click", () => {
+    const root = document.documentElement;
+    const cur = root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    root.dataset.theme = cur === "dark" ? "light" : "dark";
+  });
+  $("#badgeMin").addEventListener("click", (e) => { const b = $("#badge"); b.classList.toggle("min"); e.currentTarget.textContent = b.classList.contains("min") ? "+" : "–"; });
+  if (window.innerWidth < 560) { $("#badge").classList.add("min"); $("#badgeMin").textContent = "+"; }
+
+  const nf = E.writers.filter((w) => w.subscribed).length;
+  $("#scope").innerHTML = `<span><b>${nf}</b> writers you follow</span><span><b>${E.writers.length - nf}</b> more they link to</span><span><b>${E.articles.length}</b> articles</span><span><b>${E.concepts.length}</b> concepts</span>`;
+
+  // Start with one worked example so the page isn't empty.
+  render("queues");
+})();
+</script>
+</body>
+</html>

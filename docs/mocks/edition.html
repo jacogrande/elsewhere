@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Daily Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+/* Design kit: "Broadsheet". Newsprint, black ink, one oxblood accent, column rules. */
+:root {
+  --paper: #f3eee2;
+  --paper-2: #ebe4d3;
+  --ink: #191612;
+  --ink-2: #3b352d;
+  --muted: #6b6255;
+  --rule: #191612;
+  --hair: #b9ae98;
+  --accent: #9b2318;
+  --accent-soft: #f0d9cf;
+  --done: #2f5d3a;
+  --display: "Playfair Display", "Times New Roman", serif;
+  --text: "Old Standard TT", Georgia, serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1a1815; --paper-2: #23201b; --ink: #ece4d2; --ink-2: #d2c9b6; --muted: #a39883; --rule: #ece4d2; --hair: #4a443a;
+    --accent: #e27a68; --accent-soft: #3a221d; --done: #8fc59b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1a1815; --paper-2: #23201b; --ink: #ece4d2; --ink-2: #d2c9b6; --muted: #a39883; --rule: #ece4d2; --hair: #4a443a;
+  --accent: #e27a68; --accent-soft: #3a221d; --done: #8fc59b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 16px/1.5 var(--text); }
+button, input { font: inherit; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sc { font-variant: small-caps; letter-spacing: .06em; text-transform: lowercase; }
+
+.sheet { max-width: 1180px; margin: 0 auto; padding: 16px 24px 120px; }
+@media (max-width: 640px) { .sheet { padding: 8px 16px 120px; } }
+
+/* Top strip */
+.strip { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; font-size: 13px; color: var(--ink-2); padding: 6px 0; border-bottom: 1px solid var(--rule); }
+.strip .r { text-align: right; display: flex; justify-content: flex-end; gap: 8px; align-items: center; }
+.tool { border: 1px solid var(--rule); background: transparent; padding: 2px 10px; cursor: pointer; font-size: 13px; }
+.tool:hover { background: var(--ink); color: var(--paper); }
+@media (max-width: 640px) { .strip { grid-template-columns: 1fr auto; } .strip .l { display: none; } .strip .c { text-align: left; } }
+
+/* Masthead */
+.mast { display: grid; grid-template-columns: 180px 1fr 180px; align-items: center; gap: 16px; padding: 14px 0 10px; }
+.mast h1 { margin: 0; text-align: center; font: 900 clamp(40px, 8vw, 92px)/0.95 var(--display); letter-spacing: -.02em; }
+.mast h1 em { font-style: italic; font-weight: 700; }
+.ear { border: 1px solid var(--rule); padding: 8px 10px; font-size: 12px; line-height: 1.35; text-align: center; }
+.ear b { display: block; font: 700 11px var(--text); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 4px; }
+.boxes { display: flex; justify-content: center; gap: 3px; margin: 6px 0 4px; flex-wrap: wrap; }
+.boxes i { width: 11px; height: 11px; border: 1px solid var(--ink); display: block; transition: background .3s; }
+.boxes i.on { background: var(--ink); }
+.motto { text-align: center; font-style: italic; color: var(--ink-2); font-size: 15px; margin-top: 4px; }
+@media (max-width: 760px) {
+  .mast { grid-template-columns: 1fr 1fr; }
+  .mast .title { grid-column: 1 / -1; order: -1; }
+}
+.dateline { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 3px double var(--rule); border-bottom: 1px solid var(--rule); padding: 6px 0; font-size: 13px; letter-spacing: .04em; }
+.dateline span:nth-child(2) { font-weight: 700; }
+@media (max-width: 640px) { .dateline span:nth-child(3) { display: none; } }
+
+/* Section nav */
+.secnav { position: sticky; top: 0; z-index: 4; background: var(--paper); display: flex; gap: 4px 18px; align-items: center; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--hair); font-size: 14px; }
+.secnav a { text-decoration: none; }
+@media (max-width: 640px) { .secnav { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; white-space: nowrap; } .secnav .spacer { display: none; } }
+section.sec { scroll-margin-top: 56px; }
+.secnav a:hover { color: var(--accent); }
+.secnav .n { font: 700 11px var(--text); color: var(--muted); margin-left: 3px; }
+.secnav .spacer { flex: 1; }
+.minibar { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.minibar .track { width: 90px; height: 6px; border: 1px solid var(--ink); position: relative; }
+.minibar .fill { position: absolute; inset: 0 auto 0 0; background: var(--ink); transition: width .4s; }
+
+/* Sections */
+section.sec { margin-top: 28px; }
+.sechead { border-top: 4px solid var(--rule); border-bottom: 1px solid var(--rule); margin-top: 2px; padding: 6px 0 5px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; position: relative; }
+.sechead::before { content: ""; position: absolute; left: 0; right: 0; top: 2px; border-top: 1px solid var(--rule); }
+.sechead h2 { margin: 0; font: italic 700 24px/1.1 var(--display); }
+.sechead p { margin: 0; font-size: 13px; color: var(--muted); font-style: italic; }
+.cols { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); }
+.cols > .story { padding: 14px 18px 18px; border-left: 1px solid var(--hair); }
+.cols > .story:nth-child(3n+1) { border-left: 0; padding-left: 0; }
+.cols > .story:nth-child(3n) { padding-right: 0; }
+.cols.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.cols.two > .story:nth-child(n) { border-left: 1px solid var(--hair); padding-left: 18px; padding-right: 18px; }
+.cols.two > .story:nth-child(2n+1) { border-left: 0; padding-left: 0; }
+.cols.two > .story:nth-child(2n) { padding-right: 0; }
+@media (max-width: 760px) {
+  .cols, .cols.two { grid-template-columns: minmax(0,1fr); }
+  .cols > .story, .cols.two > .story:nth-child(n) { border-left: 0; padding: 14px 0; border-top: 1px solid var(--hair); }
+  .cols > .story:first-child { border-top: 0; }
+}
+
+/* Front page grid */
+.front { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); }
+.front .leadcol { padding: 14px 22px 18px 0; border-right: 1px solid var(--hair); }
+.front .side > .story { padding: 14px 0 16px 22px; border-bottom: 1px solid var(--hair); }
+.front .side > .story:last-child { border-bottom: 0; }
+.front .more { grid-column: 1 / -1; border-top: 1px solid var(--rule); }
+@media (max-width: 760px) {
+  .front { grid-template-columns: minmax(0,1fr); }
+  .front .leadcol { padding-right: 0; border-right: 0; border-bottom: 1px solid var(--rule); }
+  .front .side > .story { padding-left: 0; }
+}
+
+/* Story */
+.story { position: relative; transition: opacity .3s; }
+.story .kick { font: 700 11px var(--text); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.story h3 { margin: 0 0 6px; font: 700 21px/1.15 var(--display); text-wrap: balance; }
+.story h3 button { all: unset; cursor: pointer; }
+.story h3 button:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.story h3 button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.lead h3 { font: 900 clamp(30px, 4.6vw, 48px)/1.02 var(--display); letter-spacing: -.01em; margin-bottom: 10px; }
+.story .deck { margin: 0 0 8px; font-style: italic; color: var(--ink-2); }
+.lead .deck { font-size: 19px; }
+.lead .body { column-count: 2; column-gap: 22px; column-rule: 1px solid var(--hair); margin: 10px 0; text-align: justify; hyphens: auto; font-size: 15px; }
+.lead .body p { margin: 0 0 8px; }
+.lead .pull { font: italic 700 24px/1.25 var(--display); border-top: 3px double var(--rule); border-bottom: 1px solid var(--rule); padding: 12px 0; margin: 14px 0; text-align: center; }
+.lead .pull small { display: block; font: 400 12px var(--text); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.lead .body p:first-child::first-letter { float: left; font: 900 52px/0.8 var(--display); padding: 6px 6px 0 0; }
+@media (max-width: 520px) { .lead .body { column-count: 1; } }
+.story .by { font-size: 13px; color: var(--muted); }
+.story .by b { color: var(--ink); font-weight: 400; font-variant: small-caps; letter-spacing: .04em; font-size: 14px; }
+.why { margin-top: 8px; font-size: 13px; line-height: 1.4; color: var(--ink-2); border-top: 1px dotted var(--hair); padding-top: 6px; }
+.why::before { content: "Why here — "; font-weight: 700; font-style: normal; color: var(--accent); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.why i { font-style: italic; }
+.mach { display: none; margin-top: 6px; font: 400 11px/1.4 ui-monospace, "Courier New", monospace; color: var(--muted); background: var(--paper-2); padding: 4px 6px; }
+.show-mach .mach { display: block; }
+.actions { margin-top: 10px; display: flex; gap: 10px; align-items: center; }
+.mark { display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 2px 0; cursor: pointer; font-size: 13px; color: var(--ink-2); }
+.mark .bx { width: 15px; height: 15px; border: 1.5px solid var(--ink); display: grid; place-items: center; font: 700 12px/1 var(--text); }
+.mark[aria-pressed="true"] { color: var(--done); }
+.mark[aria-pressed="true"] .bx { background: var(--ink); color: var(--paper); }
+.mark[aria-pressed="true"] .bx::after { content: "✓"; }
+.story.read h3, .story.read .deck, .story.read .body { opacity: .5; }
+.story.read h3 button { text-decoration: line-through; text-decoration-thickness: 1px; }
+
+.duel { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 10px 0 4px; border: 1px solid var(--hair); }
+.duel > div { padding: 8px 10px; font-size: 14px; }
+.duel > div + div { border-left: 1px solid var(--hair); }
+.duel small { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.duel q { font-style: italic; }
+@media (max-width: 520px) { .duel { grid-template-columns: 1fr; } .duel > div + div { border-left: 0; border-top: 1px solid var(--hair); } }
+.wild { border: 1.5px dashed var(--accent); padding: 14px 18px !important; margin: 14px 0; background: var(--accent-soft); }
+.wild .stamp { position: absolute; right: 14px; top: -11px; background: var(--paper); border: 1.5px solid var(--accent); color: var(--accent); font: 700 11px var(--text); letter-spacing: .14em; text-transform: uppercase; padding: 2px 8px; transform: rotate(2deg); }
+.cols.wilds { gap: 0 16px; }
+.cols.wilds > .story:nth-child(n) { border-left: 1.5px dashed var(--accent); }
+.single > .story { padding: 14px 0 16px; }
+.single > .story.wild { margin-top: 18px; }
+.archive .story .date { font: italic 400 13px var(--text); color: var(--muted); }
+
+/* End state */
+.finis { display: none; text-align: center; padding: 72px 16px 48px; border-top: 4px double var(--rule); margin-top: 28px; }
+.finis.on { display: block; animation: fade .8s ease both; }
+.finis .orn { font: 400 28px var(--display); letter-spacing: .5em; color: var(--muted); }
+.finis h2 { font: 900 clamp(32px, 6vw, 56px)/1.05 var(--display); margin: 16px 0 8px; }
+.finis h2 em { font-weight: 700; }
+.finis p { max-width: 520px; margin: 8px auto; color: var(--ink-2); }
+.finis .stats { display: flex; justify-content: center; gap: 0; margin: 24px auto; max-width: 560px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); flex-wrap: wrap; }
+.finis .stats div { padding: 10px 18px; flex: 1; min-width: 120px; }
+.finis .stats div + div { border-left: 1px solid var(--hair); }
+.finis .stats b { display: block; font: 900 30px var(--display); }
+.finis .stats span { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ended .issue-body { display: none; }
+@keyframes fade { from { opacity: 0; transform: translateY(8px); } }
+.recomposing .issue-body { animation: fade .45s ease both; }
+
+/* Drawer */
+.scrim { position: fixed; inset: 0; background: rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 100vw); background: var(--paper); border-left: 2px solid var(--rule); z-index: 31; transform: translateX(105%); transition: transform .25s ease; padding: 20px 22px; overflow-y: auto; }
+.drawer-open .scrim { opacity: 1; pointer-events: auto; }
+.drawer-open .drawer { transform: none; }
+.drawer h2 { margin: 0 0 4px; font: 900 28px var(--display); }
+.drawer .sub { margin: 0 0 16px; font-style: italic; color: var(--muted); font-size: 14px; }
+.dial { padding: 12px 0; border-top: 1px solid var(--hair); }
+.dial label { display: flex; justify-content: space-between; gap: 8px; font-weight: 700; }
+.dial label output { font: 900 18px var(--display); }
+.dial p { margin: 2px 0 6px; font-size: 13px; color: var(--muted); }
+.dial input { width: 100%; accent-color: var(--accent); }
+.compo { display: flex; height: 26px; border: 1px solid var(--rule); margin: 14px 0 4px; }
+.compo span { display: grid; place-items: center; font-size: 11px; border-left: 1px solid var(--paper); transition: flex .3s; overflow: hidden; white-space: nowrap; }
+.compo span:first-child { border-left: 0; }
+.compo-legend { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.compo-legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; }
+.rules { font-size: 13px; color: var(--ink-2); border: 1px solid var(--hair); padding: 10px 12px; margin-top: 16px; }
+.rules li { margin: 2px 0; }
+.trim { color: var(--accent); font-size: 13px; font-style: italic; min-height: 20px; margin-top: 4px; }
+.closebtn { position: absolute; right: 14px; top: 14px; }
+.chk { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 14px; cursor: pointer; }
+.chk input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+/* Reading view */
+.reading { position: fixed; inset: 0; z-index: 40; display: none; place-items: center; background: rgba(0,0,0,.4); padding: 16px; }
+.reading.on { display: grid; }
+.reading article { background: var(--paper); border: 2px solid var(--rule); max-width: 640px; width: 100%; max-height: calc(100vh - 32px); overflow-y: auto; padding: 24px 28px; position: relative; animation: fade .25s ease both; }
+@media (max-width: 520px) { .reading article { padding: 20px 18px; } }
+.reading h2 { font: 900 32px/1.05 var(--display); margin: 6px 0 8px; }
+.reading .body p { margin: 0 0 12px; font-size: 17px; line-height: 1.6; }
+.reading blockquote { font: italic 600 20px/1.35 var(--display); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 16px 0; padding: 10px 0; }
+.reading .note { font-size: 12px; color: var(--muted); font-style: italic; }
+.btn { border: 1.5px solid var(--rule); background: var(--ink); color: var(--paper); padding: 8px 14px; cursor: pointer; font-weight: 700; }
+.btn.ghost { background: transparent; color: var(--ink); }
+
+/* Mock badge */
+.badge { position: fixed; left: 16px; bottom: 16px; z-index: 25; max-width: 320px; background: var(--paper); border: 1.5px solid var(--rule); box-shadow: 4px 4px 0 var(--rule); padding: 10px 12px; font-size: 13px; line-height: 1.4; }
+.badge .bt { display: flex; justify-content: space-between; gap: 8px; font: 700 11px var(--text); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 4px; }
+.badge .bt button { border: 0; background: none; cursor: pointer; padding: 0 4px; }
+.badge.min p { display: none; }
+@media (max-width: 560px) { .badge { right: 16px; max-width: none; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="strip">
+    <span class="l">Vol. I &nbsp;·&nbsp; No. 214</span>
+    <span class="c sc">Composed at six this morning</span>
+    <span class="r">
+      <button class="tool" id="drawerBtn" type="button" aria-controls="drawer" aria-expanded="false">Edit the edition</button>
+      <button class="tool" id="themeBtn" type="button" aria-label="Toggle light or dark theme" title="Toggle theme">☾</button>
+    </span>
+  </div>
+
+  <header class="mast">
+    <div class="ear" id="earL"><b>In this edition</b><span id="earLtxt"></span></div>
+    <div class="title"><h1>The <em>Elsewhere</em></h1><div class="motto">Follow ideas, not time.</div></div>
+    <div class="ear"><b>Today's reading</b><div class="boxes" id="boxes" aria-hidden="true"></div><span id="earR">0 of 10 read</span></div>
+  </header>
+  <div class="dateline"><span>Your feeds, one edition</span><span>Tuesday, 17 November 2026</span><span id="dlTime"></span></div>
+
+  <nav class="secnav" id="secnav" aria-label="Sections"></nav>
+
+  <div class="issue-body" id="issue"></div>
+
+  <section class="finis" id="finis" aria-live="polite">
+    <div class="orn">❧ ❧ ❧</div>
+    <h2>That's the edition.<br><em>See you tomorrow.</em></h2>
+    <p>Tomorrow's paper will be composed at six from whatever your writers publish tonight. Nothing new will appear here before then.</p>
+    <div class="stats" id="stats"></div>
+    <p><button class="btn ghost" id="lookBack" type="button">Look back over today's edition</button></p>
+  </section>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Edit the edition" aria-hidden="true">
+  <button class="tool closebtn" id="closeDrawer" type="button" aria-label="Close">Close</button>
+  <h2>The dials</h2>
+  <p class="sub">Recompose today's paper. It is always ten pieces, and then it ends.</p>
+  <div class="dial"><label for="d-explore">Exploration <output id="o-explore"></output></label><p>Wildcards from writers and ideas outside your usual reading. Printed under “Elsewhere”.</p><input type="range" id="d-explore" min="0" max="2" step="1"></div>
+  <div class="dial"><label for="d-depth">Depth <output id="o-depth"></output></label><p>Longer pieces that go further on things you've finished. Printed under “Deeper”.</p><input type="range" id="d-depth" min="0" max="3" step="1"></div>
+  <div class="dial"><label for="d-contrast">Contrast <output id="o-contrast"></output></label><p>Pieces that disagree with something you finished or starred. Printed under “Counterpoint”.</p><input type="range" id="d-contrast" min="0" max="2" step="1"></div>
+  <div class="dial"><label for="d-archive">Archive <output id="o-archive"></output></label><p>Older posts and spaced returns to things you starred. Printed under “From the archive”.</p><input type="range" id="d-archive" min="0" max="2" step="1"></div>
+  <div class="compo" id="compo" aria-hidden="true"></div>
+  <div class="compo-legend" id="compoLegend"></div>
+  <div class="trim" id="trim"></div>
+  <ul class="rules">
+    <li>Front page always keeps at least three fresh posts.</li>
+    <li>No writer appears more than twice.</li>
+    <li>Ten pieces. No “load more”.</li>
+  </ul>
+  <label class="chk"><input type="checkbox" id="machChk"> Show the machinery (scores behind each slot)</label>
+</aside>
+
+<div class="reading" id="reading" role="dialog" aria-modal="true" aria-labelledby="rTitle"><article id="rBody"></article></div>
+
+<aside class="badge" id="badge" aria-label="About this mock">
+  <div class="bt"><span>Mock · The edition</span><span><a href="index.html">All mocks</a> <button type="button" id="badgeMin" aria-label="Collapse note">–</button></span></div>
+  <p style="margin:0">A finite daily paper. Each slot has its own candidate source (fresh posts, depth, stance contrast, wildcards, archive) and its own reason, printed under every piece. Dials change how many slots each section gets; the total stays ten.</p>
+</aside>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const E = window.ELSEWHERE;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const TOTAL = 10, MIN_FRONT = 3, AUTHOR_CAP = 2;
+  const SECTIONS = [
+    { id: "front", name: "Front page", blurb: "Fresh from your feeds", color: "var(--ink)" },
+    { id: "deeper", name: "Deeper", blurb: "Further into what you already know", color: "var(--ink-2)", dial: "depth" },
+    { id: "counter", name: "Counterpoint", blurb: "The other side of something you read", color: "var(--accent)", dial: "contrast" },
+    { id: "elsewhere", name: "Elsewhere", blurb: "A labelled wildcard. Skip it freely.", color: "var(--muted)", dial: "explore" },
+    { id: "archive", name: "From the archive", blurb: "Older pieces worth another look", color: "var(--hair)", dial: "archive" },
+  ];
+  const dials = { explore: 1, depth: 2, contrast: 1, archive: 2 };
+  const read = new Set();
+  let showMach = false, lastEdition = null, endedShown = false;
+
+  const isRead = (a) => a.state === "finished" || a.state === "starred";
+  const readArticles = E.articles.filter(isRead);
+  const W = E.writer, C = E.concept;
+  const fmt = (d, opts = { day: "numeric", month: "long" }) => new Date(d + "T12:00:00").toLocaleDateString("en-GB", opts);
+  const month = (d) => fmt(d, { month: "long" });
+  const clusterAff = {};
+  E.clusters.forEach((cl) => { const cs = E.concepts.filter((c) => c.cluster === cl.id); clusterAff[cl.id] = cs.reduce((s, c) => s + c.known, 0) / cs.length; });
+  const interest = (a) => a.concepts.reduce((s, c) => s + clusterAff[C(c).cluster], 0) / a.concepts.length;
+  const fresh = (a) => Math.exp(-E.daysAgo(a.date) / 7);
+  const shared = (a, b) => a.concepts.filter((c) => b.concepts.includes(c));
+  const ago = (d) => { const n = E.daysAgo(d); return n === 1 ? "yesterday" : n < 14 ? `${n} days ago` : n < 60 ? `${Math.round(n / 7)} weeks ago` : `${Math.round(n / 30)} months ago`; };
+
+  /* Allocation: dial counts, trimmed so the front page keeps at least three. */
+  function allocate() {
+    const want = { deeper: dials.depth, counter: dials.contrast, elsewhere: dials.explore, archive: dials.archive };
+    const trimmed = [];
+    const order = ["deeper", "archive", "counter", "elsewhere"];
+    while (Object.values(want).reduce((a, b) => a + b, 0) > TOTAL - MIN_FRONT) {
+      const k = order.reduce((best, k) => (want[k] > want[best] ? k : best), order[0]);
+      want[k]--; trimmed.push(k);
+    }
+    want.front = TOTAL - Object.values(want).reduce((a, b) => a + b, 0);
+    return { want, trimmed };
+  }
+
+  /* Candidate sources, one per section. Each returns scored candidates with a reason. */
+  const sources = {
+    front: (pool) => pool.filter((a) => a.state === "unread" && W(a.writer).subscribed && E.daysAgo(a.date) <= 21)
+      .map((a) => ({ a, score: 0.6 * fresh(a) + 0.4 * interest(a), mach: `fresh ${fresh(a).toFixed(2)} · interest ${interest(a).toFixed(2)}`,
+        why: `New from <i>${esc(W(a.writer).blog)}</i>, ${ago(a.date)}. ${E.newConcepts(a).length ? `Introduces ${esc(C(E.newConcepts(a)[0]).label.toLowerCase())}.` : `On ${esc(C(a.concepts[0]).label.toLowerCase())}, which you know well.`}` })),
+    deeper: (pool) => pool.filter((a) => a.state === "unread").map((a) => {
+      let best = null;
+      for (const r of readArticles) { const s = shared(a, r).length + (a.links.includes(r.id) ? 1 : 0); if (s && (!best || s > best.s)) best = { r, s }; }
+      if (!best) return null;
+      const score = 0.5 * Math.min(1, a.minutes / 16) + 0.5 * Math.min(1, best.s / 2);
+      const c = shared(a, best.r)[0];
+      return { a, score, mach: `length ${(a.minutes / 16).toFixed(2)} · overlap with read ${best.s}`,
+        why: `Goes further on ${esc(C(c || a.concepts[0]).label.toLowerCase())}, after <i>“${esc(best.r.title)}”</i>, which you ${best.r.state} in ${month(best.r.date)}. ${a.minutes} minutes.` };
+    }).filter(Boolean),
+    counter: (pool) => pool.filter((a) => a.state === "unread" && a.stance).map((a) => {
+      const opp = readArticles.find((r) => r.stance && r.writer !== a.writer && r.stance.issue === a.stance.issue && r.stance.side !== a.stance.side);
+      if (!opp) return null;
+      const issue = E.issues.find((i) => i.id === a.stance.issue);
+      return { a, opp, issue, score: 0.5 + 0.5 * fresh(a), mach: `stance ${a.stance.side} vs ${opp.stance.side} · issue ${issue.id}`,
+        why: `Disagrees with <i>“${esc(opp.title)}”</i> by ${esc(W(opp.writer).name)}, which you ${opp.state}. Issue: ${esc(issue.question)}` };
+    }).filter(Boolean),
+    elsewhere: (pool) => pool.filter((a) => a.state === "unread").map((a) => {
+      const far = 1 - E.familiarity(a), out = W(a.writer).subscribed ? 0 : 1, rare = 1 - clusterAff[W(a.writer).cluster];
+      const nc = E.newConcepts(a)[0];
+      return { a, score: 0.4 * far + 0.35 * out + 0.25 * rare, mach: `unfamiliar ${far.toFixed(2)} · outside feeds ${out} · cluster rarity ${rare.toFixed(2)}`,
+        why: `A wildcard: ${out ? `${esc(W(a.writer).name)} isn't in your feeds` : "a corner of your feeds you rarely open"}, and ${nc ? `${esc(C(nc).label.toLowerCase())} is new to you` : "it's off your usual path"}. Skip it freely.` };
+    }),
+    archive: (pool) => pool.map((a) => {
+      const days = E.daysAgo(a.date);
+      if (a.state === "starred") {
+        const ev = E.history.find((h) => h.article === a.id);
+        const since = E.daysAgo(ev ? ev.date : a.date);
+        const target = [7, 30, 90].reduce((b, t) => (Math.abs(t - since) < Math.abs(b - since) ? t : b));
+        const newer = E.articles.filter((x) => x.id !== a.id && x.date > a.date && shared(x, a).length);
+        const label = target === 7 ? "a week" : target === 30 ? "a month" : "three months";
+        return { a, score: 1 - Math.abs(target - since) / target * 0.6, mach: `starred ${since}d ago · nearest spacing ${target}d · ${newer.length} newer`,
+          why: `Return to: you starred this about ${label} ago. ${newer.length ? `Since then, ${newer.length} piece${newer.length > 1 ? "s" : ""} on the same idea${newer.length > 1 ? " have" : " has"} appeared, including <i>“${esc(newer[0].title)}”</i>.` : ""}` };
+      }
+      if (a.state === "unread" && days > 45) {
+        return { a, score: 0.4 + 0.6 * interest(a) - 0.1, mach: `age ${days}d · interest ${interest(a).toFixed(2)} · evergreen`,
+          why: `From ${month(a.date)}, still unread. It touches ${esc(C(a.concepts[0]).label.toLowerCase())}, which this week's reading keeps coming back to.` };
+      }
+      return null;
+    }).filter(Boolean),
+  };
+
+  function compose() {
+    const { want, trimmed } = allocate();
+    const used = new Set(), perAuthor = {};
+    const picks = { front: [], deeper: [], counter: [], elsewhere: [], archive: [] };
+    const take = (sec, n) => {
+      const cands = sources[sec](E.articles.filter((a) => !used.has(a.id))).sort((x, y) => y.score - x.score);
+      for (const c of cands) {
+        if (picks[sec].length >= n) break;
+        if ((perAuthor[c.a.writer] || 0) >= AUTHOR_CAP) continue;
+        picks[sec].push(c); used.add(c.a.id); perAuthor[c.a.writer] = (perAuthor[c.a.writer] || 0) + 1;
+      }
+      return n - picks[sec].length;
+    };
+    let spare = take("front", want.front);
+    for (const s of ["counter", "archive", "elsewhere", "deeper"]) spare += take(s, want[s]);
+    if (spare) { // top up the front page from any unread piece so the edition is always ten
+      const extra = E.articles.filter((a) => !used.has(a.id) && a.state === "unread" && (perAuthor[a.writer] || 0) < AUTHOR_CAP)
+        .sort((x, y) => fresh(y) - fresh(x)).slice(0, spare);
+      extra.forEach((a) => { picks.front.push({ a, score: fresh(a), mach: `top-up · fresh ${fresh(a).toFixed(2)}`, why: `Filling a slot another section couldn't: recent and unread.` }); used.add(a.id); });
+    }
+    return { picks, want, trimmed };
+  }
+
+  const genBody = (a) => {
+    const w = W(a.writer), first = w.name.split(" ")[0];
+    const labels = a.concepts.map((c) => C(c).label.toLowerCase());
+    return [
+      `${a.summary} ${first} builds the case slowly, starting from ${labels[0]}${labels.length > 1 ? ` and arriving at ${labels.slice(1).join(" and ")}` : ""}.`,
+      `The examples are small and specific, which is the house style at ${w.blog}. ${a.questions.length ? `The piece closes on a question it does not pretend to settle: ${a.questions[0]}` : "It closes without a tidy moral, and is better for it."}`,
+    ];
+  };
+
+  function storyHTML(p, sec, lead) {
+    const a = p.a, w = W(a.writer), isR = read.has(a.id);
+    const kick = sec === "archive" ? `${esc(w.blog)} <span class="date">· ${fmt(a.date, { day: "numeric", month: "short", year: "numeric" })}</span>` : esc(w.blog);
+    let extra = "";
+    if (lead) extra = `<div class="body">${genBody(a).map((t) => `<p>${esc(t)}</p>`).join("")}</div>`
+      + (a.stance ? `<div class="pull">“${esc(a.stance.quote)}”<small>${esc(w.name)}</small></div>` : "");
+    if (sec === "counter") extra = `<div class="duel"><div><small>You ${p.opp.state}: ${esc(W(p.opp.writer).name)}</small><q>${esc(p.opp.stance.quote)}</q></div><div><small>Today: ${esc(w.name)}</small><q>${esc(a.stance.quote)}</q></div></div>`;
+    return `<article class="story ${isR ? "read" : ""} ${lead ? "lead" : ""} ${sec === "elsewhere" ? "wild" : ""}" data-id="${a.id}">
+      ${sec === "elsewhere" ? '<span class="stamp">Wildcard</span>' : ""}
+      <div class="kick">${kick}</div>
+      <h3><button type="button" data-open="${a.id}">${esc(a.title)}</button></h3>
+      <p class="deck">${esc(a.summary)}</p>
+      ${extra}
+      <div class="by">By <b>${esc(w.name)}</b> · ${a.minutes} min${w.subscribed ? "" : " · not in your feeds"}</div>
+      <div class="why">${p.why}</div>
+      <div class="mach">${sec} · score ${p.score.toFixed(2)} · ${p.mach}</div>
+      <div class="actions"><button type="button" class="mark" data-mark="${a.id}" aria-pressed="${isR}"><span class="bx"></span>${isR ? "Read" : "Mark as read"}</button></div>
+    </article>`;
+  }
+
+  function render(animate) {
+    const ed = compose(); lastEdition = ed;
+    const { picks } = ed;
+    let html = "";
+    // Front page
+    if (picks.front.length) {
+      const [lead, ...rest] = picks.front;
+      const side = rest.slice(0, 3), more = rest.slice(3);
+      html += `<section class="sec" id="s-front"><div class="sechead"><h2>Front page</h2><p>${SECTIONS[0].blurb}</p></div>
+        <div class="front"><div class="leadcol">${storyHTML(lead, "front", true)}</div><div class="side">${side.map((p) => storyHTML(p, "front")).join("")}</div>
+        ${more.length ? `<div class="more cols">${more.map((p) => storyHTML(p, "front")).join("")}</div>` : ""}</div></section>`;
+    }
+    for (const s of SECTIONS.slice(1)) {
+      const list = picks[s.id];
+      if (!list.length) continue;
+      const cls = s.id === "elsewhere" ? "cols two wilds" : list.length === 2 ? "cols two" : "cols";
+      html += `<section class="sec ${s.id}" id="s-${s.id}"><div class="sechead"><h2>${s.name}</h2><p>${s.blurb}</p></div>
+        <div class="${list.length === 1 ? "single" : cls}">${list.map((p) => storyHTML(p, s.id)).join("")}</div></section>`;
+    }
+    const issue = $("#issue");
+    issue.innerHTML = html;
+    if (animate) { document.body.classList.remove("recomposing"); void issue.offsetWidth; document.body.classList.add("recomposing"); }
+    // Nav
+    $("#secnav").innerHTML = SECTIONS.filter((s) => picks[s.id].length).map((s) => `<a href="#s-${s.id}">${s.name}<span class="n">${picks[s.id].length}</span></a>`).join("")
+      + `<span class="spacer"></span><span class="minibar"><span class="track"><span class="fill" id="mfill"></span></span><span id="mtxt"></span></span>`;
+    const mins = Object.values(picks).flat().reduce((s, p) => s + p.a.minutes, 0);
+    $("#dlTime").textContent = `Ten pieces · about ${Math.floor(mins / 60)} h ${mins % 60} min`;
+    $("#earLtxt").textContent = SECTIONS.filter((s) => picks[s.id].length).map((s) => `${picks[s.id].length} ${s.name.toLowerCase()}`).join(" · ");
+    renderDrawer(ed);
+    progress();
+  }
+
+  function progress() {
+    const ids = Object.values(lastEdition.picks).flat().map((p) => p.a.id);
+    const n = ids.filter((id) => read.has(id)).length;
+    $("#boxes").innerHTML = ids.map((id) => `<i class="${read.has(id) ? "on" : ""}"></i>`).join("");
+    $("#earR").textContent = n === TOTAL ? "All ten read" : `${n} of ${TOTAL} read`;
+    $("#mfill").style.width = `${(n / TOTAL) * 100}%`;
+    $("#mtxt").textContent = `${n}/${TOTAL}`;
+    const done = n === TOTAL;
+    if (done && !endedShown) {
+      endedShown = true;
+      const picks = Object.values(lastEdition.picks).flat();
+      const writers = new Set(picks.map((p) => p.a.writer)).size;
+      const ideas = new Set(picks.flatMap((p) => p.a.concepts)).size;
+      const mins = picks.reduce((s, p) => s + p.a.minutes, 0);
+      $("#stats").innerHTML = `<div><b>10</b><span>pieces</span></div><div><b>${writers}</b><span>writers</span></div><div><b>${ideas}</b><span>ideas touched</span></div><div><b>${mins}</b><span>minutes</span></div>`;
+      document.body.classList.add("ended");
+      $("#finis").classList.add("on");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (!done) { endedShown = false; document.body.classList.remove("ended"); $("#finis").classList.remove("on"); }
+  }
+
+  function setRead(id, val) {
+    val ? read.add(id) : read.delete(id);
+    const el = document.querySelector(`.story[data-id="${id}"]`);
+    if (el) {
+      el.classList.toggle("read", val);
+      const b = el.querySelector("[data-mark]");
+      b.setAttribute("aria-pressed", val);
+      b.lastChild.textContent = val ? "Read" : "Mark as read";
+    }
+    progress();
+  }
+
+  function renderDrawer(ed) {
+    for (const k of Object.keys(dials)) { $(`#d-${k}`).value = dials[k]; $(`#o-${k}`).textContent = dials[k]; }
+    $("#compo").innerHTML = SECTIONS.map((s) => {
+      const n = ed.picks[s.id].length;
+      return n ? `<span style="flex:${n};background:${s.color};color:var(--paper)" title="${s.name}: ${n}">${n}</span>` : "";
+    }).join("");
+    $("#compoLegend").innerHTML = SECTIONS.map((s) => `<span><i style="background:${s.color}"></i>${s.name} ${ed.picks[s.id].length}</span>`).join("");
+    const t = [...new Set(ed.trimmed)];
+    const short = SECTIONS.filter((s) => s.id !== "front" && ed.picks[s.id].length < (ed.want[s.id] || 0));
+    $("#trim").textContent = t.length ? `Trimmed ${t.map((k) => SECTIONS.find((s) => s.id === k).name).join(", ")} to keep three fresh slots on the front page.`
+      : short.length ? `Not enough candidates for ${short.map((s) => s.name).join(", ")} today; the front page took the spare slot.` : "";
+  }
+
+  /* Reading view */
+  let lastFocus = null;
+  function openReading(id) {
+    const a = E.article(id), w = W(a.writer);
+    lastFocus = document.activeElement;
+    $("#rBody").innerHTML = `
+      <div class="kick" style="font:700 11px var(--text);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)">${esc(w.blog)} · ${fmt(a.date, { day: "numeric", month: "long", year: "numeric" })}</div>
+      <h2 id="rTitle">${esc(a.title)}</h2>
+      <p style="font-style:italic;color:var(--ink-2);margin:0 0 14px">By ${esc(w.name)} · ${a.minutes} min</p>
+      <div class="body">${genBody(a).map((t) => `<p>${esc(t)}</p>`).join("")}</div>
+      ${a.stance ? `<blockquote>“${esc(a.stance.quote)}”</blockquote>` : ""}
+      <p class="note">Mock reading view. The real article would be here.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button type="button" class="btn" data-finish="${a.id}">${read.has(a.id) ? "Back to the edition" : "Finished · back to the edition"}</button>
+        <button type="button" class="btn ghost" data-close>Close</button>
+      </div>`;
+    $("#reading").classList.add("on");
+    $("#rBody [data-finish]").focus();
+  }
+  function closeReading() { $("#reading").classList.remove("on"); lastFocus && lastFocus.focus(); }
+  $("#reading").addEventListener("click", (e) => {
+    const f = e.target.closest("[data-finish]");
+    if (f) { setRead(f.dataset.finish, true); closeReading(); return; }
+    if (e.target.closest("[data-close]") || e.target === $("#reading")) closeReading();
+  });
+
+  /* Drawer */
+  const setDrawer = (open) => {
+    document.body.classList.toggle("drawer-open", open);
+    $("#drawer").setAttribute("aria-hidden", !open);
+    $("#drawerBtn").setAttribute("aria-expanded", open);
+    if (open) $("#d-explore").focus(); else $("#drawerBtn").focus();
+  };
+  $("#drawerBtn").addEventListener("click", () => setDrawer(true));
+  $("#closeDrawer").addEventListener("click", () => setDrawer(false));
+  $("#scrim").addEventListener("click", () => setDrawer(false));
+  for (const k of Object.keys(dials)) $(`#d-${k}`).addEventListener("input", (e) => { dials[k] = +e.target.value; render(true); });
+  $("#machChk").addEventListener("change", (e) => { showMach = e.target.checked; document.body.classList.toggle("show-mach", showMach); });
+
+  $("#issue").addEventListener("click", (e) => {
+    const m = e.target.closest("[data-mark]");
+    if (m) { setRead(m.dataset.mark, !read.has(m.dataset.mark)); return; }
+    const o = e.target.closest("[data-open]");
+    if (o) openReading(o.dataset.open);
+  });
+  $("#lookBack").addEventListener("click", () => { document.body.classList.remove("ended"); $("#finis").classList.remove("on"); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { if ($("#reading").classList.contains("on")) closeReading(); else if (document.body.classList.contains("drawer-open")) setDrawer(false); }
+    if (e.key === "e" && !e.metaKey && !e.ctrlKey && !e.target.matches("input[type=text], textarea") && !$("#reading").classList.contains("on")) setDrawer(!document.body.classList.contains("drawer-open"));
+  });
+  $("#themeBtn").addEventListener("click", () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    $("#themeBtn").textContent = dark ? "☾" : "☀";
+  });
+  $("#badgeMin").addEventListener("click", (e) => { const b = $("#badge"); b.classList.toggle("min"); e.currentTarget.textContent = b.classList.contains("min") ? "+" : "–"; });
+  if (window.innerWidth < 560) $("#badgeMin").click();
+  if (matchMedia("(prefers-color-scheme: dark)").matches) $("#themeBtn").textContent = "☀";
+
+  render(false);
+})();
+</script>
+</body>
+</html>

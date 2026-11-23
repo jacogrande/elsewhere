@@ -12,7 +12,15 @@ describe("extractionSchema", () => {
     const parsed = extractionSchema.parse({
       concepts: [{ label: "Load shedding", salience: "main" }],
       entities: [{ name: "Little's law", kind: "work" }],
-      claims: [{ claim: "Unbounded queues hide overload.", quote: "An unbounded queue is not a buffer." }],
+      points: [
+        {
+          kind: "argument",
+          subject: "unbounded queues under overload",
+          statement: "Unbounded queues hide overload until it becomes an outage.",
+          evidence: "reasoning",
+          quote: "An unbounded queue is not a buffer.",
+        },
+      ],
       questions: ["What's the right default bound?"],
     });
     expect(parsed.concepts).toEqual([{ label: "Load shedding", salience: "main" }]);
@@ -22,10 +30,14 @@ describe("extractionSchema", () => {
     const parsed = extractionSchema.parse({
       concepts: [{ label: "CRDTs", salience: "main" }],
       entities: [{ name: "Automerge", kind: "library" }],
-      claims: [{ claim: "Merging is hard." }],
+      points: [
+        { kind: "Finding", subject: "s", statement: "Merging is hard.", evidence: "vibes", quote: "q" },
+      ],
     });
     expect(parsed.entities).toEqual([{ name: "Automerge", kind: "other" }]);
-    expect(parsed.claims).toEqual([{ claim: "Merging is hard.", quote: null }]);
+    expect(parsed.points).toEqual([
+      { kind: "finding", subject: "s", statement: "Merging is hard.", evidence: "none", quote: "q" },
+    ]);
     expect(parsed.questions).toEqual([]);
   });
 
@@ -51,13 +63,17 @@ describe("extractionSchema", () => {
         { label: "Backpressure", salience: "huge" },
       ],
       entities: [{ name: "" }, { name: "Little's law", kind: "work" }],
-      claims: [{ claim: "x".repeat(1000), quote: null }, { nope: true }],
+      points: [
+        { kind: "fact", subject: "s", statement: "x".repeat(1000), evidence: "none", quote: "q" },
+        { kind: "fact", subject: "s", statement: "no quote", evidence: "none" },
+        { nope: true },
+      ],
       questions: null,
     });
     expect(parsed.concepts).toEqual([{ label: "Load shedding", salience: "main" }]);
     expect(parsed.entities).toEqual([{ name: "Little's law", kind: "work" }]);
-    expect(parsed.claims).toHaveLength(1);
-    expect(parsed.claims[0]?.claim.length).toBe(400);
+    expect(parsed.points).toHaveLength(1);
+    expect(parsed.points[0]?.statement.length).toBe(400);
     expect(parsed.questions).toEqual([]);
   });
 });

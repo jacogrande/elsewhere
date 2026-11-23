@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elsewhere Debate Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f5f2;
+  --paper: #ffffff;
+  --ink: #0b0b0f;
+  --ink-2: #3c3c46;
+  --ink-3: #7a7a86;
+  --rule: #0b0b0f;
+  --soft-rule: #dcdbd6;
+  --coral: #ef4a36;
+  --coral-ink: #c7321f;
+  --coral-tint: #fff0ec;
+  --indigo: #3a2fd6;
+  --indigo-ink: #2c22b8;
+  --indigo-tint: #efeefe;
+  --on-accent: #ffffff;
+  --ok: #138a52;
+  --warn: #b7791f;
+  --display: "Archivo", "Arial Black", system-ui, sans-serif;
+  --ui: "Space Grotesk", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0b0f; --paper: #14141b; --ink: #f4f3ef; --ink-2: #c4c3cc; --ink-3: #8a8996;
+    --rule: #f4f3ef; --soft-rule: #2b2b36;
+    --coral: #ff6b57; --coral-ink: #ff8b7a; --coral-tint: #2a1512;
+    --indigo: #8f86ff; --indigo-ink: #aaa3ff; --indigo-tint: #17153a;
+    --on-accent: #0b0b0f; --ok: #4fd18f; --warn: #f0b250;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0b0f; --paper: #14141b; --ink: #f4f3ef; --ink-2: #c4c3cc; --ink-3: #8a8996;
+  --rule: #f4f3ef; --soft-rule: #2b2b36;
+  --coral: #ff6b57; --coral-ink: #ff8b7a; --coral-tint: #2a1512;
+  --indigo: #8f86ff; --indigo-ink: #aaa3ff; --indigo-tint: #17153a;
+  --on-accent: #0b0b0f; --ok: #4fd18f; --warn: #f0b250;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--ui); overflow-x: hidden; min-height: 100vh; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px 120px; }
+
+/* Masthead */
+.mast { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 3px solid var(--rule); flex-wrap: wrap; }
+.mast .brand { font-family: var(--display); font-weight: 900; font-stretch: 125%; font-size: 20px; letter-spacing: -0.02em; text-transform: uppercase; }
+.mast .brand span { font-weight: 500; font-stretch: 100%; text-transform: none; color: var(--ink-3); font-size: 14px; letter-spacing: 0; margin-left: 6px; }
+.mast .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.sbtn { border: 2px solid var(--ink); background: transparent; font-weight: 700; font-size: 13px; padding: 5px 11px; border-radius: 0; }
+.sbtn:hover { background: var(--ink); color: var(--bg); }
+.sbtn[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+/* Issue nav */
+.inav { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--soft-rule); }
+.inav .count { font-family: var(--display); font-weight: 800; font-stretch: 110%; font-size: 14px; min-width: 64px; }
+.dots { display: flex; gap: 6px; flex: 1; min-width: 0; overflow: hidden; }
+.dot { flex: 1; min-width: 0; height: 30px; border: 2px solid var(--ink); background: transparent; font-size: 11.5px; font-weight: 700; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.dot[aria-current="true"] { background: var(--ink); color: var(--bg); }
+.arrow { width: 38px; height: 38px; border: 2px solid var(--ink); background: var(--paper); font-weight: 900; font-size: 18px; flex: none; }
+.arrow:hover { background: var(--ink); color: var(--bg); }
+@media (max-width: 700px) { .dot { font-size: 0; padding: 0; height: 10px; } }
+
+/* Card */
+.card { margin-top: 22px; background: var(--paper); border: 3px solid var(--rule); position: relative; }
+.card.anim-l { animation: inL .32s ease; } .card.anim-r { animation: inR .32s ease; }
+@keyframes inL { from { opacity: 0; transform: translateX(-28px); } } @keyframes inR { from { opacity: 0; transform: translateX(28px); } }
+@media (prefers-reduced-motion: reduce) { .card.anim-l, .card.anim-r { animation: none; } }
+.qhead { padding: 22px 22px 18px; border-bottom: 3px solid var(--rule); }
+.qhead .kick { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.qhead h1 { font-family: var(--display); font-weight: 900; font-stretch: 112%; font-size: clamp(30px, 5.6vw, 64px); line-height: .98; letter-spacing: -0.03em; margin: 10px 0 14px; text-wrap: balance; }
+.balance { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); flex-wrap: wrap; }
+.bal-bar { display: flex; width: 160px; height: 10px; border: 2px solid var(--ink); }
+.bal-bar i { display: block; height: 100%; }
+.split { display: grid; grid-template-columns: 1fr 1fr; position: relative; }
+.vs { position: absolute; left: 50%; top: 26px; transform: translateX(-50%); width: 48px; height: 48px; border-radius: 50%; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: 15px; z-index: 2; border: 4px solid var(--paper); }
+.side { padding: 22px 22px 22px; min-width: 0; }
+.side.a { background: var(--coral-tint); border-right: 3px solid var(--rule); }
+.side.b { background: var(--indigo-tint); }
+@media (max-width: 760px) {
+  .split { grid-template-columns: 1fr; }
+  .side.a { border-right: 0; border-bottom: 3px solid var(--rule); }
+  .vs { top: auto; bottom: auto; position: relative; left: auto; transform: none; margin: -27px auto; grid-row: 2; }
+  .side.b { grid-row: 3; padding-top: 30px; }
+}
+.slabel { display: inline-block; font-family: var(--display); font-weight: 900; font-stretch: 120%; text-transform: uppercase; letter-spacing: -0.01em; font-size: 15px; padding: 5px 10px; color: var(--on-accent); }
+.a .slabel { background: var(--coral); } .b .slabel { background: var(--indigo); }
+.lead { margin: 18px 0 12px; }
+.lead blockquote { margin: 0; font-family: var(--display); font-weight: 750; font-stretch: 92%; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.12; letter-spacing: -0.015em; }
+.a .lead blockquote::before, .b .lead blockquote::before { content: "“"; display: block; font-size: 64px; line-height: .6; margin-bottom: 6px; font-weight: 900; }
+.a .lead blockquote::before { color: var(--coral); } .b .lead blockquote::before { color: var(--indigo); }
+.attr { font-size: 14px; color: var(--ink-2); margin-top: 12px; }
+.attr b { color: var(--ink); }
+.attr a { color: inherit; font-weight: 700; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.a .attr a { text-decoration-color: var(--coral); } .b .attr a { text-decoration-color: var(--indigo); }
+.readtag { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border: 1.5px solid var(--ink-3); color: var(--ink-3); padding: 0 5px; margin-left: 4px; vertical-align: 1px; }
+.conf { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12.5px; color: var(--ink-2); flex-wrap: wrap; }
+.segs { display: inline-flex; gap: 2px; }
+.segs i { width: 10px; height: 12px; border: 1.5px solid var(--ink); display: block; }
+.segs i.on { background: var(--ink); }
+.conf .num { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.flag { margin-top: 12px; border: 1.5px dashed var(--ink-3); background: transparent; font-size: 12.5px; padding: 4px 9px; color: var(--ink-2); }
+.flag:hover { border-color: var(--ink); color: var(--ink); }
+.flagform { margin-top: 10px; border: 2px solid var(--ink); background: var(--paper); padding: 10px 12px; font-size: 13.5px; }
+.flagform p { margin: 0 0 6px; font-weight: 700; }
+.flagform label { display: flex; gap: 8px; align-items: flex-start; margin: 4px 0; }
+.flagform .row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.flagged { margin-top: 12px; padding: 10px 12px; border: 2px solid var(--warn); font-size: 13.5px; background: var(--paper); }
+.flagged b { color: var(--warn); }
+.also { margin-top: 18px; border-top: 2px solid var(--ink); padding-top: 10px; }
+.also h4 { margin: 0 0 6px; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.pos { padding: 10px 0; border-bottom: 1px solid var(--soft-rule); }
+.pos:last-child { border-bottom: none; }
+.pos q { font-weight: 600; font-size: 15.5px; line-height: 1.35; display: block; quotes: "“" "”"; }
+.pos .attr { margin-top: 4px; font-size: 12.5px; }
+.pos.held { opacity: .6; }
+.pos.held .held-note { font-size: 12px; font-weight: 700; color: var(--warn); }
+.pos.isflagged q { text-decoration: line-through; opacity: .55; }
+.empty-side { margin-top: 18px; font-weight: 700; color: var(--warn); }
+.note { padding: 12px 22px; border-top: 3px solid var(--rule); font-size: 13.5px; color: var(--ink-2); background: var(--paper); }
+
+/* Strongest */
+.steel-btn { width: 100%; border: none; border-top: 3px solid var(--rule); background: var(--ink); color: var(--bg); font-family: var(--display); font-weight: 800; font-stretch: 112%; text-transform: uppercase; font-size: 15px; letter-spacing: .01em; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; }
+.steel-btn:hover { filter: brightness(1.15); }
+.steel { display: none; grid-template-columns: 1fr 1fr; border-top: 3px solid var(--rule); }
+.steel.on { display: grid; }
+.steel > div { padding: 18px 22px; min-width: 0; }
+.steel > div:first-child { border-right: 3px solid var(--rule); }
+@media (max-width: 760px) { .steel { grid-template-columns: 1fr; } .steel > div:first-child { border-right: 0; border-bottom: 3px solid var(--rule); } }
+.steel h5 { margin: 0 0 6px; font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 13px; letter-spacing: .04em; }
+.steel .a5 { color: var(--coral-ink); } .steel .b5 { color: var(--indigo-ink); }
+.steel p { margin: 0 0 8px; font-size: 16px; line-height: 1.5; }
+.steel small { color: var(--ink-3); font-size: 12px; }
+
+/* Lean */
+.lean { margin-top: 22px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; border: 3px solid var(--rule); background: var(--paper); }
+@media (max-width: 860px) { .lean { grid-template-columns: 1fr; } }
+.lean .ctl { padding: 18px 22px; border-right: 3px solid var(--rule); }
+@media (max-width: 860px) { .lean .ctl { border-right: 0; border-bottom: 3px solid var(--rule); } }
+.lean h2 { font-family: var(--display); font-weight: 900; font-stretch: 112%; text-transform: uppercase; font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.lean .sub { margin: 0 0 16px; font-size: 14px; color: var(--ink-2); }
+.ends { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; gap: 10px; }
+.ends span:first-child { color: var(--coral-ink); } .ends span:last-child { color: var(--indigo-ink); text-align: right; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 34px; background: transparent; margin: 4px 0; }
+input[type=range]::-webkit-slider-runnable-track { height: 8px; background: linear-gradient(90deg, var(--coral), var(--soft-rule) 45% 55%, var(--indigo)); border: 2px solid var(--ink); }
+input[type=range]::-moz-range-track { height: 8px; background: linear-gradient(90deg, var(--coral), var(--soft-rule) 45% 55%, var(--indigo)); border: 2px solid var(--ink); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; margin-top: -10px; background: var(--paper); border: 3px solid var(--ink); border-radius: 0; transform: rotate(45deg); }
+input[type=range]::-moz-range-thumb { width: 18px; height: 18px; background: var(--paper); border: 3px solid var(--ink); border-radius: 0; }
+.leanread { font-size: 14px; font-weight: 700; margin-top: 6px; min-height: 21px; }
+.rule-box { margin-top: 14px; font-size: 13px; color: var(--ink-2); border-left: 4px solid var(--ink); padding: 4px 0 4px 10px; }
+.pickout { padding: 18px 22px; }
+.pickout .k { font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+.pickcard { margin-top: 10px; padding: 14px 16px; border: 3px solid var(--ink); }
+.pickcard.a { background: var(--coral-tint); border-color: var(--coral); } .pickcard.b { background: var(--indigo-tint); border-color: var(--indigo); }
+.pickcard h3 { font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1.1; margin: 6px 0 6px; letter-spacing: -0.01em; }
+.pickcard p { margin: 0 0 8px; font-size: 14.5px; }
+.pickcard .why { font-size: 13px; color: var(--ink-2); }
+.pickcard .go { margin-top: 8px; }
+.center-msg { font-size: 15px; margin-top: 10px; }
+
+/* Machinery */
+.mach { display: none; margin-top: 22px; border: 3px dashed var(--ink); padding: 16px 20px; background: var(--paper); font-size: 14.5px; }
+.mach.on { display: block; }
+.mach h2 { font-family: var(--display); font-weight: 900; text-transform: uppercase; font-size: 18px; margin: 0 0 6px; }
+.mach ol { padding-left: 20px; margin: 6px 0 12px; }
+.mach code { font-family: ui-monospace, monospace; font-size: 12.5px; background: var(--bg); padding: 0 4px; }
+.tw { overflow-x: auto; }
+.mt { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 620px; }
+.mt th, .mt td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--soft-rule); vertical-align: top; }
+.mt th { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.mt .gate-no { color: var(--warn); font-weight: 700; }
+
+.mock { position: fixed; right: 12px; bottom: 12px; z-index: 30; width: min(340px, calc(100vw - 24px)); background: var(--ink); color: var(--bg); padding: 10px 12px; font-size: 12.5px; line-height: 1.45; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--coral); }
+.mock a { color: var(--bg); font-weight: 700; }
+.mock .x { float: right; background: none; border: none; color: var(--bg); padding: 0 0 0 8px; }
+.mock.min p { display: none; }
+.mock .t { background: var(--coral); color: var(--on-accent); font-weight: 800; padding: 0 5px; margin-right: 6px; font-size: 11px; letter-spacing: .1em; }
+.toast { position: fixed; left: 16px; bottom: 16px; z-index: 40; background: var(--indigo); color: var(--on-accent); padding: 10px 14px; font-weight: 700; font-size: 14px; max-width: calc(100vw - 32px); transform: translateY(calc(100% + 140px)); visibility: hidden; transition: transform .25s, visibility .25s; }
+.toast.on { transform: none; visibility: visible; }
+@media (max-width: 560px) { .toast { bottom: 80px; } .qhead, .side, .steel > div, .lean .ctl, .pickout { padding-left: 16px; padding-right: 16px; } }
+kbd { font: 700 11px var(--ui); border: 1.5px solid currentColor; padding: 0 4px; }
+.keys { font-size: 12px; color: var(--ink-3); margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="brand">Elsewhere<span>Debate cards</span></div>
+    <div class="acts">
+      <button class="sbtn" id="heldBtn" aria-pressed="false" title="Show positions below the confidence gate">Held-back positions</button>
+      <button class="sbtn" id="machBtn" aria-pressed="false">Machinery</button>
+      <button class="sbtn" id="themeBtn">Theme: <span id="themeLbl">auto</span></button>
+    </div>
+  </header>
+
+  <nav class="inav" aria-label="Issues">
+    <button class="arrow" id="prev" aria-label="Previous issue">←</button>
+    <span class="count" id="count"></span>
+    <div class="dots" id="dots"></div>
+    <button class="arrow" id="next" aria-label="Next issue">→</button>
+  </nav>
+
+  <article class="card" id="card" aria-live="polite"></article>
+
+  <section class="lean" id="lean" aria-label="Where do you lean?"></section>
+
+  <section class="mach" id="mach" aria-label="How debate cards are built"></section>
+</div>
+
+<div class="mock" id="mock">
+  <button class="x" id="mockX" aria-label="Minimise note">–</button>
+  <span class="t">MOCK</span><b>Strategy: Debate cards</b> · <a href="index.html">All mocks</a>
+  <p style="margin:6px 0 0">Two quote-backed positions on one issue, from different writers. A position only appears if the stance classifier clears a confidence gate, and your lean is used to show you the other side, never more of yours.</p>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const E = window.ELSEWHERE;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- Page-specific mock data ----------
+  const GATE = 0.8;
+  // Stance-classifier confidence for each stance in data.js, and what the evidence is.
+  const CONF = {
+    a1: [0.96, "explicit claim"], a6: [0.91, "explicit claim"], a4: [0.83, "explicit, on a neighbouring question"],
+    a10: [0.95, "explicit claim"], a14: [0.93, "explicit claim"],
+    a20: [0.94, "explicit claim"], a25: [0.88, "explicit claim"], a26: [0.9, "explicit rebuttal"],
+    a22: [0.87, "explicit claim"], a23: [0.89, "explicit claim"],
+    a40: [0.92, "explicit claim"], a41: [0.85, "explicit, rhetorical"], a42: [0.9, "explicit claim"],
+  };
+  // Inferred positions that fall below the gate, so they're held back by default.
+  const HELD = [
+    { article: "a21", issue: "density", side: "dense", quote: "A chart answers one question. A sorted table answers twenty.", conf: 0.71, ev: "implied: about charts, not density as such" },
+    { article: "a24", issue: "hierarchy", side: "flatter", quote: "If your app needs a badge to be opened, it isn't useful enough yet.", conf: 0.58, ev: "implied: about notifications, not layout" },
+    { article: "a45", issue: "engagement-metrics", side: "against", quote: "Measure what people finish, not how long they stay.", conf: 0.78, ev: "implied: proposes alternatives, doesn't reject engagement" },
+    { article: "a2", issue: "unbounded-queues", side: "against", quote: "Choosing a percentile target is choosing which users to disappoint.", conf: 0.64, ev: "implied: about latency targets, not queue bounds" },
+  ];
+  // Elsewhere's synthesis of the strongest case for each side, built only from the cited pieces.
+  const STEEL = {
+    "unbounded-queues": {
+      against: ["Every queue has a bound; the only choice is whether you set it or your memory does. Bounding up front turns overload into a fast, honest error you can see and handle, instead of a slow timeout that hides the problem until it's a crisis.", ["a1", "a6"]],
+      "for-slack": ["Bounds treat the symptom. The cause is running too close to capacity: past roughly 85% utilisation, waits explode however you bound the queue. Keep idle headroom and most queues never grow long enough for the bound to matter.", ["a4"]],
+    },
+    "server-authority": {
+      local: ["If the app stops working when the server does, the server owns the user's work. Putting the device first makes software fast, offline-capable and durable, and most documents only need peers to converge, not a referee.", ["a10"]],
+      server: ["Some facts must live in one place: money, permissions, anything with a legal owner. Local-first is a fine default for documents, but pretending every datum can merge pushes hard conflicts onto users.", ["a14"]],
+    },
+    density: {
+      dense: ["Hiding information doesn't remove complexity; it moves it into the user's head and adds clicks. Experts use a tool every day, and every step added to protect a first-time visitor is a cost they pay forever.", ["a20", "a25"]],
+      sparse: ["Density suits an expert at a desk. The same person on a phone, tired, at a bus stop needs room. Whitespace carries structure; take it away and even simple screens get harder to read.", ["a26"]],
+    },
+    hierarchy: {
+      flatter: ["When everything is ranked by visual weight, the interface shouts. A flatter page lets the content set the order and keeps software calm, which matters most for tools people live in all day.", ["a22"]],
+      stricter: ["Someone learning needs one obvious next thing. Strict hierarchy is how an interface provides it; flatness leaves a novice to decide what matters, which is exactly what they can't yet do.", ["a23"]],
+    },
+    "engagement-metrics": {
+      against: ["Once a team is paid to raise a number, the number measures compulsion, not value. The endless feed is what optimising engagement produced, and it was a choice, not an accident.", ["a40", "a41"]],
+      for: ["Metrics get blamed for bad goals. Measured honestly and rotated before they can be gamed, engagement tells you real things about what people value, and a number you can check beats a hunch you can't.", ["a42"]],
+    },
+  };
+
+  // ---------- Model ----------
+  const state = { i: 0, steel: false, held: false, mach: false, lean: {}, flags: {}, flagOpen: null };
+  const issue = () => E.issues[state.i];
+  const sideKeys = (iss) => Object.keys(iss.sides);
+  function positions(iss, side, includeHeld) {
+    const real = E.articles.filter((a) => a.stance && a.stance.issue === iss.id && a.stance.side === side)
+      .map((a) => ({ article: a.id, quote: a.stance.quote, conf: CONF[a.id][0], ev: CONF[a.id][1], held: false }));
+    const held = includeHeld ? HELD.filter((h) => h.issue === iss.id && h.side === side).map((h) => ({ ...h, held: true })) : [];
+    return [...real, ...held].map((p) => ({ ...p, a: E.article(p.article), w: E.writer(E.article(p.article).writer), flagged: !!state.flags[p.article + ":" + iss.id] }));
+  }
+  const eligible = (p) => !p.held && !p.flagged && p.conf >= GATE;
+  // Lead per side: highest confidence, but the two leads must be different writers.
+  function leads(iss) {
+    const [sa, sb] = sideKeys(iss);
+    const A = positions(iss, sa).filter(eligible).sort((x, y) => y.conf - x.conf);
+    const B = positions(iss, sb).filter(eligible).sort((x, y) => y.conf - x.conf);
+    let la = A[0], lb = B[0], note = "";
+    if (la && lb && la.w.id === lb.w.id) {
+      const altA = A.find((p) => p.w.id !== lb.w.id), altB = B.find((p) => p.w.id !== la.w.id);
+      if (altA) { note = `${la.w.name} has argued both sides, so the lead on “${iss.sides[sa]}” goes to ${altA.w.name}.`; la = altA; }
+      else if (altB) { note = `${lb.w.name} has argued both sides, so the lead on “${iss.sides[sb]}” goes to ${altB.w.name}.`; lb = altB; }
+    }
+    return { la, lb, note };
+  }
+  const isRead = (a) => a.state === "finished" || a.state === "starred";
+
+  // ---------- Rendering ----------
+  function segs(conf) {
+    const n = Math.round(conf * 10);
+    return `<span class="segs" aria-hidden="true">${Array.from({ length: 10 }, (_, k) => `<i class="${k < n ? "on" : ""}"></i>`).join("")}</span>`;
+  }
+  function flagUI(p, iss) {
+    const key = p.article + ":" + iss.id;
+    if (state.flags[key]) return `<div class="flagged"><b>Flagged: ${esc(state.flags[key])}.</b> Hidden from this card and from stance-contrast picks until it's re-checked. <button class="sbtn" data-unflag="${key}" style="margin-top:6px;font-size:12px;padding:2px 8px">Undo</button></div>`;
+    if (state.flagOpen === key) return `<form class="flagform" data-flagform="${key}">
+      <p>What's wrong with this attribution?</p>
+      <label><input type="radio" name="r" value="wrong side" checked> It argues the other side</label>
+      <label><input type="radio" name="r" value="quote out of context"> The quote is out of context</label>
+      <label><input type="radio" name="r" value="not about this issue"> It isn't about this issue</label>
+      <label><input type="radio" name="r" value="wrong writer"> Wrong writer</label>
+      <div class="row"><button type="submit" class="sbtn">Flag and hide</button><button type="button" class="sbtn" data-cancelflag>Cancel</button></div>
+    </form>`;
+    return `<button class="flag" data-flag="${key}">⚑ Flag a misattributed position</button>`;
+  }
+  function sideHTML(iss, side, cls, lead) {
+    const label = iss.sides[side];
+    const all = positions(iss, side, state.held);
+    const others = all.filter((p) => !lead || p.article !== lead.article);
+    const readCount = positions(iss, side).filter((p) => isRead(p.a)).length;
+    let html = `<div class="side ${cls}"><span class="slabel">${esc(label)}</span>`;
+    if (lead) {
+      html += `<div class="lead"><blockquote>${esc(lead.quote)}</blockquote>
+        <div class="attr"><b>${esc(lead.w.name)}</b>, ${esc(lead.w.blog)} · <a href="#" data-open="${lead.article}">${esc(lead.a.title)}</a> · ${E.daysAgo(lead.a.date)}d ago${isRead(lead.a) ? `<span class="readtag">you ${lead.a.state} this</span>` : ""}</div>
+        <div class="conf">${segs(lead.conf)}<span>Stance confidence <span class="num">${lead.conf.toFixed(2)}</span> · ${esc(lead.ev)}</span></div>
+        ${flagUI(lead, iss)}
+      </div>`;
+    } else {
+      html += `<p class="empty-side">No position on this side clears the ${GATE.toFixed(2)} confidence gate${Object.keys(state.flags).length ? " after your flag" : ""}. A card with one side isn't a debate, so it stays out of the rankings.</p>`;
+    }
+    if (others.length) {
+      html += `<div class="also"><h4>Also on this side</h4>${others.map((p) => `
+        <div class="pos ${p.held ? "held" : ""} ${p.flagged ? "isflagged" : ""}">
+          ${p.held ? `<div class="held-note">Held back: confidence ${p.conf.toFixed(2)} &lt; ${GATE.toFixed(2)} (${esc(p.ev)})</div>` : ""}
+          <q>${esc(p.quote)}</q>
+          <div class="attr"><b>${esc(p.w.name)}</b> · <a href="#" data-open="${p.article}">${esc(p.a.title)}</a>${isRead(p.a) ? `<span class="readtag">${p.a.state}</span>` : ""} · conf ${p.conf.toFixed(2)}</div>
+          ${p.held ? "" : flagUI(p, iss)}
+        </div>`).join("")}</div>`;
+    }
+    html += `</div>`;
+    return { html, readCount };
+  }
+  function renderCard(dir) {
+    const iss = issue();
+    const [sa, sb] = sideKeys(iss);
+    const { la, lb, note } = leads(iss);
+    const A = sideHTML(iss, sa, "a", la), B = sideHTML(iss, sb, "b", lb);
+    const total = A.readCount + B.readCount;
+    const balMsg = total === 0 ? "You haven't read either side yet."
+      : A.readCount === 0 ? `You've only read “${iss.sides[sb]}”.`
+      : B.readCount === 0 ? `You've only read “${iss.sides[sa]}”.` : "You've read both sides.";
+    const st = STEEL[iss.id];
+    const steelSide = (side, cls) => {
+      const [txt, cites] = st[side];
+      return `<div><h5 class="${cls}5">The strongest case: ${esc(iss.sides[side])}</h5><p>${esc(txt)}</p>
+        <small>Elsewhere's synthesis, built only from ${cites.map((c) => `<a href="#" data-open="${c}" style="color:inherit">${esc(E.writer(E.article(c).writer).name)}, “${esc(E.article(c).title)}”</a>`).join(" and ")}. Not a quote.</small></div>`;
+    };
+    const card = $("#card");
+    card.className = "card" + (dir ? " anim-" + dir : "");
+    card.innerHTML = `
+      <div class="qhead">
+        <div class="kick"><span>Issue ${String(state.i + 1).padStart(2, "0")} of ${String(E.issues.length).padStart(2, "0")}</span><span>${positions(iss, sa).length + positions(iss, sb).length} positions · ${new Set([...positions(iss, sa), ...positions(iss, sb)].map((p) => p.w.id)).size} writers</span></div>
+        <h1>${esc(iss.question)}</h1>
+        <div class="balance"><span class="bal-bar" aria-hidden="true"><i style="width:${total ? (100 * A.readCount) / total : 0}%;background:var(--coral)"></i><i style="flex:1;background:${total ? "var(--indigo)" : "var(--soft-rule)"}"></i></span><span>${balMsg}</span></div>
+      </div>
+      <div class="split">${A.html}<div class="vs" aria-hidden="true">VS</div>${B.html}</div>
+      ${note ? `<div class="note">${esc(note)}</div>` : ""}
+      <button class="steel-btn" id="steelBtn" aria-expanded="${state.steel}"><span>${state.steel ? "Hide" : "Show"} the strongest version of each side</span><span>${state.steel ? "−" : "+"}</span></button>
+      <div class="steel ${state.steel ? "on" : ""}">${steelSide(sa, "a")}${steelSide(sb, "b")}</div>`;
+    // restart animation
+    if (dir) { void card.offsetWidth; }
+  }
+  function renderNav() {
+    $("#count").textContent = `${String(state.i + 1).padStart(2, "0")} / ${String(E.issues.length).padStart(2, "0")}`;
+    $("#dots").innerHTML = E.issues.map((iss, k) => `<button class="dot" data-go="${k}" aria-current="${k === state.i}" title="${esc(iss.question)}" aria-label="${esc(iss.question)}">${esc(iss.question)}</button>`).join("");
+  }
+  function leanPick(iss, v) {
+    const [sa, sb] = sideKeys(iss);
+    let read, pick = "";
+    if (Math.abs(v) < 20) {
+      read = "Not leaning either way.";
+      pick = `<div class="k">What this does</div><p class="center-msg">Nothing yet. Lean one way and Elsewhere will pick the best piece from <b>the other side</b> for you. Your lean never pushes your own side up.</p>`;
+    } else {
+      const mine = v < 0 ? sa : sb, other = v < 0 ? sb : sa, cls = v < 0 ? "b" : "a";
+      read = `Leaning ${Math.abs(v) >= 70 ? "strongly " : ""}towards “${iss.sides[mine]}”.`;
+      // best from the other side: eligible, prefer unread, then confidence
+      const cands = positions(iss, other).filter(eligible).map((p) => ({ ...p, score: p.conf + (isRead(p.a) ? 0 : 0.25) })).sort((x, y) => y.score - x.score);
+      const best = cands[0];
+      if (!best) {
+        pick = `<div class="k">From the other side</div><p class="center-msg">No position on “${esc(iss.sides[other])}” clears the confidence gate, so there's nothing honest to show you. Elsewhere won't guess.</p>`;
+      } else {
+        pick = `<div class="k">Best piece from the side you lean against</div>
+          <div class="pickcard ${cls}">
+            <span class="slabel" style="font-size:12px">${esc(iss.sides[other])}</span>
+            <h3>${esc(best.a.title)}</h3>
+            <p>${esc(best.w.name)}, ${esc(best.w.blog)} · ${best.a.minutes} min${isRead(best.a) ? ` · you ${best.a.state} it` : ""}</p>
+            <p class="why">Why this one: highest-confidence position on “${esc(iss.sides[other])}” (${best.conf.toFixed(2)})${isRead(best.a) ? ", though you've already read it; there's no unread alternative" : ", and you haven't read it"}. ${esc(best.a.summary)}</p>
+            <button class="sbtn go" data-open="${best.article}">Read it</button>
+          </div>`;
+      }
+    }
+    return { read, pick };
+  }
+  function renderLean() {
+    const iss = issue();
+    const [sa, sb] = sideKeys(iss);
+    const v = state.lean[iss.id] ?? 0;
+    const { read, pick } = leanPick(iss, v);
+    $("#lean").innerHTML = `
+      <div class="ctl">
+        <h2>Where do you lean?</h2>
+        <p class="sub">Optional, private, and kept only on this page. It doesn't move the ranking toward your side: it decides which <i>other</i> side to show you.</p>
+        <div class="ends"><span>← ${esc(iss.sides[sa])}</span><span>${esc(iss.sides[sb])} →</span></div>
+        <input type="range" id="leanR" min="-100" max="100" step="5" value="${v}" aria-label="Lean between ${esc(iss.sides[sa])} and ${esc(iss.sides[sb])}" aria-valuetext="${esc(read)}">
+        <div class="leanread" id="leanRead">${esc(read)}</div>
+        <div class="rule-box">A recommender that learns your side and feeds it back is how filter bubbles form. Elsewhere uses the lean the other way round: the further you lean, the more sure it is you'll want the best of the opposing case.</div>
+        <div class="keys"><kbd>←</kbd><kbd>→</kbd> flip issues · <kbd>S</kbd> strongest versions · <kbd>1</kbd>–<kbd>5</kbd> jump</div>
+      </div>
+      <div class="pickout" id="pickout">${pick}</div>`;
+    $("#leanR").addEventListener("input", (e) => {
+      state.lean[iss.id] = +e.target.value;
+      const r = leanPick(iss, state.lean[iss.id]);
+      $("#leanRead").textContent = r.read;
+      e.target.setAttribute("aria-valuetext", r.read);
+      $("#pickout").innerHTML = r.pick;
+    });
+  }
+  function renderMach() {
+    const m = $("#mach");
+    m.classList.toggle("on", state.mach);
+    $("#machBtn").setAttribute("aria-pressed", state.mach);
+    if (!state.mach) return;
+    const iss = issue();
+    const rows = sideKeys(iss).flatMap((s) => positions(iss, s, true).map((p) => ({ ...p, side: s })));
+    m.innerHTML = `<h2>The machinery</h2>
+      <ol>
+        <li>For each article, a stance model asks: which issue does it take a position on, which side, and which sentence says so? It must return a quote that appears verbatim in the article.</li>
+        <li>Each attribution gets a confidence. Below <code>${GATE.toFixed(2)}</code> it's held back: a wrong position is worse than a missing one.</li>
+        <li>The lead on each side is the highest-confidence position, with one rule: the two leads must be different writers.</li>
+        <li>Your lean sets <code>other = lean &lt; 0 ? B : A</code>, then picks <code>argmax(conf + 0.25 × unread)</code> on that side. Your own side is never boosted.</li>
+        <li>A flag hides the position at once, locally, and removes it from stance-contrast picks everywhere until re-checked.</li>
+      </ol>
+      <div class="tw"><table class="mt"><thead><tr><th>Side</th><th>Writer</th><th>Article</th><th>Conf.</th><th>Evidence</th><th>Shown?</th></tr></thead><tbody>
+      ${rows.sort((x, y) => y.conf - x.conf).map((p) => `<tr><td>${esc(iss.sides[p.side])}</td><td>${esc(p.w.name)}</td><td>${esc(p.a.title)}</td><td>${p.conf.toFixed(2)}</td><td>${esc(p.ev)}</td><td class="${eligible(p) ? "" : "gate-no"}">${p.flagged ? "flagged" : eligible(p) ? "yes" : "below gate"}</td></tr>`).join("")}
+      </tbody></table></div>`;
+  }
+  function render(dir) { renderNav(); renderCard(dir); renderLean(); renderMach(); }
+
+  // ---------- Events ----------
+  let toastT;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2800); }
+  function go(k) {
+    const n = E.issues.length;
+    const nk = (k + n) % n;
+    const dir = nk > state.i || (state.i === n - 1 && nk === 0) ? "r" : "l";
+    state.i = nk; state.flagOpen = null;
+    render(dir);
+  }
+  $("#prev").onclick = () => go(state.i - 1);
+  $("#next").onclick = () => go(state.i + 1);
+  $("#dots").addEventListener("click", (e) => { const d = e.target.closest("[data-go]"); if (d) go(+d.dataset.go); });
+  document.body.addEventListener("click", (e) => {
+    const o = e.target.closest("[data-open]");
+    if (o) { e.preventDefault(); toast(`Would open “${E.article(o.dataset.open).title}” in the reader.`); return; }
+    if (e.target.closest("#steelBtn")) { state.steel = !state.steel; renderCard(); return; }
+    const f = e.target.closest("[data-flag]");
+    if (f) { state.flagOpen = f.dataset.flag; renderCard(); document.querySelector(`[data-flagform="${f.dataset.flag}"] input`)?.focus(); return; }
+    if (e.target.closest("[data-cancelflag]")) { state.flagOpen = null; renderCard(); return; }
+    const u = e.target.closest("[data-unflag]");
+    if (u) { delete state.flags[u.dataset.unflag]; render(); toast("Flag removed. Position restored."); }
+  });
+  document.body.addEventListener("submit", (e) => {
+    const form = e.target.closest("[data-flagform]");
+    if (!form) return;
+    e.preventDefault();
+    const key = form.dataset.flagform;
+    state.flags[key] = form.querySelector("input:checked").value;
+    state.flagOpen = null;
+    render();
+    toast("Flagged. Hidden now; it won't be used as a counterpoint anywhere until re-checked.");
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.target.matches("input[type=radio], input[type=range]") || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "ArrowRight") go(state.i + 1);
+    else if (e.key === "ArrowLeft") go(state.i - 1);
+    else if (e.key.toLowerCase() === "s") { state.steel = !state.steel; renderCard(); }
+    else if (/^[1-5]$/.test(e.key)) go(+e.key - 1);
+  });
+  $("#heldBtn").onclick = () => { state.held = !state.held; $("#heldBtn").setAttribute("aria-pressed", state.held); render(); };
+  $("#machBtn").onclick = () => { state.mach = !state.mach; renderMach(); if (state.mach) $("#mach").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  const themes = ["auto", "light", "dark"]; let ti = 0;
+  $("#themeBtn").onclick = () => {
+    ti = (ti + 1) % 3; const th = themes[ti];
+    if (th === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", th);
+    $("#themeLbl").textContent = th;
+  };
+  $("#mockX").onclick = () => { const m = $("#mock"); m.classList.toggle("min"); $("#mockX").textContent = m.classList.contains("min") ? "+" : "–"; };
+  if (window.matchMedia("(max-width: 560px)").matches) { $("#mock").classList.add("min"); $("#mockX").textContent = "+"; }
+
+  render();
+})();
+</script>
+</body>
+</html>

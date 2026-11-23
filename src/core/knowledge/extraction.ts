@@ -1,11 +1,13 @@
 import { z } from "zod";
 
 /**
- * One LLM call per article pulls everything later features need: concepts (used now by the related
- * rail), plus entities, claims with quotes, and open questions (stored for topic pages and
- * perspectives). Bump PROMPT_VERSION whenever the prompt or schema changes; articles are re-extracted.
+ * One LLM call per article pulls everything later features need: concepts and topics (the related
+ * rail), points (the specific things it says, each with a quote that is verified before use),
+ * entities and open questions. Bump PROMPT_VERSION whenever the prompt or schema changes; articles are
+ * re-extracted.
  */
-export const PROMPT_VERSION = 2;
+export const PROMPT_VERSION = 3;
+export const MAX_POINTS = 6;
 export const MAX_CONCEPTS = 8;
 /** ~3k tokens: the argument of a post is almost always in its first few thousand words. */
 export const EXTRACT_MAX_CHARS = 12_000;
@@ -40,13 +42,19 @@ const lenientArray = <T>(item: z.ZodType<T>, max: number) =>
         .slice(0, max),
     );
 
-const concept = z.object({
-  label: text(80).pipe(z.string().min(1)),
-  salience: z
+/** An enum the model may write in any case ("Main", "FINDING"). */
+const lowerEnum = <T extends readonly [string, ...string[]]>(values: T) =>
+  z
     .string()
     .transform((s) => s.trim().toLowerCase())
-    .pipe(z.enum(SALIENCES)),
-});
+    .pipe(z.enum(values));
+
+const concept = z.object({ label: text(80).pipe(z.string().min(1)), salience: lowerEnum(SALIENCES) });
+
+/** What a point is. Not everything is an opinion: many articles only report, explain or advise. */
+export const POINT_KINDS = ["argument", "finding", "fact", "explanation", "advice"] as const;
+/** What a point rests on. */
+export const EVIDENCE = ["measurement", "experiment", "experience", "source", "reasoning", "none"] as const;
 
 export const extractionSchema = z.object({
   // The one part the rail depends on: an extraction without a usable concept fails.
@@ -60,20 +68,22 @@ export const extractionSchema = z.object({
     }),
     20,
   ),
-  /** `quote` is unverified model output: check it against the article before ever showing it. */
-  claims: lenientArray(
+  /** Model output: only points whose quote passes `verifiedPoints` are ever used. */
+  points: lenientArray(
     z.object({
-      claim: text(400).pipe(z.string().min(1)),
-      quote: text(600)
-        .nullish()
-        .transform((q) => q || null),
+      kind: lowerEnum(POINT_KINDS),
+      subject: text(100).pipe(z.string().min(1)),
+      statement: text(400).pipe(z.string().min(1)),
+      evidence: lowerEnum(EVIDENCE).catch("none"),
+      quote: text(600).pipe(z.string().min(1)),
     }),
-    5,
+    MAX_POINTS,
   ),
   questions: lenientArray(text(300).pipe(z.string().min(1)), 3),
 });
 
 export type Extraction = z.infer<typeof extractionSchema>;
+export type Point = Extraction["points"][number];
 
 /** Everything to link to the shared concept list: the specific concepts, then the broad topics. */
 export function linkableConcepts(e: Extraction): { label: string; salience: Salience }[] {
@@ -87,7 +97,7 @@ Reply with JSON only, in this shape:
   "concepts": [{"label": string, "salience": "main" | "supporting" | "mention"}],
   "topics": [string],
   "entities": [{"name": string, "kind": "person" | "organization" | "product" | "work" | "place" | "other"}],
-  "claims": [{"claim": string, "quote": string | null}],
+  "points": [{"kind": "argument" | "finding" | "fact" | "explanation" | "advice", "subject": string, "statement": string, "evidence": "measurement" | "experiment" | "experience" | "source" | "reasoning" | "none", "quote": string}],
   "questions": [string]
 }
 concepts: 3 to ${MAX_CONCEPTS} ideas, topics or techniques the article is about, most important first.
@@ -97,7 +107,12 @@ concepts: 3 to ${MAX_CONCEPTS} ideas, topics or techniques the article is about,
 - main = what the article is about (1 or 2); supporting = developed in some depth; mention = brought up in passing.
 topics: 1 to 3 broad subject areas the article belongs to, the kind of heading a library or a magazine section would use: "web performance", "command-line tools", "programming languages", "economics of AI". Broader than the concepts, same naming rules. Not so broad that everything fits ("technology", "software").
 entities: named people, organizations, products, books/papers/works, places that matter to the argument.
-claims: up to 5 central claims the author makes, each with a short verbatim quote from the text that states it (or null).
+points: up to ${MAX_POINTS} of the most substantive, specific things the article says. Not only opinions: many articles report, measure, explain or advise, and those are points too. Skip filler, greetings and generic statements.
+- kind: argument = a position the author argues; finding = a result from data, a benchmark or an experiment; fact = a reported fact, event or announcement; explanation = how or why something works; advice = a recommendation or how-to.
+- subject: precisely what the point is about, 3 to 10 words, specific enough that only articles on the same narrow thing would share it: "adware bundled into SourceForge installers", not "user trust"; "x86 popcount instruction versus pshufb for bit counting", not "performance"; "harness design for coding agents", not "AI".
+- statement: one self-contained sentence a reader could understand without the article, with the specifics (names, numbers, conditions).
+- evidence: what the point rests on: measurement, experiment, experience (the author's own), source (cites someone else), reasoning, or none.
+- quote: a short passage copied exactly, character for character, from the article text, that supports the point. Never paraphrase or fix it; it is checked against the text. If you can't quote it, leave the point out.
 questions: up to 3 questions the article raises and leaves open.`;
 
 /** Escapes the two characters that could forge or close our delimiters. */

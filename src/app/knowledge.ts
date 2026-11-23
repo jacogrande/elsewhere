@@ -7,6 +7,7 @@ import {
   extractionSchema,
   PROMPT_VERSION,
 } from "../core/knowledge/extraction";
+import { pointText, verifiedPoints } from "../core/knowledge/points";
 import { nearest, RELATED, rankRelated, type SharedConcept } from "../core/knowledge/related";
 import { embeddingText } from "../core/knowledge/vector";
 import { err, ok, type Result } from "../core/shared/result";
@@ -27,7 +28,8 @@ type Deps = { knowledge: KnowledgeRepo; system: System; ai: Ai | null };
 const EMBED_BATCH = 32;
 /** Extraction calls run in parallel, this many at a time. */
 const EXTRACT_BATCH = 8;
-const LINK_BATCH = 64;
+/** Articles linked per embedding call: up to ~6 points each, plus their unseen labels. */
+const LINK_BATCH = 16;
 /**
  * A run stops starting new batches after this long, so even with one slow batch it ends well
  * inside the worker's 5-minute lease. The scheduler enqueues the next run a minute later.
@@ -114,21 +116,28 @@ export const embedPending =
  */
 const linkPending =
   (deps: Deps & { ai: Ai }) =>
-  async (deadline: number): Promise<Result<number, AiError>> => {
+  async (deadline: number): Promise<Result<LinkCounts, AiError>> => {
     const { embedder } = deps.ai;
-    let newConcepts = 0;
+    const counts: LinkCounts = { newConcepts: 0, points: 0, unverifiedPoints: 0 };
     while (deps.system.now() < deadline) {
       const extractions = deps.knowledge.unlinked(LINK_BATCH);
       if (extractions.length === 0) break;
       const keys = [...new Set(extractions.flatMap((e) => e.concepts.map((c) => normalizeLabel(c.label))))];
       const known = deps.knowledge.knownLabels(keys);
       const unseen = unseenLabels(extractions, new Set(known.keys()));
-      const vectors = unseen.length ? await embedder.embed(unseen.map((u) => u.label)) : ok([]);
+      // A point is only kept if its quote is really in the article.
+      const points = extractions.flatMap((e) =>
+        verifiedPoints(e.points, e.title, e.text).map((point) => ({ articleId: e.articleId, point })),
+      );
+      const texts = [...unseen.map((u) => u.label), ...points.map((p) => pointText(p.point))];
+      const vectors = texts.length ? await embedder.embed(texts) : ok([]);
       if (!vectors.ok) return vectors;
+      const vectorAt = (i: number) => vectors.value[i] as Float32Array;
+
       const plan = planConcepts({
         extractions,
         known,
-        unseen: unseen.map((u, j) => ({ ...u, vector: vectors.value[j] as Float32Array })),
+        unseen: unseen.map((u, j) => ({ ...u, vector: vectorAt(j) })),
         existing: deps.knowledge.conceptVectors(embedder.model),
         threshold: MATCH_THRESHOLD,
       });
@@ -136,19 +145,28 @@ const linkPending =
         embedder.model,
         extractions.map((e) => e.articleId),
         plan,
+        points.map((p, j) => ({ ...p, vector: vectorAt(unseen.length + j) })),
         deps.system.now(),
       );
-      newConcepts += plan.created.length;
+      counts.newConcepts += plan.created.length;
+      counts.points += points.length;
+      counts.unverifiedPoints += extractions.reduce((n, e) => n + e.points.length, 0) - points.length;
       if (extractions.length < LINK_BATCH) break;
     }
-    return ok(newConcepts);
+    return ok(counts);
   };
+
+type LinkCounts = { newConcepts: number; points: number; unverifiedPoints: number };
 
 /** Extracts concepts (and the rest of the schema) from articles, then links them to shared concepts. */
 export const extractPending =
-  (deps: Deps) =>
-  async (): Promise<Result<{ extracted: number; failed: number; newConcepts: number }, AiError>> => {
-    const done = { extracted: 0, failed: 0, newConcepts: 0 };
+  (deps: Deps) => async (): Promise<Result<{ extracted: number; failed: number } & LinkCounts, AiError>> => {
+    const done = { extracted: 0, failed: 0, newConcepts: 0, points: 0, unverifiedPoints: 0 };
+    const add = (c: LinkCounts) => {
+      done.newConcepts += c.newConcepts;
+      done.points += c.points;
+      done.unverifiedPoints += c.unverifiedPoints;
+    };
     if (!deps.ai) return ok(done);
     const { llm } = deps.ai;
     const link = linkPending({ ...deps, ai: deps.ai });
@@ -157,7 +175,7 @@ export const extractPending =
     // Finish linking anything a previous run extracted but couldn't link.
     const leftover = await link(deadline);
     if (!leftover.ok) return leftover;
-    done.newConcepts += leftover.value;
+    add(leftover.value);
 
     while (deps.system.now() < deadline) {
       const batch = deps.knowledge.pendingExtractions(llm.model, PROMPT_VERSION, EXTRACT_BATCH);
@@ -194,7 +212,7 @@ export const extractPending =
       for (const r of results) r.data ? done.extracted++ : done.failed++;
       const linked = await link(Number.POSITIVE_INFINITY); // always link what was just paid for
       if (!linked.ok) return linked;
-      done.newConcepts += linked.value;
+      add(linked.value);
       if (stop) return err(stop);
       if (batch.length < EXTRACT_BATCH) break;
     }

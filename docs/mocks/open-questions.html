@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elsewhere Open Questions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --desk: #e9dfc9;
+  --desk-dot: rgba(90, 70, 30, 0.10);
+  --card: #fffaf0;
+  --card-2: #f8f0dd;
+  --rule: rgba(31, 58, 107, 0.16);
+  --rule-red: rgba(190, 70, 60, 0.45);
+  --ink: #1d2433;
+  --ink-2: #4a5160;
+  --ink-3: #7d7f86;
+  --blue: #1f3a6b;
+  --blue-soft: #dde4f0;
+  --mustard: #c99a18;
+  --mustard-ink: #8a6500;
+  --mustard-soft: #f6e7b4;
+  --brick: #b2452f;
+  --brick-soft: #f4d9cf;
+  --line: #d6c9a8;
+  --shadow: 0 1px 1px rgba(60,40,10,.12), 0 6px 14px -6px rgba(60,40,10,.35);
+  --shadow-up: 0 2px 2px rgba(60,40,10,.12), 0 16px 30px -10px rgba(60,40,10,.45);
+  --serif: "Source Serif 4", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #1b1915; --desk-dot: rgba(255, 230, 170, 0.06);
+    --card: #2a2721; --card-2: #24211c;
+    --rule: rgba(150, 175, 230, 0.12); --rule-red: rgba(230, 120, 100, 0.35);
+    --ink: #efe8d8; --ink-2: #c5bda9; --ink-3: #8f8877;
+    --blue: #9db6ea; --blue-soft: #263450;
+    --mustard: #e4b93a; --mustard-ink: #f0c94e; --mustard-soft: #42371a;
+    --brick: #ec8a72; --brick-soft: #4a2820;
+    --line: #3d382e;
+    --shadow: 0 1px 1px rgba(0,0,0,.4), 0 8px 18px -8px rgba(0,0,0,.8);
+    --shadow-up: 0 2px 2px rgba(0,0,0,.4), 0 18px 34px -10px rgba(0,0,0,.9);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #1b1915; --desk-dot: rgba(255, 230, 170, 0.06);
+  --card: #2a2721; --card-2: #24211c;
+  --rule: rgba(150, 175, 230, 0.12); --rule-red: rgba(230, 120, 100, 0.35);
+  --ink: #efe8d8; --ink-2: #c5bda9; --ink-3: #8f8877;
+  --blue: #9db6ea; --blue-soft: #263450;
+  --mustard: #e4b93a; --mustard-ink: #f0c94e; --mustard-soft: #42371a;
+  --brick: #ec8a72; --brick-soft: #4a2820;
+  --line: #3d382e;
+  --shadow: 0 1px 1px rgba(0,0,0,.4), 0 8px 18px -8px rgba(0,0,0,.8);
+  --shadow-up: 0 2px 2px rgba(0,0,0,.4), 0 18px 34px -10px rgba(0,0,0,.9);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--desk);
+  background-image: radial-gradient(var(--desk-dot) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+  color: var(--ink);
+  font: 17px/1.5 var(--serif);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+button, select { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px dashed var(--blue); outline-offset: 3px; }
+.mono { font-family: var(--mono); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 18px 16px 110px; }
+
+/* Header */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.logo { font-family: var(--mono); font-weight: 600; font-size: 14px; letter-spacing: .02em; display: flex; align-items: center; gap: 8px; }
+.logo i { width: 12px; height: 12px; border-radius: 50%; background: var(--mustard); box-shadow: inset -2px -2px 0 rgba(0,0,0,.18); }
+.logo span { color: var(--ink-3); font-weight: 400; }
+.tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.tbtn { font-family: var(--mono); font-size: 12.5px; border: 1.5px solid var(--ink); background: transparent; padding: 5px 10px; border-radius: 3px; }
+.tbtn:hover { background: var(--card); }
+.tbtn[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+.tbtn:disabled { opacity: .5; cursor: default; }
+
+h1 { font-weight: 700; font-size: clamp(30px, 5.4vw, 50px); line-height: 1.02; margin: 22px 0 6px; letter-spacing: -0.015em; }
+h1 em { font-style: italic; color: var(--blue); font-weight: 600; }
+.lede { max-width: 640px; color: var(--ink-2); margin: 0 0 16px; }
+
+.tabs { display: flex; gap: 0; margin: 18px 0 14px; border-bottom: 1.5px solid var(--ink); }
+.tab { font-family: var(--mono); font-size: 13px; padding: 8px 14px; border: 1.5px solid transparent; border-bottom: none; background: none; margin-bottom: -1.5px; border-radius: 4px 4px 0 0; }
+.tab[aria-selected="true"] { border-color: var(--ink); background: var(--card); }
+
+.filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 18px; font-family: var(--mono); font-size: 12.5px; }
+.filters .lbl { color: var(--ink-3); margin-right: 2px; }
+.fchip { border: 1.5px solid var(--line); background: var(--card); padding: 4px 10px; border-radius: 999px; font-family: var(--mono); font-size: 12px; }
+.fchip[aria-pressed="true"] { border-color: var(--blue); background: var(--blue); color: var(--card); }
+.counts { margin-left: auto; color: var(--ink-3); }
+
+/* Board */
+.board { column-width: 290px; column-gap: 22px; }
+.cluster { break-inside: avoid; margin-bottom: 28px; display: inline-block; width: 100%; }
+.cluster h2 { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; font-weight: 600; margin: 0 0 12px; padding: 4px 8px; background: var(--ink); color: var(--card); display: inline-block; border-radius: 2px; transform: rotate(-1deg); }
+.qcard {
+  position: relative; display: block; width: 100%; text-align: left;
+  background-color: var(--card);
+  background-image: linear-gradient(var(--rule-red), var(--rule-red)), repeating-linear-gradient(to bottom, transparent 0 25px, var(--rule) 25px 26px);
+  background-size: 100% 1.5px, 100% 100%; background-repeat: no-repeat, repeat; background-position: 0 40px, 0 41px;
+  border: none; border-radius: 3px; padding: 16px 16px 12px; margin: 0 0 18px;
+  box-shadow: var(--shadow);
+  transform: rotate(var(--rot, 0deg));
+  transition: transform .18s, box-shadow .18s;
+}
+.qcard:hover, .qcard:focus-visible { transform: rotate(0deg) translateY(-3px); box-shadow: var(--shadow-up); }
+.qcard.sel { outline: 2.5px solid var(--blue); outline-offset: 2px; transform: rotate(0deg); }
+.pin { position: absolute; top: -7px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff6 0 2px, transparent 3px), var(--mustard); box-shadow: 0 2px 3px rgba(0,0,0,.35); }
+.qcard.followed .pin { background: radial-gradient(circle at 35% 35%, #fff6 0 2px, transparent 3px), var(--blue); }
+.qmeta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; height: 22px; }
+.qtext { font-size: 19px; line-height: 26px; font-weight: 600; margin: 6px 0 10px; }
+.qfoot { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 4px 12px; line-height: 1.5; }
+.qfoot b { font-weight: 600; color: var(--ink); }
+.newbadge { display: inline-flex; align-items: center; gap: 5px; margin-top: 9px; font-family: var(--mono); font-size: 11.5px; font-weight: 600; background: var(--mustard-soft); color: var(--mustard-ink); border: 1px solid var(--mustard); padding: 2px 8px; border-radius: 2px; }
+.newbadge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mustard); }
+
+.stamp { font-family: var(--mono); font-weight: 600; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; border: 1.8px solid currentColor; padding: 1px 6px; border-radius: 3px; transform: rotate(-3deg); display: inline-block; white-space: nowrap; }
+.stamp.open { color: var(--blue); }
+.stamp.partial { color: var(--mustard-ink); }
+.stamp.contested { color: var(--brick); }
+
+/* Side panel */
+.scrim { position: fixed; inset: 0; background: rgba(20,15,5,.28); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 40; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+.side { position: fixed; top: 0; right: 0; bottom: 0; width: min(500px, 100vw); background: var(--card-2); z-index: 41; transform: translateX(105%); transition: transform .25s ease; overflow-y: auto; box-shadow: -10px 0 30px -12px rgba(0,0,0,.45); border-left: 1.5px solid var(--line); }
+.side.on { transform: none; }
+.side-in { padding: 18px 20px 120px; }
+.side-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.xbtn { border: 1.5px solid var(--ink); background: var(--card); border-radius: 3px; font-family: var(--mono); font-size: 12px; padding: 3px 8px; }
+.side h2 { font-size: 27px; line-height: 1.15; margin: 14px 0 10px; font-weight: 700; }
+.side .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.follow { font-family: var(--mono); font-size: 12.5px; border: 1.5px solid var(--blue); color: var(--blue); background: transparent; padding: 5px 12px; border-radius: 3px; font-weight: 600; }
+.follow[aria-pressed="true"] { background: var(--blue); color: var(--card); }
+.gap-note { background: var(--card); border: 1.5px dashed var(--ink-3); padding: 10px 12px; font-size: 15px; margin: 0 0 18px; border-radius: 3px; }
+.gap-note b { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; display: block; color: var(--ink-3); font-weight: 600; margin-bottom: 2px; }
+.thread { list-style: none; padding: 0 0 0 20px; margin: 0; position: relative; }
+.thread::before { content: ""; position: absolute; left: 5px; top: 8px; bottom: 8px; border-left: 2px dotted var(--ink-3); }
+.thread li { position: relative; margin-bottom: 14px; }
+.thread li::before { content: ""; position: absolute; left: -20px; top: 14px; width: 12px; height: 12px; border-radius: 50%; background: var(--card); border: 2px solid var(--ink-3); }
+.thread li.raised::before { background: var(--blue); border-color: var(--blue); }
+.thread li.partial::before, .thread li.answers::before { background: var(--mustard); border-color: var(--mustard); }
+.thread li.contests::before { background: var(--brick); border-color: var(--brick); }
+.snip { background: var(--card); border-radius: 3px; padding: 10px 12px 10px; box-shadow: var(--shadow); }
+.snip.isnew { outline: 2px solid var(--mustard); }
+.snip .k { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; display: flex; justify-content: space-between; gap: 6px; }
+.k.raised { color: var(--blue); } .k.partial, .k.answers { color: var(--mustard-ink); } .k.contests { color: var(--brick); }
+.snip blockquote { margin: 6px 0 6px; font-style: italic; font-size: 16px; line-height: 1.45; }
+.snip .src { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+.snip .src button { border: none; background: none; padding: 0; text-decoration: underline; text-underline-offset: 2px; font-family: var(--mono); font-size: 11.5px; color: var(--blue); }
+.hint { font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-top: 18px; }
+kbd { font-family: var(--mono); font-size: 10.5px; border: 1px solid var(--ink-3); border-bottom-width: 2px; border-radius: 3px; padding: 0 4px; }
+
+/* Rail mode */
+.rail-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 26px; align-items: start; }
+@media (max-width: 880px) { .rail-wrap { grid-template-columns: minmax(0, 1fr); } }
+.reader { background: var(--card); padding: 22px 24px; box-shadow: var(--shadow); border-radius: 3px; }
+.reader .pick { font-family: var(--mono); font-size: 12px; color: var(--ink-3); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.reader select { font-family: var(--mono); font-size: 12px; padding: 4px 6px; background: var(--card-2); border: 1.5px solid var(--line); border-radius: 3px; max-width: 100%; }
+.reader h2 { font-size: 30px; line-height: 1.12; margin: 14px 0 6px; }
+.reader .by { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+.reader p.body { font-size: 18px; line-height: 1.6; }
+.reader .fake { height: 10px; border-radius: 2px; background: var(--rule); margin: 12px 0; }
+.rail h3 { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; margin: 0 0 6px; font-weight: 600; }
+.seg { display: inline-flex; border: 1.5px solid var(--ink); border-radius: 3px; overflow: hidden; margin-bottom: 14px; }
+.seg button { border: none; background: transparent; font-family: var(--mono); font-size: 12px; padding: 5px 10px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--card); }
+.ritem { display: block; width: 100%; text-align: left; background: var(--card); border: none; box-shadow: var(--shadow); border-radius: 3px; padding: 12px 14px; margin-bottom: 12px; border-left: 4px solid var(--mustard); transition: transform .15s; }
+.ritem:hover { transform: translateX(-3px); }
+.ritem .why { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+.ritem .q { font-size: 18px; font-weight: 700; line-height: 1.25; margin: 4px 0 6px; }
+.ritem .t { font-size: 15px; color: var(--ink-2); }
+.ritem.titlefirst .q { font-size: 15px; font-weight: 400; font-style: italic; color: var(--ink-2); }
+.ritem.titlefirst .t { font-size: 18px; font-weight: 700; color: var(--ink); }
+.ritem .ans { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); margin-top: 6px; }
+.rail-note { font-size: 14px; color: var(--ink-2); margin: 0 0 12px; }
+
+/* Machinery */
+.mach { display: none; margin: 4px 0 24px; background: var(--card); border: 1.5px dashed var(--blue); padding: 14px 16px; border-radius: 3px; font-size: 15px; }
+.mach.on { display: block; }
+.mach h3 { font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 6px; }
+.mach ol { margin: 6px 0 10px; padding-left: 20px; }
+.mach code { font-family: var(--mono); font-size: 12.5px; background: var(--blue-soft); padding: 0 4px; border-radius: 2px; }
+.mtable-wrap { overflow-x: auto; }
+.mtable { border-collapse: collapse; font-family: var(--mono); font-size: 11.5px; width: 100%; min-width: 600px; }
+.mtable th, .mtable td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.mtable th { color: var(--ink-3); font-weight: 500; }
+
+/* mock badge */
+.mock { position: fixed; left: 12px; bottom: 12px; z-index: 30; width: min(330px, calc(100vw - 24px)); background: var(--mustard-soft); border: 1.5px solid var(--mustard); color: var(--ink); font-family: var(--mono); font-size: 11.5px; line-height: 1.45; padding: 9px 11px; border-radius: 3px; box-shadow: var(--shadow); transform: rotate(-.6deg); }
+.mock a { color: var(--blue); font-weight: 600; }
+.mock .x { float: right; background: none; border: none; font-family: var(--mono); padding: 0 0 0 8px; }
+.mock.min p { display: none; }
+.toast { position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 160%); visibility: hidden; transition: transform .25s, visibility .25s; z-index: 50; background: var(--ink); color: var(--card); font-family: var(--mono); font-size: 12.5px; padding: 8px 12px; border-radius: 3px; max-width: calc(100vw - 32px); }
+.toast.on { transform: translate(-50%, 0); visibility: visible; }
+@media (max-width: 560px) {
+  .counts { margin-left: 0; width: 100%; }
+  .toast { bottom: 100px; }
+  .qtext { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="logo"><i></i>elsewhere <span>/ open questions</span></div>
+    <div class="tools">
+      <button class="tbtn" id="fetchBtn" title="Simulate the next feed fetch">↻ next morning's fetch</button>
+      <button class="tbtn" id="machBtn" aria-pressed="false">show the machinery</button>
+      <button class="tbtn" id="themeBtn">theme: <span id="themeLbl">auto</span></button>
+    </div>
+  </header>
+
+  <h1>What your writers <em>haven't</em> settled yet.</h1>
+  <p class="lede">Questions pulled from the articles in your feeds, matched across pieces. Each card shows who asked it and who has half an answer. Follow one and Elsewhere will tell you when a new piece touches it. That's the only notification it sends, and it's a badge on this page, not a ping.</p>
+
+  <section class="mach" id="mach" aria-label="How questions are found and matched"></section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tabBoard" aria-selected="true" aria-controls="viewBoard">Board</button>
+    <button class="tab" role="tab" id="tabRail" aria-selected="false" aria-controls="viewRail">Related rail</button>
+  </div>
+
+  <section id="viewBoard" role="tabpanel" aria-labelledby="tabBoard">
+    <div class="filters" id="filters"></div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <section id="viewRail" role="tabpanel" aria-labelledby="tabRail" hidden>
+    <div class="rail-wrap">
+      <article class="reader" id="reader"></article>
+      <aside class="rail" id="rail"></aside>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="side" id="side" aria-label="Unresolved thread" aria-hidden="true"><div class="side-in" id="sideIn"></div></aside>
+
+<div class="mock" id="mock">
+  <button class="x" id="mockX" aria-label="Minimise note">–</button>
+  <b>MOCK · Open questions</b> · <a href="index.html">All mocks</a>
+  <p style="margin:5px 0 0">An LLM pulls 1–3 open questions from each article and matches them across pieces; questions near the edge of what you know rank first, and the pieces under each are ranked by how much of an answer they give. Mock data.</p>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const E = window.ELSEWHERE;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- Page-specific mock data ----------
+  // Pieces that arrive after today. All fictional, by writers in data.js.
+  const NEW_PIECES = [
+    { id: "n1", writer: "elliot", title: "Queue bounds from a stopwatch", date: "2026-11-17", batch: 0 },
+    { id: "n2", writer: "ade", title: "Admission control is a default, not a knob", date: "2026-11-16", batch: 0 },
+    { id: "n3", writer: "felix", title: "Friction you can feel good about", date: "2026-11-17", batch: 0 },
+    { id: "n4", writer: "kaito", title: "Conflicts are a UI problem", date: "2026-11-18", batch: 1 },
+    { id: "n5", writer: "devi", title: "Pricing the queue", date: "2026-11-18", batch: 1 },
+    { id: "n6", writer: "priya", title: "The one chart I'd keep", date: "2026-11-18", batch: 1 },
+    { id: "n7", writer: "hollis", title: "Questions before chapters", date: "2026-11-18", batch: 1 },
+  ];
+  const NP = Object.fromEntries(NEW_PIECES.map((p) => [p.id, p]));
+  const piece = (id) => E.article(id) || NP[id];
+
+  // Questions. `raised`: pieces that ask it (with a generated snippet). `touch`: pieces that bear on it:
+  // kind = partial (half an answer) | contests (pushes back on another answer or the premise).
+  // Questions marked extra:true are page-specific additions beyond article.questions.
+  const QUESTIONS = [
+    { id: "q1", concept: "load-shedding", text: "What's the right default bound when you have no traffic data?",
+      gap: "Nobody has given a number that works without measurement. Two pieces say where to start; nobody says where to stop.",
+      raised: [{ a: "a1", s: "I'd rather pick a wrong bound than no bound, but I can't tell you which wrong bound to pick." }],
+      touch: [
+        { a: "a3", kind: "partial", s: "If people will wait four minutes and the counter serves one a minute, the line should never be longer than four." },
+        { a: "a4", kind: "partial", s: "Start from the wait you can tolerate, not the load you expect. The bound falls out of that." },
+        { a: "n1", kind: "partial", s: "Time ten requests. Multiply the wait you'll tolerate by the rate you serve. That's your bound until you have better data." },
+        { a: "n2", kind: "contests", s: "There is no right default bound. There's a right default behaviour: reject early, and log every rejection." },
+      ] },
+    { id: "q2", concept: "load-shedding", text: "How do you shed load fairly between paying and free users?",
+      gap: "Hospitals triage by need; products triage by revenue. Nobody has argued which one software should copy.",
+      raised: [{ a: "a6", s: "Who you reject first is a pricing decision dressed up as an operations decision." }],
+      touch: [
+        { a: "a4", kind: "partial", s: "A ward triages by need, not by who is paying. The moment that flips, everyone notices." },
+        { a: "n5", kind: "contests", s: "Paying users bought a promise. Shedding them last isn't unfair; it's the contract." },
+      ] },
+    { id: "q3", concept: "tail-latency", text: "Should latency budgets be set by product managers rather than engineers?",
+      gap: "Agreement that it's a product call; no account of who actually signs off.",
+      raised: [{ a: "a2", s: "If p99 is a product decision, someone in product should be able to say which users we're willing to disappoint." }],
+      touch: [{ a: "a1", kind: "partial", s: "A queue bound is a promise to users. Engineering can tell you what each promise costs, not which one to make." }] },
+    { id: "q4", concept: "queues", text: "Is there an equivalent of 'surge capacity' for software teams, not just servers?",
+      gap: "Asked once, answered nowhere yet.",
+      raised: [{ a: "a4", s: "Hospitals keep beds empty on purpose. I have never seen an engineering team keep an afternoon empty on purpose." }], touch: [] },
+    { id: "q5", concept: "crdts", text: "Who resolves conflicts when two peers disagree and neither is the authority?",
+      gap: "CRDTs settle convergence, not intent. Whether a person should be asked is still argued.",
+      raised: [{ a: "a10", s: "With no parent server, every conflict needs a rule both peers can compute alone." }],
+      touch: [
+        { a: "a11", kind: "partial", s: "Convergence is not agreement. Both peers end up with the same text, which may be nobody's intent." },
+        { a: "a14", kind: "contests", s: "Sometimes the answer is: have an authority. Pretending you don't just moves the argument to the user." },
+        { a: "n4", kind: "partial", s: "Show both versions inline and let the person pick. Merge rules can't read intent; people can." },
+      ] },
+    { id: "q6", concept: "sync", text: "Which kinds of data genuinely need a single authority?",
+      gap: "Both sides agree on money; they disagree about everything else, and nobody has drawn the line.",
+      raised: [{ a: "a14", s: "Money, permissions, and anything with a legal owner. Probably more than local-first fans admit." }],
+      touch: [
+        { a: "a10", kind: "contests", s: "Far less than we assume. Most documents need eventual agreement, not a referee." },
+        { a: "a13", kind: "partial", s: "The log is the authority. Whether it lives on a server is a deployment detail." },
+      ] },
+    { id: "q7", concept: "rich-text-merge", text: "Is there a merge semantics for formatting that users find intuitive?",
+      gap: "Plenty of algorithms, no user studies.",
+      raised: [{ a: "a11", s: "We can make bold-over-deleted-text converge. We have no idea whether anyone would expect the result." }],
+      touch: [{ a: "n4", kind: "partial", s: "Formatting conflicts are rare enough to ask about. Show the two versions and let the writer choose." }] },
+    { id: "q8", concept: "sync", text: "Should sync engines expose their log to applications?",
+      gap: "One argument for, none against yet.",
+      raised: [{ a: "a13", s: "Every app ends up wanting the log for undo, history or audit. Most sync engines hide it." }],
+      touch: [{ a: "a12", kind: "partial", s: "If the app is a file, the history is just another part of the file you're allowed to read." }] },
+    { id: "q9", concept: "density", text: "How do you design for density without overwhelming newcomers?",
+      gap: "Proposals (progressive disclosure, context) but no worked example that serves both.",
+      raised: [{ a: "a20", s: "I'm asking experts to forgive me for whitespace. I don't yet know how to ask newcomers to forgive me for density." }],
+      touch: [
+        { a: "a25", kind: "partial", s: "Progressive disclosure is fine, as long as the expert can switch it off for good." },
+        { a: "a26", kind: "contests", s: "Wrong axis. It's not novice versus expert, it's desk versus bus stop." },
+      ] },
+    { id: "q10", concept: "tables", text: "When does a chart genuinely beat a table?",
+      gap: "The table side is well argued; the chart side hasn't shown up.",
+      raised: [{ a: "a21", s: "Probably when the shape matters more than the values. That's rarer than dashboards suggest." }],
+      touch: [{ a: "n6", kind: "partial", s: "A time series with a threshold line. That's the one case where shape beats values every time." }] },
+    { id: "q11", concept: "hierarchy", text: "Can a flat interface still guide attention?",
+      gap: "Flat-design writers say yes, learning writers say no, and they haven't read each other.",
+      raised: [{ a: "a22", s: "If nothing shouts, can anything lead? I think so, but I can't prove it." }],
+      touch: [{ a: "a23", kind: "contests", s: "A learner needs one obvious next thing. Hierarchy is how you give it to them." }] },
+    { id: "q12", concept: "density", text: "Should density adapt to context rather than to the user?",
+      gap: "Proposed, not tested.",
+      raised: [{ a: "a26", s: "The same person wants a dense screen at nine and a sparse one at eleven at night." }],
+      touch: [{ a: "a20", kind: "contests", s: "Every click you add to protect a novice is a tax you charge the expert forever." }] },
+    { id: "q13", concept: "spacing", text: "How long should you wait before reviewing something you've just learned?",
+      gap: "Rough intervals agreed; nobody says how they apply to reading rather than flashcards.",
+      raised: [{ a: "a30", s: "Retrieve it just as it's slipping. The hard part is knowing when that is." }],
+      touch: [{ a: "a31", kind: "partial", s: "A day, then a week, then a month is good enough. The exact numbers matter less than doing it at all." }] },
+    { id: "q14", concept: "retrieval", text: "Does summarising from memory work as well as answering questions?",
+      gap: "Asked, not yet answered by anyone you read.",
+      raised: [{ a: "a31", s: "I've only got my own notebooks as evidence, which is to say no evidence." }], touch: [] },
+    { id: "q15", concept: "curiosity", text: "Can a reading tool deliberately create productive information gaps?",
+      gap: "Ideas for how; no one has said how to keep it from becoming clickbait.",
+      raised: [{ a: "a32", s: "Teach the edges, not the centre. I don't know what that looks like in software." }],
+      touch: [
+        { a: "a45", kind: "partial", s: "Ask 'did you learn something?' and you've opened a gap the reader actually wants closed." },
+        { a: "n7", kind: "partial", s: "Posing the question before the chapter is the cheapest way to make a reader curious enough to remember." },
+      ] },
+    { id: "q16", concept: "desirable-difficulty", text: "Where should a learning interface deliberately add friction?",
+      gap: "Agreement on recall; nothing on how much friction is too much in a tool people choose to open.",
+      raised: [{ a: "a23", s: "Smooth recall is useless recall. The question is where the friction goes." }],
+      touch: [
+        { a: "a30", kind: "partial", s: "At the moment of recall, never at the moment of finding." },
+        { a: "a33", kind: "partial", s: "Enough that you get it wrong about one time in seven." },
+        { a: "n3", kind: "partial", s: "Make the learner type the answer before revealing it. That's the only friction worth adding." },
+      ] },
+    { id: "q17", concept: "goodhart", text: "What would a reading app measure instead of time spent?",
+      gap: "Candidates exist. Whether they survive being targeted is contested.",
+      raised: [{ a: "a40", s: "If not minutes, then what? Every replacement I can think of is gameable too." }],
+      touch: [
+        { a: "a45", kind: "partial", s: "Finished articles, return visits a week later, and asking 'did you learn something?'" },
+        { a: "a42", kind: "contests", s: "A metric you're afraid of is still better than a vibe you can't check." },
+      ] },
+    { id: "q18", concept: "attention", text: "Would people pay for a feed that ends?",
+      gap: "Analogies, no evidence.",
+      raised: [{ a: "a41", s: "We've never tested it, because the feed that ends was never allowed to ship." }],
+      touch: [{ a: "a43", kind: "partial", s: "People already pay for things that end: newspapers, a good book, a season of radio." }] },
+    { id: "q19", concept: "commons", text: "Can a commons fund the people who maintain it?",
+      gap: "Co-op examples, but none for something as diffuse as RSS.",
+      raised: [{ a: "a43", s: "RSS survived because nobody could monetise it. That's also why nobody is paid to keep it alive." }],
+      touch: [{ a: "a44", kind: "partial", s: "Co-ops pay maintainers when governance is the product, and fail when it's an afterthought." }] },
+    // Extra, page-specific: matched across more than one article.
+    { id: "q20", concept: "goodhart", extra: true, text: "Is engagement a bad metric, or just a badly chosen target?",
+      gap: "Two writers, same evidence, opposite readings.",
+      raised: [
+        { a: "a42", s: "Metrics get blamed for bad goals." },
+        { a: "a41", s: "The metric wasn't the problem. Paying people to raise it was." },
+      ],
+      touch: [{ a: "a40", kind: "contests", s: "The moment you pay a team to raise a number, the number stops telling you the truth." }] },
+    { id: "q21", concept: "load-shedding", extra: true, text: "How much slack is safety, and how much is waste?",
+      gap: "Everyone agrees on 'some'; only hospitals have a number.",
+      raised: [
+        { a: "a4", s: "Eighty-five percent works for wards. I wouldn't assume it works for anything else." },
+        { a: "a6", s: "Headroom you never use looks like waste on every dashboard, right up until the day it isn't." },
+      ],
+      touch: [{ a: "a33", kind: "partial", s: "About 85% success is where learning is fastest. Odd that the same number keeps turning up." }] },
+    { id: "q22", concept: "calm-tech", extra: true, text: "Can software be useful without ever asking for your attention?",
+      gap: "Argued from taste so far, not from use.",
+      raised: [
+        { a: "a24", s: "If your app needs a badge to be opened, it isn't useful enough yet." },
+        { a: "a41", s: "Every notification is a small bet that you'd rather be somewhere else." },
+      ], touch: [] },
+  ];
+  const QI = Object.fromEntries(QUESTIONS.map((q) => [q.id, q]));
+
+  // ---------- State ----------
+  const state = {
+    view: "board",
+    status: "all",
+    onlyFollowed: false,
+    followed: new Set(["q1", "q16"]),
+    batch: 0, // NEW_PIECES with batch <= this have arrived
+    seen: new Set(), // new piece ids already seen, per question key "q:p"
+    open: null,
+    railArticle: "a1",
+    lead: "question",
+    mach: false,
+  };
+
+  const arrived = (id) => !NP[id] || NP[id].batch <= state.batch;
+  const touches = (q) => q.touch.filter((t) => arrived(t.a));
+  function statusOf(q) {
+    const t = touches(q);
+    if (t.some((x) => x.kind === "contests")) return "contested";
+    if (t.length) return "partial";
+    return "open";
+  }
+  const STATUS_LABEL = { open: "open", partial: "partly answered", contested: "contested" };
+  const stamp = (st) => `<span class="stamp ${st}">${STATUS_LABEL[st]}</span>`;
+  function newFor(q) {
+    if (!state.followed.has(q.id)) return [];
+    return touches(q).filter((t) => NP[t.a] && !state.seen.has(q.id + ":" + t.a));
+  }
+  // Rank: questions near the edge of what you know feel most like a gap (Loewenstein); fewer answers = more open.
+  function gapScore(q) {
+    const k = E.concept(q.concept).known;
+    const frontier = 4 * k * (1 - k);
+    const unresolved = 1 / (1 + touches(q).length * 0.5);
+    return 0.65 * frontier + 0.35 * unresolved + (state.followed.has(q.id) ? 0.05 : 0);
+  }
+  const writerOf = (id) => E.writer(piece(id).writer);
+  function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+
+  // ---------- Board ----------
+  function renderFilters() {
+    const visible = QUESTIONS.filter(passes);
+    const opts = [["all", "all"], ["open", "open"], ["partial", "partly answered"], ["contested", "contested"]];
+    $("#filters").innerHTML = `<span class="lbl">status:</span>` +
+      opts.map(([v, l]) => `<button class="fchip" data-status="${v}" aria-pressed="${state.status === v}">${l}</button>`).join("") +
+      `<button class="fchip" id="onlyF" aria-pressed="${state.onlyFollowed}">★ following (${state.followed.size})</button>` +
+      `<span class="counts">${visible.length} of ${QUESTIONS.length} questions · from ${new Set(QUESTIONS.flatMap((q) => q.raised.map((r) => r.a))).size} articles</span>`;
+  }
+  function passes(q) {
+    if (state.status !== "all" && statusOf(q) !== state.status) return false;
+    if (state.onlyFollowed && !state.followed.has(q.id)) return false;
+    return true;
+  }
+  function cardHTML(q) {
+    const st = statusOf(q);
+    const t = touches(q);
+    const nw = newFor(q);
+    const rot = ((hash(q.id) % 5) - 2) * 0.55;
+    const raisedW = [...new Set(q.raised.map((r) => writerOf(r.a).name.split(" ")[0]))];
+    const contests = t.filter((x) => x.kind === "contests").length;
+    const partial = t.length - contests;
+    return `<button class="qcard ${state.followed.has(q.id) ? "followed" : ""} ${state.open === q.id ? "sel" : ""}" data-q="${q.id}" style="--rot:${rot}deg">
+      <span class="pin" aria-hidden="true"></span>
+      <div class="qmeta"><span>${esc(E.concept(q.concept).label)}${state.followed.has(q.id) ? " · ★" : ""}</span>${stamp(st)}</div>
+      <div class="qtext">${esc(q.text)}</div>
+      <div class="qfoot">
+        <span>asked by <b>${raisedW.map(esc).join(", ")}</b></span>
+        ${partial ? `<span><b>${partial}</b> partial answer${partial > 1 ? "s" : ""}</span>` : `<span>no answers yet</span>`}
+        ${contests ? `<span><b>${contests}</b> pushback</span>` : ""}
+      </div>
+      ${nw.length ? `<div class="newbadge">${nw.length} new piece${nw.length > 1 ? "s" : ""} touch${nw.length > 1 ? "" : "es"} this</div>` : ""}
+    </button>`;
+  }
+  function renderBoard() {
+    renderFilters();
+    const html = E.clusters.map((cl) => {
+      const qs = QUESTIONS.filter((q) => E.concept(q.concept).cluster === cl.id && passes(q)).sort((a, b) => (newFor(b).length > 0) - (newFor(a).length > 0) || gapScore(b) - gapScore(a));
+      if (!qs.length) return "";
+      return `<section class="cluster"><h2>${esc(cl.label)}</h2>${qs.map(cardHTML).join("")}</section>`;
+    }).join("");
+    $("#board").innerHTML = html || `<p class="mono" style="font-size:13px;color:var(--ink-3)">No questions match. ${state.onlyFollowed ? "You aren't following any with this status." : ""}</p>`;
+  }
+
+  // ---------- Side panel: the unresolved thread ----------
+  function openQ(id) {
+    state.open = id;
+    const q = QI[id];
+    const nw = newFor(q).map((t) => t.a);
+    renderSide(nw);
+    nw.forEach((p) => state.seen.add(q.id + ":" + p)); // seen once opened
+    $("#side").classList.add("on"); $("#scrim").classList.add("on"); $("#side").setAttribute("aria-hidden", "false");
+    renderBoard();
+    setTimeout(() => $("#closeSide")?.focus({ preventScroll: true }), 50);
+  }
+  function closeSide() {
+    const id = state.open;
+    state.open = null;
+    $("#side").classList.remove("on"); $("#scrim").classList.remove("on"); $("#side").setAttribute("aria-hidden", "true");
+    renderAll();
+    if (id) document.querySelector(`.qcard[data-q="${id}"]`)?.focus({ preventScroll: true });
+  }
+  function snipHTML(kind, a, s, isNew) {
+    const p = piece(a), w = writerOf(a);
+    const label = { raised: "asks", partial: "partly answers", contests: "pushes back" }[kind];
+    return `<li class="${kind}"><div class="snip ${isNew ? "isnew" : ""}">
+      <div class="k ${kind}"><span>${label}</span>${isNew ? `<span style="color:var(--mustard-ink)">new since you followed</span>` : `<span style="color:var(--ink-3);font-weight:400">${E.daysAgo(p.date) <= 0 ? "today" : E.daysAgo(p.date) + "d ago"}</span>`}</div>
+      <blockquote>“${esc(s)}”</blockquote>
+      <div class="src">${esc(w.name)}, <i>${esc(w.blog)}</i> · <button data-read="${a}">${esc(p.title)}</button></div>
+    </div></li>`;
+  }
+  function renderSide(newIds = []) {
+    const q = QI[state.open];
+    if (!q) return;
+    const st = statusOf(q);
+    const t = touches(q).slice().sort((x, y) => (x.kind === "contests") - (y.kind === "contests"));
+    const order = QUESTIONS.filter(passes);
+    const idx = order.findIndex((x) => x.id === q.id);
+    const fol = state.followed.has(q.id);
+    $("#sideIn").innerHTML = `
+      <div class="side-top"><span>unresolved thread · ${esc(E.concept(q.concept).label)}</span><button class="xbtn" id="closeSide">close ✕</button></div>
+      <h2>${esc(q.text)}</h2>
+      <div class="row">${stamp(st)}
+        <button class="follow" id="followBtn" aria-pressed="${fol}">${fol ? "★ following" : "☆ follow this question"}</button>
+      </div>
+      <div class="gap-note"><b>what's still missing</b>${esc(q.gap)}</div>
+      <ol class="thread">
+        ${q.raised.map((r) => snipHTML("raised", r.a, r.s, false)).join("")}
+        ${t.map((x) => snipHTML(x.kind, x.a, x.s, newIds.includes(x.a))).join("")}
+      </ol>
+      ${!t.length ? `<p class="mono" style="font-size:12.5px;color:var(--ink-2)">No one has answered this yet. ${fol ? "You'll see a badge on the card when someone does." : "Follow it to be told, quietly, when someone does."}</p>` : ""}
+      <div class="hint"><kbd>J</kbd>/<kbd>K</kbd> next / previous question${idx >= 0 ? ` (${idx + 1} of ${order.length})` : ""} · <kbd>F</kbd> follow · <kbd>Esc</kbd> close</div>`;
+    $("#closeSide").onclick = closeSide;
+    $("#followBtn").onclick = () => toggleFollow(q.id);
+  }
+  function toggleFollow(id) {
+    if (state.followed.has(id)) { state.followed.delete(id); toast("Unfollowed."); }
+    else {
+      state.followed.add(id);
+      // anything already arrived counts as seen; only future pieces get a badge
+      touches(QI[id]).forEach((t) => state.seen.add(id + ":" + t.a));
+      toast("Following. New pieces that touch this will show as a badge on the card.");
+    }
+    renderAll();
+  }
+
+  // ---------- Related rail ----------
+  const railArticles = E.articles.filter((a) => QUESTIONS.some((q) => q.raised.some((r) => r.a === a.id) || q.touch.some((t) => t.a === a.id)));
+  function railItems(aid) {
+    const items = [];
+    for (const q of QUESTIONS) {
+      const raisedHere = q.raised.some((r) => r.a === aid);
+      const touchHere = touches(q).find((t) => t.a === aid);
+      if (!raisedHere && !touchHere) continue;
+      // candidate pieces: everyone else in the thread, answers first
+      const others = [
+        ...touches(q).filter((t) => t.a !== aid).map((t) => ({ a: t.a, kind: t.kind })),
+        ...q.raised.filter((r) => r.a !== aid).map((r) => ({ a: r.a, kind: "raised" })),
+      ];
+      if (!others.length) continue;
+      const best = others[0];
+      items.push({ q, best, others, why: raisedHere ? "this piece asks" : touchHere.kind === "contests" ? "this piece pushes back on" : "this piece half-answers" });
+    }
+    return items.sort((x, y) => gapScore(y.q) - gapScore(x.q)).slice(0, 4);
+  }
+  function renderRail() {
+    const a = E.article(state.railArticle), w = E.writer(a.writer);
+    $("#reader").innerHTML = `
+      <div class="pick"><label for="artSel">reading:</label><select id="artSel">${railArticles.map((x) => `<option value="${x.id}" ${x.id === a.id ? "selected" : ""}>${esc(x.title)}</option>`).join("")}</select></div>
+      <h2>${esc(a.title)}</h2>
+      <div class="by">${esc(w.name)} · ${esc(w.blog)} · ${a.minutes} min</div>
+      <p class="body">${esc(a.summary)}</p>
+      <div class="fake" style="width:96%"></div><div class="fake" style="width:88%"></div><div class="fake" style="width:92%"></div><div class="fake" style="width:60%"></div>`;
+    $("#artSel").onchange = (e) => { state.railArticle = e.target.value; renderRail(); };
+    const items = railItems(a.id);
+    const qFirst = state.lead === "question";
+    $("#rail").innerHTML = `
+      <h3>Read next</h3>
+      <div class="seg" role="group" aria-label="Lead the rail with"><button data-lead="question" aria-pressed="${qFirst}">lead with question</button><button data-lead="title" aria-pressed="${!qFirst}">lead with title</button></div>
+      <p class="rail-note">${qFirst ? "Each item opens with the open question it shares with this piece. You know enough to feel the gap; the piece below is a real, partial answer." : "The same items, titled the usual way. Compare how much less each one tells you about why to read it."}</p>
+      ${items.length ? items.map(({ q, best, others, why }) => {
+        const p = piece(best.a), bw = writerOf(best.a);
+        const kindTxt = { partial: "partly answers it", contests: "pushes back", raised: "asks it too", answers: "answers it" }[best.kind];
+        return `<button class="ritem ${qFirst ? "" : "titlefirst"}" data-q="${q.id}">
+          <div class="why">${why} · ${STATUS_LABEL[statusOf(q)]}</div>
+          ${qFirst ? `<div class="q">${esc(q.text)}</div><div class="t">${esc(p.title)} <span class="mono" style="font-size:12px">— ${esc(bw.name)}</span></div>`
+                   : `<div class="t">${esc(p.title)}</div><div class="q">${esc(bw.name)} · touches: ${esc(q.text)}</div>`}
+          <div class="ans">${esc(bw.name.split(" ")[0])} ${kindTxt}${others.length > 1 ? ` · +${others.length - 1} more in the thread` : ""}</div>
+        </button>`;
+      }).join("") : `<p class="rail-note">No open questions connect this piece to others yet.</p>`}`;
+  }
+
+  // ---------- Machinery ----------
+  function renderMach() {
+    const m = $("#mach");
+    m.classList.toggle("on", state.mach);
+    $("#machBtn").setAttribute("aria-pressed", state.mach);
+    if (!state.mach) return;
+    const rows = QUESTIONS.slice().sort((a, b) => gapScore(b) - gapScore(a));
+    m.innerHTML = `<h3>the machinery</h3>
+      <ol>
+        <li>On fetch, an LLM reads each article and writes 1–3 questions it raises or leaves open (<code>article.questions</code>).</li>
+        <li>Questions are embedded; pairs above <code>cos ≥ 0.82</code> are merged into one card, which is how one question gets several askers.</li>
+        <li>Every other article that shares the card's concept is checked: does it <i>partly answer</i>, <i>push back</i>, or neither? Only quoted passages count.</li>
+        <li>Status: any pushback → <b>contested</b>; any partial answer → <b>partly answered</b>; else <b>open</b>.</li>
+        <li>Within each cluster, cards are ordered by <code>0.65 × frontier(known) + 0.35 × 1/(1 + 0.5 × answers)</code>: questions at the edge of what you know, and least resolved, first.</li>
+      </ol>
+      <div class="mtable-wrap"><table class="mtable"><thead><tr><th>question</th><th>concept (known)</th><th>asked</th><th>touched</th><th>match cos</th><th>gap score</th><th>status</th></tr></thead><tbody>
+      ${rows.map((q) => `<tr><td>${esc(q.text)}${q.extra ? " <i>(extra)</i>" : ""}</td><td>${esc(E.concept(q.concept).label)} (${E.concept(q.concept).known.toFixed(2)})</td><td>${q.raised.length}</td><td>${touches(q).length}</td><td>${touches(q).map((t) => (0.82 + (hash(q.id + t.a) % 140) / 1000).toFixed(2)).join(", ") || "–"}</td><td>${gapScore(q).toFixed(2)}</td><td>${statusOf(q)}</td></tr>`).join("")}
+      </tbody></table></div>`;
+  }
+
+  function renderAll() {
+    renderBoard();
+    if (state.view === "rail") renderRail();
+    renderMach();
+    if (state.open) renderSide();
+    const fb = $("#fetchBtn");
+    fb.disabled = state.batch >= 1;
+    fb.textContent = state.batch >= 1 ? "✓ feeds up to date" : "↻ next morning's fetch";
+  }
+
+  // ---------- Events ----------
+  let toastT;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2800); }
+
+  $("#board").addEventListener("click", (e) => { const c = e.target.closest("[data-q]"); if (c) openQ(c.dataset.q); });
+  $("#filters").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.id === "onlyF") state.onlyFollowed = !state.onlyFollowed; else state.status = b.dataset.status;
+    renderBoard();
+  });
+  $("#rail").addEventListener("click", (e) => {
+    const l = e.target.closest("[data-lead]"); if (l) { state.lead = l.dataset.lead; renderRail(); return; }
+    const r = e.target.closest("[data-q]"); if (r) openQ(r.dataset.q);
+  });
+  $("#sideIn").addEventListener("click", (e) => {
+    const r = e.target.closest("[data-read]");
+    if (r) toast(`Would open “${piece(r.dataset.read).title}” in the reader.`);
+  });
+  $("#scrim").onclick = closeSide;
+  const setView = (v) => {
+    state.view = v;
+    $("#tabBoard").setAttribute("aria-selected", v === "board"); $("#tabRail").setAttribute("aria-selected", v === "rail");
+    $("#viewBoard").hidden = v !== "board"; $("#viewRail").hidden = v !== "rail";
+    renderAll();
+  };
+  $("#tabBoard").onclick = () => setView("board");
+  $("#tabRail").onclick = () => setView("rail");
+  $("#machBtn").onclick = () => { state.mach = !state.mach; renderMach(); };
+  $("#fetchBtn").onclick = () => {
+    state.batch = 1;
+    const hits = QUESTIONS.filter((q) => newFor(q).some((t) => NP[t.a].batch === 1));
+    const newOnes = NEW_PIECES.filter((p) => p.batch === 1).length;
+    renderAll();
+    toast(`${newOnes} new pieces fetched. ${hits.length ? `${hits.length} followed question${hits.length > 1 ? "s" : ""} got a badge.` : "None touch questions you follow. Follow one and try again tomorrow."}`);
+  };
+  document.addEventListener("keydown", (e) => {
+    if (e.target.matches("select, input")) return;
+    if (e.key === "Escape" && state.open) { closeSide(); return; }
+    if (!state.open) return;
+    const order = QUESTIONS.filter(passes);
+    const i = order.findIndex((q) => q.id === state.open);
+    if (e.key === "j" || e.key === "ArrowDown" && e.altKey) { if (order.length) openQ(order[(i + 1) % order.length].id); }
+    else if (e.key === "k") { if (order.length) openQ(order[(i - 1 + order.length) % order.length].id); }
+    else if (e.key === "f") toggleFollow(state.open);
+  });
+  const themes = ["auto", "light", "dark"]; let ti = 0;
+  $("#themeBtn").onclick = () => {
+    ti = (ti + 1) % 3; const th = themes[ti];
+    if (th === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", th);
+    $("#themeLbl").textContent = th;
+  };
+  $("#mockX").onclick = () => { const m = $("#mock"); m.classList.toggle("min"); $("#mockX").textContent = m.classList.contains("min") ? "+" : "–"; };
+
+  if (window.matchMedia("(max-width: 560px)").matches) { $("#mock").classList.add("min"); $("#mockX").textContent = "+"; }
+  renderAll();
+})();
+</script>
+</body>
+</html>

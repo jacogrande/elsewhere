@@ -121,18 +121,20 @@ export function createKnowledgeRepo(db: Database): KnowledgeRepo {
 
     unlinked(limit) {
       return db
-        .query<{ articleId: number; data: string }, { limit: number }>(
-          `SELECT article_id AS articleId, data FROM knowledge_extraction
-           WHERE data IS NOT NULL AND linked_at IS NULL ORDER BY article_id DESC LIMIT $limit`,
+        .query<{ articleId: number; data: string; title: string; text: string }, { limit: number }>(
+          `SELECT x.article_id AS articleId, x.data, a.title, a.text
+           FROM knowledge_extraction x JOIN library_article a ON a.id = x.article_id
+           WHERE x.data IS NOT NULL AND x.linked_at IS NULL ORDER BY x.article_id DESC LIMIT $limit`,
         )
         .all({ limit })
-        .map((r) => ({
-          articleId: r.articleId,
-          concepts: linkableConcepts(JSON.parse(r.data) as Extraction),
-        }));
+        .map(({ data, ...r }) => {
+          const e = JSON.parse(data) as Extraction;
+          // Extractions from before points existed have none.
+          return { ...r, concepts: linkableConcepts(e), points: e.points ?? [] };
+        });
     },
 
-    saveLinks(embeddingModel, articleIds, plan, now) {
+    saveLinks(embeddingModel, articleIds, plan, points, now) {
       const labelId = db.query<{ id: number }, { label: string }>(
         "SELECT concept_id AS id FROM knowledge_concept_label WHERE label = $label",
       );
@@ -154,6 +156,11 @@ export function createKnowledgeRepo(db: Database): KnowledgeRepo {
       const markLinked = db.query(
         "UPDATE knowledge_extraction SET linked_at = $now WHERE article_id = $articleId",
       );
+      const clearPoints = db.query("DELETE FROM knowledge_point WHERE article_id = $articleId");
+      const insertPoint = db.query(
+        `INSERT INTO knowledge_point (article_id, kind, subject, statement, evidence, quote, model, vector, created_at)
+         SELECT $articleId, $kind, $subject, $statement, $evidence, $quote, $model, $vector, $now WHERE ${ARTICLE_EXISTS}`,
+      );
 
       db.transaction(() => {
         // Another run may have created the same concept since this plan was made: reuse it.
@@ -167,7 +174,11 @@ export function createKnowledgeRepo(db: Database): KnowledgeRepo {
         for (const l of plan.labels) insertLabel.run({ label: l.key, conceptId: idOf(l.concept) });
         for (const articleId of articleIds) {
           clearLinks.run({ articleId });
+          clearPoints.run({ articleId });
           markLinked.run({ articleId, now });
+        }
+        for (const { articleId, point, vector } of points) {
+          insertPoint.run({ articleId, ...point, model: embeddingModel, vector: toBlob(vector), now });
         }
         for (const l of plan.links) {
           insertLink.run({ articleId: l.articleId, conceptId: idOf(l.concept), weight: l.weight });

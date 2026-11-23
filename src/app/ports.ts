@@ -4,7 +4,7 @@ import type { OpmlFeed } from "../core/feeds/opml";
 import type { FeedHealth, FeedStateSnapshot, RefreshPlan } from "../core/feeds/refresh";
 import type { JobRequest } from "../core/jobs/types";
 import type { ArticleConcepts, ConceptPlan } from "../core/knowledge/concepts";
-import type { Extraction } from "../core/knowledge/extraction";
+import type { Extraction, Point } from "../core/knowledge/extraction";
 import type { ConceptLink, Embedded } from "../core/knowledge/related";
 import type { EntryForArticle, NewArticle } from "../core/library/article";
 import type { Cursor } from "../core/library/query";
@@ -154,6 +154,8 @@ export type Ai = { embedder: Embedder; llm: LanguageModel };
 
 export type ArticleText = { id: number; title: string; text: string };
 
+export type UnlinkedExtraction = ArticleConcepts & { title: string; text: string; points: Point[] };
+
 export interface KnowledgeRepo {
   /** Articles without an embedding (or a recorded failure) for `model`, newest first. */
   pendingEmbeddings(model: string, limit: number): ArticleText[];
@@ -174,13 +176,19 @@ export interface KnowledgeRepo {
     results: { articleId: number; data: Extraction | null; error: string | null }[],
     now: number,
   ): void;
-  /** Extractions whose concepts haven't been linked yet. */
-  unlinked(limit: number): ArticleConcepts[];
+  /** Extractions whose concepts and points haven't been derived yet, with the article text to verify quotes. */
+  unlinked(limit: number): UnlinkedExtraction[];
   /** Concept ids for normalized labels already seen. */
   knownLabels(keys: string[]): Map<string, number>;
   conceptVectors(model: string): { id: number; vector: Float32Array }[];
-  /** Applies a concept plan and marks the articles linked, replacing their old links, atomically. */
-  saveLinks(embeddingModel: string, articleIds: number[], plan: ConceptPlan, now: number): void;
+  /** Applies a concept plan, replaces the articles' points, and marks them linked, atomically. */
+  saveLinks(
+    embeddingModel: string,
+    articleIds: number[],
+    plan: ConceptPlan,
+    points: { articleId: number; point: Point; vector: Float32Array }[],
+    now: number,
+  ): void;
   /** Concept links for the given articles, with each concept's document frequency. */
   conceptLinks(articleIds: number[]): Map<number, ConceptLink[]>;
   extractedCount(): number;

@@ -67,7 +67,7 @@ function fakeLlm(
       const title = req.input.match(/<title>(.*)<\/title>/)?.[1] ?? "";
       const r = byTitle[title] ?? [];
       if ("type" in r) return err(r);
-      return ok({ concepts: r, entities: [], claims: [], questions: [] } as T);
+      return ok({ concepts: r, entities: [], points: [], questions: [] } as T);
     },
   };
 }
@@ -201,7 +201,9 @@ describe("extractPending", () => {
       B: [{ label: "Queue theory", salience: "supporting" }],
     });
     const d = deps({ embedder: fakeEmbedder(), llm });
-    expect(await extractPending(d)()).toEqual(ok({ extracted: 2, failed: 0, newConcepts: 2 }));
+    expect(await extractPending(d)()).toEqual(
+      ok({ extracted: 2, failed: 0, newConcepts: 2, points: 0, unverifiedPoints: 0 }),
+    );
 
     const links = d.knowledge.conceptLinks([ids.A as number, ids.B as number]);
     const strip = (cs: ConceptLink[] = []) => cs.map(({ vector: _, ...c }) => c);
@@ -218,7 +220,9 @@ describe("extractPending", () => {
     seed([{ feed: 1, title: "A", text: words("queue") }]);
     const llm = fakeLlm({ A: { type: "invalid_response", retryable: false, detail: "bad json" } });
     const d = deps({ embedder: fakeEmbedder(), llm });
-    expect(await extractPending(d)()).toEqual(ok({ extracted: 0, failed: 1, newConcepts: 0 }));
+    expect(await extractPending(d)()).toEqual(
+      ok({ extracted: 0, failed: 1, newConcepts: 0, points: 0, unverifiedPoints: 0 }),
+    );
     expect(d.knowledge.pendingExtractions("fake-llm", PROMPT_VERSION, 10)).toEqual([]);
   });
 
@@ -269,7 +273,9 @@ describe("extractPending", () => {
     expect(db.query("SELECT kind FROM jobs WHERE kind = 'knowledge.extract'").all()).toHaveLength(1);
 
     down = false;
-    expect(await extractPending(d)()).toEqual(ok({ extracted: 0, failed: 0, newConcepts: 1 }));
+    expect(await extractPending(d)()).toEqual(
+      ok({ extracted: 0, failed: 0, newConcepts: 1, points: 0, unverifiedPoints: 0 }),
+    );
     expect(llm.calls).toBe(1);
     expect(d.knowledge.conceptLinks([ids.A as number]).get(ids.A as number)?.[0]?.label).toBe(
       "Load shedding",
@@ -288,7 +294,7 @@ describe("extractPending", () => {
             concepts: [{ label: "Load shedding", salience: "main" }],
             topics: ["reliability"],
             entities: [],
-            claims: [],
+            points: [],
             questions: [],
           },
           error: null,
@@ -301,6 +307,45 @@ describe("extractPending", () => {
     expect(links.map((l) => [l.label, l.weight])).toEqual([
       ["Load shedding", 1],
       ["reliability", 0.5],
+    ]);
+  });
+
+  test("stores only points whose quote is really in the article", async () => {
+    const ids = seed([
+      {
+        feed: 1,
+        title: "A",
+        text: `We measured p99 latency at 40 ms after bounding the queue. ${words("queue")}`,
+      },
+    ]);
+    const point = (quote: string) => ({
+      kind: "finding" as const,
+      subject: "bounded queue latency",
+      statement: "Bounding the queue brought p99 latency to 40 ms.",
+      evidence: "measurement" as const,
+      quote,
+    });
+    const d = deps({ embedder: fakeEmbedder(), llm: fakeLlm({}) });
+    d.knowledge.saveExtractions(
+      { model: "fake-llm", promptVersion: PROMPT_VERSION },
+      [
+        {
+          articleId: ids.A as number,
+          data: {
+            concepts: [{ label: "Load shedding", salience: "main" }],
+            topics: [],
+            entities: [],
+            points: [point("We measured p99 latency at 40 ms"), point("latency fell to 40ms once bounded")],
+            questions: [],
+          },
+          error: null,
+        },
+      ],
+      0,
+    );
+    expect(await extractPending(d)()).toMatchObject(ok({ points: 1, unverifiedPoints: 1 }));
+    expect(db.query("SELECT quote FROM knowledge_point").all()).toEqual([
+      { quote: "We measured p99 latency at 40 ms" },
     ]);
   });
 
@@ -332,8 +377,8 @@ describe("extractPending", () => {
       labels: [{ key: "backpressure", concept: { created: 0 } }],
       links: [{ articleId, concept: { created: 0 }, weight: 1 }],
     });
-    k.saveLinks("fake-embed", [ids.A as number], plan(ids.A as number), 0);
-    k.saveLinks("fake-embed", [ids.B as number], plan(ids.B as number), 0);
+    k.saveLinks("fake-embed", [ids.A as number], plan(ids.A as number), [], 0);
+    k.saveLinks("fake-embed", [ids.B as number], plan(ids.B as number), [], 0);
     expect(db.query("SELECT count(*) AS n FROM knowledge_concept").get()).toEqual({ n: 1 });
     expect(k.conceptLinks([ids.B as number]).get(ids.B as number)?.[0]).toMatchObject({ id: 1, df: 2 });
   });
@@ -342,7 +387,7 @@ describe("extractPending", () => {
     seed([{ feed: 1, title: "Link post", text: "see this" }]);
     const llm = fakeLlm({});
     expect(await extractPending(deps({ embedder: fakeEmbedder(), llm }))()).toEqual(
-      ok({ extracted: 0, failed: 0, newConcepts: 0 }),
+      ok({ extracted: 0, failed: 0, newConcepts: 0, points: 0, unverifiedPoints: 0 }),
     );
     expect(llm.calls).toBe(0);
   });

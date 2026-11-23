@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Return To</title>
+<script>
+  (() => { let m = null; try { m = localStorage.getItem("elsewhere.mock.theme"); } catch {} if (m) document.documentElement.dataset.theme = m; })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..800,50;1,9..144,300..800,50&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ---------- Letterpress journal kit ---------- */
+:root {
+  --paper: #f4eddd;
+  --paper-2: #ece2cc;
+  --card: #fbf6ea;
+  --ink: #2a211c;
+  --ink-2: #5b4d43;
+  --muted: #8a7a6b;
+  --oxblood: #74172a;
+  --oxblood-2: #9a3446;
+  --oxblood-wash: #ecd6d0;
+  --rule: #b9a68c;
+  --sage: #56684f;
+  --press: rgba(80, 40, 30, .14);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1b1614; --paper-2: #231c19; --card: #241d1a; --ink: #ede2cc; --ink-2: #c9baa3; --muted: #94867a;
+    --oxblood: #e0848f; --oxblood-2: #f0a3ab; --oxblood-wash: #3b2023; --rule: #5a4b40; --sage: #a8bf9c; --press: rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1b1614; --paper-2: #231c19; --card: #241d1a; --ink: #ede2cc; --ink-2: #c9baa3; --muted: #94867a;
+  --oxblood: #e0848f; --oxblood-2: #f0a3ab; --oxblood-wash: #3b2023; --rule: #5a4b40; --sage: #a8bf9c; --press: rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 17.5px/1.65 "Libre Caslon Text", "Iowan Old Style", Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 880px; margin: 0 auto; padding: 0 clamp(18px, 6vw, 72px) 120px; }
+.disp { font-family: "Fraunces", Georgia, serif; font-variation-settings: "SOFT" 50, "opsz" 96; }
+.smallcaps { font-variant: small-caps; letter-spacing: .08em; text-transform: lowercase; }
+a { color: var(--oxblood); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+button { font: inherit; color: inherit; }
+
+/* hand-ruled dividers: an irregular hairline, coloured by mask */
+.ruled { height: 9px; margin: 34px 0; background: var(--rule);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 9' preserveAspectRatio='none'%3E%3Cpath d='M0 3.6 C60 3.1 120 4.4 190 3.7 S330 2.9 400 3.9 S520 4.6 600 3.4 L600 4.7 C520 5.8 470 5.0 400 5.1 S270 4.2 190 4.9 S70 4.6 0 4.8Z M0 7.1 C110 6.6 240 7.6 380 7.0 S520 6.7 600 7.3 L600 7.8 C500 7.6 400 7.9 300 7.7 S90 7.4 0 7.8Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 9' preserveAspectRatio='none'%3E%3Cpath d='M0 3.6 C60 3.1 120 4.4 190 3.7 S330 2.9 400 3.9 S520 4.6 600 3.4 L600 4.7 C520 5.8 470 5.0 400 5.1 S270 4.2 190 4.9 S70 4.6 0 4.8Z M0 7.1 C110 6.6 240 7.6 380 7.0 S520 6.7 600 7.3 L600 7.8 C500 7.6 400 7.9 300 7.7 S90 7.4 0 7.8Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat; }
+.ruled.single { height: 5px; margin: 18px 0; }
+.fleuron { text-align: center; color: var(--oxblood); font-size: 20px; margin: 30px 0; letter-spacing: .6em; }
+
+/* masthead */
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 0 0; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+.topbar .tools { display: flex; gap: 6px; }
+.linkbtn { background: none; border: 0; padding: 2px 4px; cursor: pointer; color: var(--ink-2); font-size: 14px; border-bottom: 1px solid var(--rule); }
+.linkbtn:hover { color: var(--oxblood); border-color: var(--oxblood); }
+.linkbtn[aria-pressed="true"] { color: var(--oxblood); border-color: var(--oxblood); }
+header.mast { text-align: center; padding: 46px 0 6px; }
+header.mast .vol { font-size: 13.5px; color: var(--muted); }
+header.mast h1 { font-family: "Fraunces", serif; font-weight: 340; font-style: italic; font-size: clamp(52px, 11vw, 104px); line-height: .95; margin: 10px 0 14px; letter-spacing: -.02em; color: var(--oxblood); font-variation-settings: "SOFT" 100, "opsz" 144; }
+header.mast .dek { max-width: 560px; margin: 0 auto; font-style: italic; color: var(--ink-2); font-size: 18.5px; }
+
+h2.sec { font-family: "Fraunces", serif; font-weight: 500; font-size: 15px; letter-spacing: .22em; text-transform: uppercase; text-align: center; color: var(--ink-2); margin: 0 0 6px; }
+.sec-note { text-align: center; font-style: italic; color: var(--muted); margin: 0 0 28px; font-size: 16px; }
+
+/* return cards */
+.card { background: var(--card); border: 1px solid var(--rule); padding: clamp(18px, 4vw, 34px); margin: 0 0 30px; position: relative;
+  box-shadow: 0 1px 0 var(--press), inset 0 0 0 4px var(--card), inset 0 0 0 5px color-mix(in srgb, var(--rule) 55%, transparent);
+  transition: opacity .5s ease, transform .5s ease, max-height .6s ease, margin .6s ease, padding .6s ease; }
+.card.leaving { opacity: 0; transform: translateY(-8px); }
+.card .when { font-size: 13.5px; color: var(--oxblood); letter-spacing: .06em; }
+.card .when b { font-family: "Fraunces", serif; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; font-size: 12.5px; }
+.card h3 { font-family: "Fraunces", serif; font-weight: 520; font-size: clamp(26px, 4.5vw, 34px); line-height: 1.1; margin: 6px 0 4px; letter-spacing: -.01em; font-variation-settings: "SOFT" 30, "opsz" 72; }
+.card .by { color: var(--ink-2); font-size: 15px; margin: 0 0 14px; }
+.card .by i { color: var(--ink); }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+@media (max-width: 680px) { .cols { grid-template-columns: 1fr; gap: 6px; } }
+.label { font-family: "Fraunces", serif; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+blockquote.hl { margin: 0; padding: 4px 0 4px 16px; border-left: 2px solid var(--oxblood); font-style: italic; font-size: 18px; line-height: 1.5; }
+.mynote { margin: 10px 0 0; font-size: 15px; color: var(--ink-2); }
+.mynote::before { content: "Your note · "; font-variant: small-caps; letter-spacing: .06em; color: var(--muted); }
+ol.since { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+ol.since li { padding: 7px 0 8px; border-bottom: 1px dotted var(--rule); }
+ol.since li:last-child { border-bottom: 0; }
+ol.since .t { font-weight: 700; font-size: 15.5px; line-height: 1.3; }
+ol.since .m { font-size: 13.5px; color: var(--muted); }
+.chip { display: inline-block; font-size: 12px; padding: 0 6px; margin: 3px 4px 0 0; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); line-height: 1.6; }
+.chip.ox { border-color: var(--oxblood); color: var(--oxblood); }
+.chip.new { background: var(--oxblood-wash); border-color: transparent; color: var(--oxblood); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; align-items: center; }
+.btn { border: 1px solid var(--ink); background: transparent; padding: 7px 16px; cursor: pointer; font-family: "Fraunces", serif; font-size: 15px; letter-spacing: .02em; transition: background .15s, color .15s; }
+.btn:hover { background: var(--ink); color: var(--paper); }
+.btn.keep { background: var(--oxblood); color: var(--card); border-color: var(--oxblood); }
+.btn.keep:hover { background: var(--ink); border-color: var(--ink); }
+.btn:focus-visible, .linkbtn:focus-visible, .dot:focus-visible { outline: 2px solid var(--oxblood); outline-offset: 2px; }
+.snoozebox { position: relative; }
+.snoozemenu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 5; background: var(--card); border: 1px solid var(--ink); padding: 6px; display: none; min-width: 200px; box-shadow: 0 6px 18px var(--press); }
+.snoozemenu.on { display: block; }
+.snoozemenu button { display: block; width: 100%; text-align: left; background: none; border: 0; padding: 6px 10px; cursor: pointer; font-size: 15px; }
+.snoozemenu button:hover, .snoozemenu button:focus-visible { background: var(--oxblood-wash); outline: none; }
+.preview { font-size: 13.5px; color: var(--muted); font-style: italic; }
+
+.finished-note { text-align: center; padding: 26px 10px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.finished-note .disp { font-size: 28px; font-style: italic; font-weight: 400; margin: 0 0 6px; color: var(--oxblood); }
+.finished-note p { margin: 0; color: var(--ink-2); }
+
+/* timeline */
+.timeline { margin-top: 10px; }
+.axis { position: relative; height: 26px; margin: 0 0 4px 0; font-size: 12px; color: var(--muted); }
+.axis span { position: absolute; transform: translateX(-50%); top: 6px; white-space: nowrap; }
+.axis span::before { content: ""; position: absolute; left: 50%; top: -6px; height: 5px; border-left: 1px solid var(--rule); }
+.lane { padding: 10px 0 6px; border-top: 1px dotted var(--rule); }
+.lane .lname { font-size: 14.5px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.lane .lname b { font-weight: 700; }
+.lane .lname .st { font-size: 12.5px; color: var(--muted); font-style: italic; }
+.track { position: relative; height: 34px; }
+.track .line { position: absolute; top: 16px; height: 1px; background: var(--ink-2); }
+.track .proj { position: absolute; top: 16px; height: 0; border-top: 1px dashed var(--rule); }
+.today { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1.5px solid var(--oxblood); pointer-events: none; }
+.today-lbl { position: absolute; bottom: -22px; transform: translateX(-50%); font-size: 11.5px; color: var(--oxblood); letter-spacing: .14em; text-transform: uppercase; font-family: "Fraunces", serif; white-space: nowrap; }
+.tracks { position: relative; margin-bottom: 26px; }
+.dot { position: absolute; top: 17px; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--ink); padding: 0; cursor: pointer; transition: left .9s cubic-bezier(.3,.7,.2,1), background .3s, transform .2s; }
+.dot:hover { transform: scale(1.35); }
+.dot.star { background: none; border: 0; width: 18px; height: 18px; margin: -9px 0 0 -9px; color: var(--oxblood); font-size: 16px; line-height: 18px; text-align: center; }
+.dot.snoozed { background: var(--paper); border-style: dotted; }
+.dot.retired { background: var(--paper); border-color: var(--muted); }
+.dot.retired::after { content: "×"; position: absolute; inset: -6px 0 0; font-size: 15px; color: var(--muted); text-align: center; }
+.dot.due { background: var(--oxblood); border-color: var(--oxblood); box-shadow: 0 0 0 4px var(--oxblood-wash); }
+.dot.upcoming { background: var(--paper); border-color: var(--oxblood); }
+.dot.ghost { background: var(--paper); border: 1px dashed var(--rule); width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; cursor: default; }
+.dot.ghost:hover { transform: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); margin-top: 14px; }
+.legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 5px; border: 1.5px solid var(--ink); background: var(--ink); }
+.tip { position: fixed; z-index: 30; pointer-events: none; background: var(--ink); color: var(--paper); font-size: 13.5px; padding: 6px 10px; max-width: 260px; line-height: 1.4; opacity: 0; transition: opacity .15s; }
+.tip.on { opacity: 1; }
+.flash { animation: flash 1.8s ease; }
+@keyframes flash { 0%, 30% { background: var(--oxblood-wash); } 100% { background: transparent; } }
+
+/* machinery */
+.machinery { display: none; background: var(--paper-2); border: 1px solid var(--rule); padding: 20px clamp(14px, 3vw, 26px); font-size: 15px; margin-top: 26px; }
+.machinery.on { display: block; }
+.machinery h3 { font-family: "Fraunces", serif; font-weight: 500; margin: 0 0 8px; font-size: 20px; }
+.machinery code, .mono { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 12.5px; }
+.machinery .ladder { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; }
+.machinery .ladder span { border: 1px solid var(--rule); padding: 1px 8px; font-size: 13.5px; }
+.machinery .ladder span.arrow { border: 0; color: var(--muted); padding: 1px 0; }
+.tablewrap { overflow-x: auto; }
+.machinery table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+.machinery th, .machinery td { text-align: left; padding: 4px 8px 4px 0; border-bottom: 1px dotted var(--rule); vertical-align: top; }
+.machinery th { font-weight: 400; font-variant: small-caps; letter-spacing: .06em; color: var(--muted); }
+.recompute { list-style: none; padding: 0; margin: 8px 0 0; }
+.recompute li { padding: 6px 0; border-bottom: 1px dotted var(--rule); }
+
+/* toast with undo */
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px); background: var(--ink); color: var(--paper); padding: 10px 16px; font-size: 15px; display: flex; gap: 14px; align-items: center; opacity: 0; transition: opacity .25s, transform .25s; z-index: 25; max-width: calc(100vw - 32px); pointer-events: none; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+.toast button { background: none; border: 0; color: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-size: 15px; padding: 0; }
+
+/* mock badge */
+.mock { position: fixed; left: 12px; bottom: 12px; z-index: 20; max-width: 300px; font-size: 13.5px; line-height: 1.45; }
+.mock details { background: var(--card); border: 1px solid var(--oxblood); padding: 6px 10px; box-shadow: 0 4px 14px var(--press); }
+.mock summary { cursor: pointer; color: var(--oxblood); font-family: "Fraunces", serif; letter-spacing: .14em; text-transform: uppercase; font-size: 11.5px; list-style: none; }
+.mock summary::-webkit-details-marker { display: none; }
+.mock p { margin: 6px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <span>Elsewhere · your reading journal</span>
+    <span class="tools">
+      <button class="linkbtn" id="machBtn" aria-pressed="false">Show the machinery</button>
+      <button class="linkbtn" id="resetBtn">Reset</button>
+      <button class="linkbtn" id="themeBtn">Dark</button>
+    </span>
+  </div>
+  <header class="mast">
+    <div class="vol smallcaps">Tuesday, 17 November 2026</div>
+    <h1>Return to…</h1>
+    <p class="dek">Things you starred come back at about a week, a month and three months, bundled with what has been written about them since.</p>
+  </header>
+  <div class="ruled"></div>
+
+  <section aria-labelledby="todayH">
+    <h2 class="sec" id="todayH">Today’s returns</h2>
+    <p class="sec-note" id="todayNote"></p>
+    <div id="cards"></div>
+  </section>
+
+  <div class="fleuron" aria-hidden="true">❦</div>
+
+  <section aria-labelledby="schedH">
+    <h2 class="sec" id="schedH">The schedule</h2>
+    <p class="sec-note">Every starred piece, when it came back, and when it will come back next.</p>
+    <div class="timeline" id="timeline"></div>
+    <div class="legend" aria-hidden="true">
+      <span><span style="color:var(--oxblood)">★</span> starred</span>
+      <span><i></i>returned, still relevant</span>
+      <span><i style="background:var(--paper);border-style:dotted"></i>snoozed</span>
+      <span><i style="background:var(--oxblood);border-color:var(--oxblood)"></i>due today</span>
+      <span><i style="background:var(--paper);border-color:var(--oxblood)"></i>next return</span>
+      <span><i style="background:var(--paper);border:1px dashed var(--rule)"></i>later, if still relevant</span>
+      <span><i style="background:var(--paper);border-color:var(--muted)"></i>done with it</span>
+    </div>
+  </section>
+
+  <section class="machinery" id="machinery" aria-label="The machinery"></section>
+</div>
+
+<div class="tip" id="tip" role="tooltip"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="undoBtn">Undo</button></div>
+
+<div class="mock">
+  <details>
+    <summary>Mock · Return to… ▸</summary>
+    <p>Demonstrates <b>“Return to…”</b> (strategy doc §8.7): spaced resurfacing. Starred pieces return at growing intervals; marking one still relevant pushes the next return further out, and each return is ranked with newer pieces that share its concepts.</p>
+    <p><a href="index.html">← All mocks</a></p>
+  </details>
+</div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+const E = window.ELSEWHERE;
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const DAY = 86400000;
+const T = (d) => Date.parse(d + "T00:00:00Z");
+const iso = (t) => new Date(t).toISOString().slice(0, 10);
+const addDays = (d, n) => iso(T(d) + n * DAY);
+const diff = (a, b) => Math.round((T(b) - T(a)) / DAY);
+const TODAY = E.TODAY;
+const fmt = (d, year) => new Date(T(d)).toLocaleDateString("en-GB", { day: "numeric", month: "short", ...(year ? { year: "numeric" } : {}), timeZone: "UTC" });
+const fmtLong = (d) => new Date(T(d)).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+const rel = (d) => { const n = diff(TODAY, d); if (n === 0) return "today"; if (n === 1) return "tomorrow"; if (n === -1) return "yesterday"; if (n > 0) return n < 60 ? `in ${n} days` : `in ${Math.round(n / 30)} months`; return n > -60 ? `${-n} days ago` : `${Math.round(-n / 30)} months ago`; };
+
+/* The ladder: returns happen this many days after you starred something. */
+const MILESTONES = [7, 30, 90, 180, 365];
+const MLABEL = ["1 week", "1 month", "3 months", "6 months", "1 year"];
+
+/* ---- Page-specific mock data (fictional): your highlights, and how past returns went. ---- */
+const HIGHLIGHTS = {
+  a22: { quote: "Strict hierarchy is a shout. Most interfaces should speak at a normal volume.", note: "Try it on the reader view: one weight for titles, nothing else bold." },
+  a5: { quote: "Budgets, jitter and circuit breakers, in that order.", note: "Does our feed fetcher back off per host, or per run?" },
+  a32: { quote: "We get curious when we know enough to notice what we don't. Teach the edges, not the centre.", note: "This is the frontier idea in one sentence." },
+  a12: { quote: "One HTML file, no build, no server. What you lose is smaller than you think.", note: "The mocks are single files. Keep it that way." },
+  a44: { quote: "Governance is the product.", note: "Is there an RSS co-op? Look later." },
+};
+// Return log. kind: kept = "still relevant", snoozed (with until), retired = "done with this".
+const LOG = {
+  a44: [{ date: "2026-07-10", kind: "kept", step: 0 }, { date: "2026-08-02", kind: "kept", step: 1 }, { date: "2026-10-01", kind: "retired", step: 2 }],
+  a22: [{ date: "2026-07-27", kind: "kept", step: 0 }, { date: "2026-08-19", kind: "kept", step: 1 }, { date: "2026-10-18", kind: "snoozed", step: 2, until: "2026-11-17", label: "a month" }],
+  a5: [{ date: "2026-08-11", kind: "kept", step: 0 }, { date: "2026-09-03", kind: "kept", step: 1 }, { date: "2026-11-03", kind: "snoozed", step: 2, from: "2026-11-02", until: "2026-11-17", label: "two weeks" }],
+  a32: [{ date: "2026-10-08", kind: "kept", step: 0 }, { date: "2026-11-03", kind: "snoozed", step: 1, from: "2026-10-31", until: "2026-11-17", label: "two weeks" }],
+  a12: [{ date: "2026-10-26", kind: "kept", step: 0 }],
+};
+
+/* ---- state ---- */
+let items, recomputes, history = [];
+function init() {
+  items = E.history.filter((h) => h.event === "starred").map((h) => {
+    const events = (LOG[h.article] || []).map((e) => ({ ...e }));
+    const last = events[events.length - 1];
+    const retired = last?.kind === "retired";
+    const step = last ? (last.kind === "kept" ? last.step + 1 : last.step) : 0;
+    const due = retired ? null : last?.kind === "snoozed" ? last.until : addDays(h.date, MILESTONES[step]);
+    return { id: h.article, starred: h.date, events, step, due, retired, handledToday: null };
+  });
+  recomputes = [];
+  history = [];
+}
+init();
+const snapshot = () => JSON.stringify({ items, recomputes });
+const restore = (s) => { const o = JSON.parse(s); items = o.items; recomputes = o.recomputes; };
+
+/* ---- ranking "what's been written since" ---- */
+function since(item) {
+  const a = E.article(item.id);
+  const lastSeen = item.events.filter((e) => e.date <= TODAY).map((e) => e.date).pop() || item.starred;
+  return E.articles
+    .filter((b) => b.id !== a.id && b.date > item.starred)
+    .map((b) => {
+      const shared = b.concepts.filter((c) => a.concepts.includes(c));
+      const linksTo = (b.links || []).includes(a.id);
+      const contra = a.stance && b.stance && a.stance.issue === b.stance.issue && a.stance.side !== b.stance.side;
+      const score = shared.length + (linksTo ? 1.5 : 0) + (contra ? 1 : 0) + (b.date > lastSeen ? 0.5 : 0);
+      return { b, shared, linksTo, contra, score, fresh: b.date > lastSeen };
+    })
+    .filter((x) => x.shared.length || x.linksTo)
+    .sort((x, y) => y.score - x.score || y.b.date.localeCompare(x.b.date));
+}
+
+/* ---- scheduling rules ---- */
+function keep(item) {
+  const prev = item.step, next = Math.min(prev + 1, MILESTONES.length - 1);
+  const atLadder = addDays(item.starred, MILESTONES[next]);
+  const gap = MILESTONES[next] - MILESTONES[prev] || 365;
+  const fromToday = addDays(TODAY, gap);
+  const due = atLadder > fromToday ? atLadder : fromToday;
+  item.events.push({ date: TODAY, kind: "kept", step: prev });
+  recomputes.unshift({ id: item.id, text: `<b>${esc(E.article(item.id).title)}</b>: still relevant at the ${MLABEL[prev]} mark. Next = later of <span class="mono">starred + ${MILESTONES[next]}d = ${fmt(atLadder, true)}</span> and <span class="mono">today + ${gap}d = ${fmt(fromToday, true)}</span> → <b>${fmt(due, true)}</b>.` });
+  item.step = next; item.due = due; item.handledToday = "kept";
+  return `Kept. It will come back ${fmtLong(due)}${due.slice(0, 4) !== TODAY.slice(0, 4) ? " " + due.slice(0, 4) : ""}.`;
+}
+function retire(item) {
+  item.events.push({ date: TODAY, kind: "retired", step: item.step });
+  recomputes.unshift({ id: item.id, text: `<b>${esc(E.article(item.id).title)}</b>: done with it. Retired from the schedule; it stays starred in your archive.` });
+  item.retired = true; item.due = null; item.handledToday = "retired";
+  return "Done. It won't return, but it stays starred.";
+}
+function snooze(item, days, label) {
+  const due = addDays(TODAY, days);
+  item.events.push({ date: TODAY, kind: "snoozed", step: item.step, until: due, label });
+  recomputes.unshift({ id: item.id, text: `<b>${esc(E.article(item.id).title)}</b>: snoozed ${label}. Same rung of the ladder (${MLABEL[item.step]}), due <b>${fmt(due, true)}</b>.` });
+  item.due = due; item.handledToday = "snoozed";
+  return `Snoozed ${label}, until ${fmtLong(due)}.`;
+}
+
+/* ---- rendering: cards ---- */
+const dueToday = () => items.filter((i) => !i.retired && i.due && i.due <= TODAY && !i.handledToday);
+const handled = () => items.filter((i) => i.handledToday);
+function renderCards() {
+  const list = dueToday();
+  const box = $("#cards");
+  const n = list.length, done = handled().length;
+  const words = ["No", "One", "Two", "Three", "Four", "Five"];
+  $("#todayNote").textContent = n
+    ? `${words[n] || n} ${n === 1 ? "piece returns" : "pieces return"} today${done ? `, ${done} already handled` : ""}. That’s all of them.`
+    : "Nothing else returns today.";
+  if (!n) {
+    const next = items.filter((i) => !i.retired && i.due > TODAY).sort((a, b) => a.due.localeCompare(b.due))[0];
+    box.innerHTML = `<div class="finished-note"><p class="disp">That’s everything for today.</p>
+      <p>${next ? `Next return: <b>${esc(E.article(next.id).title)}</b>, ${rel(next.due)} (${fmtLong(next.due)}).` : "Nothing is scheduled to return."}</p></div>`;
+    return;
+  }
+  box.innerHTML = list.map((item) => {
+    const a = E.article(item.id), w = E.writer(a.writer), h = HIGHLIGHTS[item.id] || {};
+    const last = item.events[item.events.length - 1];
+    const s = since(item).slice(0, 4);
+    const total = since(item).length;
+    const prevNote = last?.kind === "snoozed" ? `Snoozed on ${fmt(last.date)}` : last ? `Last returned ${fmt(last.date)}` : "First return";
+    const nextIfKept = (() => { const nx = Math.min(item.step + 1, MILESTONES.length - 1); const a1 = addDays(item.starred, MILESTONES[nx]), b1 = addDays(TODAY, MILESTONES[nx] - MILESTONES[item.step] || 365); return a1 > b1 ? a1 : b1; })();
+    return `<article class="card" data-id="${item.id}" aria-label="${esc(a.title)}">
+      <div class="when"><b>The ${MLABEL[item.step]} return</b> · starred ${fmt(item.starred)} (${rel(item.starred)}) · ${prevNote}</div>
+      <h3>${esc(a.title)}</h3>
+      <p class="by">${esc(w.name)}, <i>${esc(w.blog)}</i> · ${fmt(a.date, true)} · ${a.minutes} min</p>
+      <div class="cols">
+        <div>
+          <div class="label">What you highlighted</div>
+          <blockquote class="hl">“${esc(h.quote || a.summary)}”</blockquote>
+          ${h.note ? `<p class="mynote">${esc(h.note)}</p>` : ""}
+        </div>
+        <div>
+          <div class="label">Written since you starred it · ${total}</div>
+          <ol class="since">${s.map((x) => `<li>
+            <div class="t">${esc(x.b.title)}</div>
+            <div class="m">${esc(E.writer(x.b.writer).name)} · ${fmt(x.b.date)}${x.b.state === "finished" ? " · you finished it" : ""}</div>
+            ${x.fresh ? `<span class="chip new">new since last return</span>` : ""}${x.contra ? `<span class="chip ox">argues the other side</span>` : ""}${x.linksTo ? `<span class="chip">links to it</span>` : ""}${x.shared.map((c) => `<span class="chip">${esc(E.concept(c).label)}</span>`).join("")}
+          </li>`).join("") || "<li class='m'>Nothing new yet. Quiet ideas still count.</li>"}</ol>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn keep" data-act="keep">Still relevant</button>
+        <span class="snoozebox"><button class="btn" data-act="snooze" aria-haspopup="true" aria-expanded="false">Snooze…</button>
+          <span class="snoozemenu" role="menu">
+            <button role="menuitem" data-snooze="3" data-label="three days">Three days · ${fmt(addDays(TODAY, 3))}</button>
+            <button role="menuitem" data-snooze="14" data-label="two weeks">Two weeks · ${fmt(addDays(TODAY, 14))}</button>
+            <button role="menuitem" data-snooze="30" data-label="a month">A month · ${fmt(addDays(TODAY, 30))}</button>
+          </span></span>
+        <button class="btn" data-act="retire">Done with this</button>
+        <span class="preview">Still relevant → back ${fmt(nextIfKept, true)}</span>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+/* ---- rendering: timeline (HTML, so it reflows at phone width) ---- */
+const START = "2026-06-24", END = "2027-03-05";
+const pct = (d) => Math.max(0, Math.min(100, (diff(START, d) / diff(START, END)) * 100));
+let prevDue = {};
+function renderTimeline() {
+  const months = [];
+  for (let y = 2026, m = 6; y < 2027 || m <= 2; m++) { if (m > 11) { m = 0; y++; } const d = `${y}-${String(m + 1).padStart(2, "0")}-01`; if (d > END) break; months.push(d); }
+  const narrow = matchMedia("(max-width: 560px)").matches;
+  const axis = `<div class="axis">${months.map((d, i) => `<span style="left:${pct(d)}%">${narrow && i % 2 ? "" : new Date(T(d)).toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}${d.endsWith("01-01") ? " ’27" : ""}</span>`).join("")}</div>`;
+  const lanes = items.map((it) => {
+    const a = E.article(it.id);
+    const dots = [];
+    dots.push(`<button class="dot star" style="left:${pct(it.starred)}%" data-tip="${esc(`Starred ${fmtLong(it.starred)}`)}" aria-label="Starred ${fmt(it.starred)}">★</button>`);
+    for (const e of it.events) {
+      const cls = e.kind === "kept" ? "" : e.kind;
+      const tip = e.kind === "kept" ? `${MLABEL[e.step]} return, ${fmtLong(e.date)}: still relevant`
+        : e.kind === "snoozed" ? `${MLABEL[e.step]} return, ${fmtLong(e.date)}: snoozed ${e.label} (until ${fmt(e.until)})`
+        : `${MLABEL[e.step]} return, ${fmtLong(e.date)}: done with this`;
+      dots.push(`<button class="dot ${cls}" style="left:${pct(e.date)}%" data-tip="${esc(tip)}" aria-label="${esc(tip)}"></button>`);
+    }
+    let lineEnd = it.retired ? it.events[it.events.length - 1].date : (it.due || TODAY);
+    if (!it.retired && it.due) {
+      const isDue = it.due <= TODAY;
+      const tip = isDue ? `${MLABEL[it.step]} return: due today` : `${MLABEL[it.step]} return: ${fmtLong(it.due)} ${it.due.slice(0, 4)} (${rel(it.due)})`;
+      const from = prevDue[it.id] && prevDue[it.id] !== it.due ? pct(prevDue[it.id]) : null;
+      dots.push(`<button class="dot ${isDue ? "due" : "upcoming"}" data-key="${it.id}" data-to="${pct(it.due)}" style="left:${from ?? pct(it.due)}%" data-tip="${esc(tip)}" aria-label="${esc(tip)}"></button>`);
+      // projected later rungs, if it stays relevant
+      let d = it.due;
+      for (let s = it.step + 1; s < MILESTONES.length; s++) {
+        const a1 = addDays(it.starred, MILESTONES[s]), b1 = addDays(d, MILESTONES[s] - MILESTONES[s - 1]);
+        d = a1 > b1 ? a1 : b1;
+        if (d > END) break;
+        dots.push(`<span class="dot ghost" style="left:${pct(d)}%" title="${MLABEL[s]} return, if still relevant: ${fmt(d, true)}"></span>`);
+      }
+    }
+    const status = it.retired ? "done with it" : it.due <= TODAY ? "returns today" : `next: ${MLABEL[it.step]} return, ${rel(it.due)}`;
+    return `<div class="lane" data-lane="${it.id}">
+      <div class="lname"><b>${esc(a.title)}</b><span class="st">${esc(E.writer(a.writer).name)} · ${status}</span></div>
+      <div class="track">
+        <div class="line" style="left:${pct(it.starred)}%;width:${pct(lineEnd) - pct(it.starred)}%"></div>
+        ${!it.retired ? `<div class="proj" style="left:${pct(lineEnd)}%;width:${100 - pct(lineEnd)}%"></div>` : ""}
+        ${dots.join("")}
+      </div>
+    </div>`;
+  }).join("");
+  $("#timeline").innerHTML = `${axis}<div class="tracks">${lanes}<div class="today" style="left:${pct(TODAY)}%"><span class="today-lbl">Today</span></div></div>`;
+  // animate moved dots to their new dates
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    document.querySelectorAll(".dot[data-to]").forEach((d) => { d.style.left = d.dataset.to + "%"; });
+  }));
+  prevDue = Object.fromEntries(items.map((i) => [i.id, i.due]));
+}
+
+/* ---- rendering: machinery ---- */
+function renderMachinery() {
+  $("#machinery").innerHTML = `<h3>The machinery</h3>
+    <p>Each starred piece climbs a ladder of returns, counted from the day you starred it:</p>
+    <div class="ladder">${MLABEL.map((l, i) => `<span>${l}</span>${i < MLABEL.length - 1 ? '<span class="arrow">→</span>' : ""}`).join("")}</div>
+    <p><b>Still relevant</b> climbs one rung. The next date is the later of the ladder date and today plus the gap between rungs, so a late return never comes back too soon. <b>Snooze</b> moves the date without climbing. <b>Done with this</b> retires it. Nothing returns more than once a day, and returns that pile up simply wait, without nagging.</p>
+    <p>Each return is bundled with newer pieces, ranked by <span class="mono">shared concepts + 1.5·(links to it) + 1·(argues the other side) + 0.5·(new since last return)</span>.</p>
+    <div class="tablewrap"><table>
+      <tr><th>Piece</th><th>Starred</th><th>Rung</th><th>Due</th></tr>
+      ${items.map((i) => `<tr><td>${esc(E.article(i.id).title)}</td><td>${fmt(i.starred)}</td><td>${i.retired ? "retired" : MLABEL[i.step]}</td><td>${i.due ? fmt(i.due, true) : "–"}</td></tr>`).join("")}
+    </table></div>
+    <h3 style="margin-top:18px">Recomputed today</h3>
+    <ul class="recompute">${recomputes.map((r) => `<li>${r.text}</li>`).join("") || "<li><i>Nothing yet. Act on a return above and the new schedule appears here.</i></li>"}</ul>`;
+}
+function renderAll() { renderCards(); renderTimeline(); renderMachinery(); }
+
+/* ---- interactions ---- */
+let toastT;
+function toast(msg) {
+  $("#toastMsg").textContent = msg; $("#toast").classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => $("#toast").classList.remove("on"), 5200);
+}
+function act(id, fn) {
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  history.push(snapshot());
+  const item = items.find((i) => i.id === id);
+  const msg = fn(item);
+  const finish = () => {
+    renderAll();
+    toast(msg);
+    const lane = document.querySelector(`.lane[data-lane="${id}"]`);
+    if (lane) { lane.classList.add("flash"); }
+  };
+  if (card && !matchMedia("(prefers-reduced-motion: reduce)").matches) { card.classList.add("leaving"); setTimeout(finish, 420); } else finish();
+}
+$("#cards").addEventListener("click", (e) => {
+  const card = e.target.closest(".card"); if (!card) return;
+  const id = card.dataset.id;
+  const b = e.target.closest("[data-act]");
+  if (b?.dataset.act === "keep") act(id, keep);
+  if (b?.dataset.act === "retire") act(id, retire);
+  if (b?.dataset.act === "snooze") {
+    const menu = b.nextElementSibling; const on = !menu.classList.contains("on");
+    document.querySelectorAll(".snoozemenu.on").forEach((m) => m.classList.remove("on"));
+    menu.classList.toggle("on", on); b.setAttribute("aria-expanded", on);
+    if (on) menu.querySelector("button").focus();
+    e.stopPropagation();
+  }
+  const s = e.target.closest("[data-snooze]");
+  if (s) act(id, (it) => snooze(it, +s.dataset.snooze, s.dataset.label));
+});
+document.addEventListener("click", (e) => { if (!e.target.closest(".snoozebox")) document.querySelectorAll(".snoozemenu.on").forEach((m) => m.classList.remove("on")); });
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") document.querySelectorAll(".snoozemenu.on").forEach((m) => { m.classList.remove("on"); m.previousElementSibling.focus(); });
+  const menu = e.target.closest?.(".snoozemenu");
+  if (menu && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+    e.preventDefault(); const bs = [...menu.querySelectorAll("button")]; const i = bs.indexOf(e.target);
+    bs[(i + (e.key === "ArrowDown" ? 1 : bs.length - 1)) % bs.length].focus();
+  }
+  if ((e.key === "z" || e.key === "u") && !e.metaKey && !e.ctrlKey && history.length && !e.target.matches("input,textarea")) $("#undoBtn").click();
+});
+$("#undoBtn").onclick = () => { if (!history.length) return; restore(history.pop()); renderAll(); $("#toast").classList.remove("on"); };
+
+// tooltips on timeline dots
+const tip = $("#tip");
+const showTip = (el) => { const r = el.getBoundingClientRect(); tip.textContent = el.dataset.tip; tip.classList.add("on");
+  const tw = tip.offsetWidth; tip.style.left = Math.max(8, Math.min(innerWidth - tw - 8, r.left + r.width / 2 - tw / 2)) + "px"; tip.style.top = (r.top - tip.offsetHeight - 8) + "px"; };
+$("#timeline").addEventListener("mouseover", (e) => { const d = e.target.closest("[data-tip]"); if (d) showTip(d); });
+$("#timeline").addEventListener("mouseout", (e) => { if (e.target.closest("[data-tip]")) tip.classList.remove("on"); });
+$("#timeline").addEventListener("focusin", (e) => { const d = e.target.closest("[data-tip]"); if (d) showTip(d); });
+$("#timeline").addEventListener("focusout", () => tip.classList.remove("on"));
+$("#timeline").addEventListener("click", (e) => {
+  const lane = e.target.closest(".lane"); if (!lane) return;
+  const card = document.querySelector(`.card[data-id="${lane.dataset.lane}"]`);
+  if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+});
+addEventListener("scroll", () => tip.classList.remove("on"), { passive: true });
+addEventListener("resize", () => renderTimeline());
+
+$("#machBtn").onclick = (e) => { const on = $("#machinery").classList.toggle("on"); e.currentTarget.setAttribute("aria-pressed", on); e.currentTarget.textContent = on ? "Hide the machinery" : "Show the machinery"; if (on) $("#machinery").scrollIntoView({ behavior: "smooth" }); };
+$("#resetBtn").onclick = () => { init(); prevDue = {}; renderAll(); toast("Reset to this morning."); };
+const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+const syncTheme = () => { $("#themeBtn").textContent = isDark() ? "Light" : "Dark"; };
+$("#themeBtn").onclick = () => { const t = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = t; try { localStorage.setItem("elsewhere.mock.theme", t); } catch {} syncTheme(); };
+syncTheme();
+renderAll();
+})();
+</script>
+</body>
+</html>

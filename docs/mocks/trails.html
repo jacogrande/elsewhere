@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elsewhere Trails</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Zilla+Slab:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f1ece0;
+  --bg-2: #e8e1cf;
+  --surface: #fbf8f1;
+  --surface-2: #f4efe3;
+  --ink: #1e2a23;
+  --ink-2: #4a5a50;
+  --ink-3: #7a8579;
+  --forest: #2f5d46;
+  --forest-2: #3f7a5c;
+  --forest-soft: #d6e4d6;
+  --clay: #b5643c;
+  --clay-soft: #f1dccd;
+  --on-forest: #fbf8f1;
+  --sky: #3b6e9e;
+  --line: #d3cab5;
+  --contour: rgba(47, 93, 70, 0.13);
+  --contour-strong: rgba(47, 93, 70, 0.22);
+  --shadow: 0 1px 0 rgba(30,42,35,.06), 0 8px 24px -12px rgba(30,42,35,.28);
+  --r: 16px;
+  --r-sm: 10px;
+  --f-body: "Figtree", system-ui, sans-serif;
+  --f-head: "Zilla Slab", Georgia, serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121a16; --bg-2: #18221d; --surface: #1c2721; --surface-2: #223029;
+    --ink: #e7eadf; --ink-2: #b6c0b2; --ink-3: #85927f;
+    --forest: #82bf98; --forest-2: #9fd2b0; --forest-soft: #23402f;
+    --clay: #e3916a; --clay-soft: #46291b; --on-forest: #10170f; --sky: #8bb7e0;
+    --line: #2f3d35; --contour: rgba(130, 191, 152, 0.09); --contour-strong: rgba(130,191,152,.16);
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121a16; --bg-2: #18221d; --surface: #1c2721; --surface-2: #223029;
+  --ink: #e7eadf; --ink-2: #b6c0b2; --ink-3: #85927f;
+  --forest: #82bf98; --forest-2: #9fd2b0; --forest-soft: #23402f;
+  --clay: #e3916a; --clay-soft: #46291b; --on-forest: #10170f; --sky: #8bb7e0;
+  --line: #2f3d35; --contour: rgba(130, 191, 152, 0.09); --contour-strong: rgba(130,191,152,.16);
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--f-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+#topo { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+#topo svg { width: 100%; height: 100%; display: block; }
+.wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 20px 16px 120px; }
+h1, h2, h3 { font-family: var(--f-head); font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--clay); outline-offset: 2px; border-radius: 6px; }
+
+/* Header */
+.top { display: flex; align-items: center; gap: 12px; justify-content: space-between; margin-bottom: 18px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark { width: 34px; height: 34px; border-radius: 50%; background: var(--forest); display: grid; place-items: center; color: var(--surface); }
+.brand b { font-family: var(--f-head); font-size: 22px; }
+.brand span { color: var(--ink-3); font-size: 13px; display: block; line-height: 1.1; }
+.top-actions { display: flex; gap: 8px; }
+.pill-btn { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+.pill-btn:hover { border-color: var(--forest); }
+.pill-btn[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); color: var(--on-forest); }
+
+.intro { margin: 8px 0 18px; max-width: 640px; }
+.intro h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.05; }
+.intro p { color: var(--ink-2); margin: 8px 0 0; }
+
+/* Trail picker */
+.picker { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-bottom: 22px; }
+.tcard { text-align: left; border: 1.5px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 14px 14px 10px; box-shadow: var(--shadow); position: relative; transition: transform .15s, border-color .15s; }
+.tcard:hover { transform: translateY(-2px); border-color: var(--forest-2); }
+.tcard[aria-pressed="true"] { border-color: var(--forest); background: var(--surface); outline: 3px solid var(--forest-soft); }
+.tcard h3 { font-size: 18px; line-height: 1.2; }
+.tcard .meta { font-size: 13px; color: var(--ink-3); margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.tcard svg { display: block; width: 100%; height: 34px; margin-top: 8px; }
+.tcard .done-chip { position: absolute; top: 12px; right: 12px; font-size: 12px; font-weight: 700; color: var(--forest); }
+
+/* Main layout */
+.main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 22px; align-items: start; }
+@media (max-width: 860px) { .main { grid-template-columns: minmax(0,1fr); } }
+
+.map-card { background: color-mix(in srgb, var(--surface) 82%, transparent); border: 1.5px solid var(--line); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); backdrop-filter: blur(2px); }
+.map-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.map-head h2 { font-size: 26px; line-height: 1.1; }
+.map-head p { margin: 4px 0 0; color: var(--ink-2); font-size: 14px; max-width: 460px; }
+.progress { min-width: 180px; flex: 0 1 240px; }
+.progress .lbl { font-size: 13px; color: var(--ink-2); display: flex; justify-content: space-between; font-weight: 600; }
+.bar { height: 10px; background: var(--bg-2); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--forest), var(--forest-2)); border-radius: inherit; transition: width .5s; }
+
+.elev { margin: 14px 0 4px; }
+.elev svg { width: 100%; height: 70px; display: block; }
+.elev .cap { font-size: 12px; color: var(--ink-3); display: flex; justify-content: space-between; }
+
+.map { position: relative; margin: 34px auto 0; max-width: 520px; }
+.map > svg { width: 100%; height: auto; display: block; overflow: visible; }
+.stop {
+  position: absolute; transform: translate(-50%, -50%);
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid var(--clay); background: var(--surface);
+  display: grid; place-items: center; font-weight: 800; font-size: 15px; color: var(--clay);
+  transition: transform .15s, background .2s, border-color .2s;
+  padding: 0;
+}
+.stop:hover { transform: translate(-50%, -50%) scale(1.1); }
+.stop.done { background: var(--forest); border-color: var(--forest); color: var(--on-forest); }
+.stop.sel { box-shadow: 0 0 0 6px color-mix(in srgb, var(--clay) 30%, transparent); }
+.stop.done.sel { box-shadow: 0 0 0 6px color-mix(in srgb, var(--forest) 30%, transparent); }
+.stop.next::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 2px dashed var(--clay); animation: spin 9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .stop.next::after { animation: none; } * { transition: none !important; } }
+.slabel { position: absolute; transform: translateY(-50%); font-size: 13px; line-height: 1.25; max-width: 40%; pointer-events: none; }
+.slabel.r { text-align: left; }
+.slabel.l { text-align: right; transform: translate(-100%, -50%); }
+.slabel b { display: block; font-size: 14px; color: var(--ink); font-weight: 700; }
+.slabel span { color: var(--ink-3); }
+.marker { position: absolute; transform: translate(-50%, -50%); font-family: var(--f-head); font-weight: 700; font-size: 14px; color: var(--ink-2); text-align: center; pointer-events: none; white-space: nowrap; }
+.you { position: absolute; transform: translate(-50%, -135%); background: var(--clay); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; pointer-events: none; text-transform: uppercase; letter-spacing: .04em; transition: left .4s, top .4s; white-space: nowrap; }
+
+/* Grades */
+.grade { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 2px 8px 2px 6px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2); white-space: nowrap; }
+.grade svg { width: 12px; height: 12px; }
+
+/* Preview panel */
+.panel { position: sticky; top: 16px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; }
+.panel .phead { padding: 16px 18px 12px; background: var(--surface-2); border-bottom: 1.5px dashed var(--line); }
+.panel .kicker { font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--clay); }
+.panel h3 { font-size: 23px; line-height: 1.15; margin-top: 4px; }
+.panel .by { font-size: 14px; color: var(--ink-2); margin-top: 6px; }
+.panel .body { padding: 14px 18px 18px; }
+.panel .summary { margin: 0 0 14px; }
+.why { background: var(--forest-soft); border-radius: var(--r-sm); padding: 12px 14px; margin-bottom: 14px; }
+.why h4 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--forest); }
+.why p { margin: 0; font-size: 15px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip { white-space: nowrap; font-size: 13px; border-radius: 999px; padding: 3px 10px; border: 1.5px solid var(--line); background: var(--surface); display: inline-flex; gap: 6px; align-items: center; }
+.chip em { font-style: normal; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.chip.intro { border-color: var(--clay); } .chip.intro em { color: var(--clay); }
+.chip.deep { border-color: var(--sky); } .chip.deep em { color: var(--sky); }
+.chip.known em { color: var(--forest); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; background: var(--surface-2); border: 1.5px solid var(--line); }
+.btn.primary { background: var(--forest); border-color: var(--forest); color: var(--on-forest); }
+.btn.clay { background: var(--clay); border-color: var(--clay); color: #fff; }
+.btn:hover { filter: brightness(1.06); }
+.hint { font-size: 12px; color: var(--ink-3); margin-top: 12px; }
+kbd { font: 600 11px var(--f-body); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: var(--surface-2); }
+
+/* Summit */
+.summit-hero { padding: 18px; background: linear-gradient(160deg, var(--forest), var(--forest-2)); color: var(--on-forest); }
+.summit-hero h3 { font-size: 26px; }
+.summit-hero p { margin: 6px 0 0; opacity: .9; }
+.know { display: grid; gap: 10px; margin: 6px 0 16px; }
+.know-row .top-line { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; gap: 8px; }
+.know-row .top-line > span { color: var(--ink-3); font-weight: 500; font-size: 13px; }
+.kbar { position: relative; height: 10px; border-radius: 999px; background: var(--bg-2); overflow: hidden; margin-top: 3px; }
+.kbar .before { position: absolute; inset: 0 auto 0 0; background: var(--ink-3); opacity: .45; }
+.kbar .after { position: absolute; inset: 0 auto 0 0; background: var(--forest); transition: width 1s .2s; }
+.newtag { font-size: 11px; font-weight: 800; color: var(--clay); text-transform: uppercase; margin-left: 6px; }
+
+/* Machinery */
+.machinery { margin-top: 22px; background: var(--surface); border: 1.5px dashed var(--forest); border-radius: var(--r); padding: 16px; display: none; }
+.machinery.on { display: block; }
+.machinery h3 { font-size: 20px; }
+.machinery p { color: var(--ink-2); font-size: 14px; margin: 6px 0 12px; }
+.mtable-wrap { overflow-x: auto; }
+.mtable { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 560px; }
+.mtable th, .mtable td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.mtable th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.mtable td.num { font-variant-numeric: tabular-nums; }
+code { font-size: 12.5px; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+
+/* Mock badge */
+.mock { position: fixed; left: 12px; bottom: 12px; z-index: 20; max-width: min(340px, calc(100vw - 24px)); background: var(--ink); color: var(--bg); border-radius: 14px; padding: 10px 12px; font-size: 12.5px; line-height: 1.4; box-shadow: var(--shadow); }
+.mock a { color: var(--bg); font-weight: 700; }
+.mock .tag { display: inline-block; background: var(--clay); color: #fff; font-weight: 800; letter-spacing: .08em; font-size: 10px; padding: 1px 6px; border-radius: 4px; margin-right: 6px; }
+.mock .x { float: right; background: none; border: 0; color: var(--bg); opacity: .7; padding: 0 0 0 8px; font-size: 14px; }
+.mock.min p { display: none; }
+
+.toast { position: fixed; right: 16px; bottom: 16px; z-index: 30; background: var(--forest); color: var(--surface); padding: 10px 14px; border-radius: 12px; font-weight: 600; font-size: 14px; box-shadow: var(--shadow); transform: translateY(calc(100% + 140px)); visibility: hidden; transition: transform .25s, visibility .25s; max-width: calc(100vw - 32px); }
+.toast.show { transform: none; visibility: visible; }
+@media (max-width: 560px) {
+  .toast { bottom: 90px; }
+  .slabel { font-size: 12px; max-width: 64%; }
+  .slabel b { font-size: 13px; }
+  .stop { width: 34px; height: 34px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+<div id="topo" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 10 7l4 7 2-3 5 9z"/></svg>
+      </div>
+      <div><b>Elsewhere</b><span>Trails</span></div>
+    </div>
+    <div class="top-actions">
+      <button class="pill-btn" id="machBtn" aria-pressed="false" title="Show how the trail is built">⚙ Machinery</button>
+      <button class="pill-btn" id="themeBtn" title="Toggle light / dark">◐ <span id="themeLbl">Auto</span></button>
+    </div>
+  </header>
+
+  <section class="intro">
+    <h1>Pick a trail. Walk it to the summit.</h1>
+    <p>Each trail is a short path through one idea, 4 to 7 pieces by different writers, ordered from what you already know to what you don't. It has an end.</p>
+  </section>
+
+  <nav class="picker" id="picker" aria-label="Trails"></nav>
+
+  <div class="main">
+    <section class="map-card" aria-labelledby="trailTitle">
+      <div class="map-head">
+        <div>
+          <h2 id="trailTitle"></h2>
+          <p id="trailDesc"></p>
+        </div>
+        <div class="progress">
+          <div class="lbl"><span id="progLbl"></span><span id="progMin"></span></div>
+          <div class="bar"><i id="progBar"></i></div>
+        </div>
+      </div>
+      <div class="elev">
+        <svg id="elev" viewBox="0 0 600 70" preserveAspectRatio="none" aria-label="Difficulty profile"></svg>
+        <div class="cap"><span>Trailhead</span><span>Difficulty along the trail</span><span>Summit</span></div>
+      </div>
+      <div class="map" id="map"></div>
+    </section>
+
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+  </div>
+
+  <section class="machinery" id="machinery" aria-label="How this trail was built"></section>
+</div>
+
+<div class="mock" id="mock">
+  <button class="x" id="mockX" aria-label="Minimise note">–</button>
+  <span class="tag">MOCK</span><b>Strategy: Trails</b> · <a href="index.html">All mocks</a>
+  <p style="margin:6px 0 0">A trail is 4–7 pieces through one idea, ordered by your concept graph so each stop builds on what you know and introduces one or two new concepts. Mock data, nothing is saved.</p>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const E = window.ELSEWHERE;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // ---------- Page-specific mock data: the generated trails ----------
+  const TRAILS = [
+    { id: "queues", title: "From queues to load shedding", seed: "load-shedding",
+      desc: "Why lines get long all at once, and what to do when you can't keep up. Starts in the coffee shop, ends in the hospital.",
+      stops: ["a2", "a3", "a5", "a6", "a1", "a4"] },
+    { id: "localfirst", title: "Local-first, and its critics", seed: "local-first",
+      desc: "The case for apps that work without a server, the case against, and the hard problem at the top: merging rich text.",
+      stops: ["a12", "a10", "a13", "a14", "a11"] },
+    { id: "memory", title: "How memory works, for designers", seed: "retrieval",
+      desc: "From the science of forgetting to the interfaces that help or hinder it. Two learning writers, two designers.",
+      stops: ["a31", "a32", "a30", "a22", "a23"] },
+  ];
+
+  // Page-specific: an LLM-judged "depth" per piece (0 = assumes nothing, 1 = assumes a lot).
+  const DEPTH = { a2: 0.2, a3: 0.15, a5: 0.4, a6: 0.45, a1: 0.55, a4: 0.8,
+    a12: 0.15, a10: 0.35, a13: 0.55, a14: 0.5, a11: 0.9,
+    a31: 0.15, a32: 0.3, a30: 0.5, a22: 0.5, a23: 0.75 };
+
+  // ---------- Derived trail model ----------
+  const KNOWN = 0.5;
+  function grade(score) {
+    if (score < 0.3) return { id: "easy", label: "Easy" };
+    if (score < 0.5) return { id: "moderate", label: "Moderate" };
+    if (score < 0.66) return { id: "steep", label: "Steep" };
+    return { id: "scramble", label: "Scramble" };
+  }
+  function gradeIcon(id) {
+    const c = "currentColor";
+    if (id === "easy") return `<svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="var(--forest)"/></svg>`;
+    if (id === "moderate") return `<svg viewBox="0 0 12 12"><rect x="1.5" y="1.5" width="9" height="9" fill="var(--sky)"/></svg>`;
+    if (id === "steep") return `<svg viewBox="0 0 12 12"><path d="M6 .5 11.5 6 6 11.5.5 6z" fill="var(--clay)"/></svg>`;
+    return `<svg viewBox="0 0 12 12"><path d="M3.5 1 6.5 6 3.5 11 .5 6zM8.5 1l3 5-3 5-3-5z" fill="${c}"/></svg>`;
+  }
+  const gradeHTML = (g) => `<span class="grade">${gradeIcon(g.id)}${g.label}</span>`;
+
+  function buildTrail(t) {
+    const introducedAt = {}; // concept -> stop index
+    return t.stops.map((aid, i) => {
+      const a = E.article(aid);
+      // familiarity on the trail: known concepts count 1, ones an earlier stop introduced count 0.6
+      const fam = a.concepts.reduce((sum, cid) => sum + (E.concept(cid).known >= KNOWN ? 1 : introducedAt[cid] !== undefined ? 0.6 : 0), 0) / a.concepts.length;
+      const lenTerm = Math.min(a.minutes / 16, 1);
+      const depth = DEPTH[aid] ?? 0.5;
+      const score = 0.55 * depth + 0.25 * (1 - fam) + 0.2 * lenTerm;
+      const roles = a.concepts.map((cid) => {
+        const c = E.concept(cid);
+        if (introducedAt[cid] !== undefined) return { c, role: "deep", from: introducedAt[cid] };
+        if (c.known >= KNOWN) return { c, role: "known" };
+        introducedAt[cid] = i;
+        return { c, role: "intro" };
+      });
+      return { a, i, fam, depth, score, lenTerm, g: grade(score), roles, writer: E.writer(a.writer) };
+    });
+  }
+  function listJoin(xs) { return xs.length <= 1 ? xs.join("") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1]; }
+  function whyNext(stop, total) {
+    const intro = stop.roles.filter((r) => r.role === "intro").map((r) => `<b>${esc(r.c.label)}</b>`);
+    const deep = stop.roles.filter((r) => r.role === "deep").map((r) => `<b>${esc(r.c.label)}</b> (from stop ${r.from + 1})`);
+    const known = stop.roles.filter((r) => r.role === "known").map((r) => esc(r.c.label.toLowerCase()));
+    const parts = [];
+    if (stop.i === 0) parts.push(known.length ? `The trailhead: an easy start on ground you already know, ${listJoin(known)}.` : `The trailhead: the most accessible way in. It assumes nothing you haven't read.`);
+    else if (known.length) parts.push(`Builds on ${listJoin(known)}, which you know.`);
+    if (intro.length) parts.push(`Introduces ${listJoin(intro)}.`);
+    if (deep.length) parts.push(`Goes deeper on ${listJoin(deep)}.`);
+    if (!intro.length && !deep.length && stop.i > 0) parts.push(`No new concepts: a different writer's angle on familiar ground, to steady your footing.`);
+    if (stop.i === total - 1) parts.push(`This is the summit, the deepest piece on the trail.`);
+    return parts.join(" ");
+  }
+
+  // ---------- State ----------
+  const state = {
+    trail: TRAILS[0].id,
+    sel: 0,
+    done: {}, // trailId -> Set of article ids
+    showMach: false,
+  };
+  for (const t of TRAILS) {
+    state.done[t.id] = new Set(t.stops.filter((id) => ["finished", "starred"].includes(E.article(id).state)));
+  }
+  const current = () => TRAILS.find((t) => t.id === state.trail);
+
+  // ---------- Topographic background ----------
+  function drawTopo() {
+    const W = 1400, H = 1000;
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+    const peaks = [[230, 220, 9], [1080, 180, 11], [760, 640, 12], [180, 820, 7], [1300, 860, 8]];
+    let paths = "";
+    for (const [cx, cy, rings] of peaks) {
+      const ph = [rnd() * 6.28, rnd() * 6.28, rnd() * 6.28];
+      for (let k = 1; k <= rings; k++) {
+        const base = k * 34;
+        let d = "";
+        for (let s = 0; s <= 96; s++) {
+          const th = (s / 96) * Math.PI * 2;
+          const r = base * (1 + 0.16 * Math.sin(3 * th + ph[0] + k * 0.15) + 0.09 * Math.sin(5 * th + ph[1]) + 0.05 * Math.sin(2 * th + ph[2] - k * 0.1));
+          d += (s ? "L" : "M") + (cx + r * Math.cos(th)).toFixed(1) + " " + (cy + r * 0.82 * Math.sin(th)).toFixed(1);
+        }
+        const strong = k % 4 === 0;
+        paths += `<path d="${d}Z" fill="none" stroke="var(${strong ? "--contour-strong" : "--contour"})" stroke-width="${strong ? 1.6 : 1}"/>`;
+      }
+    }
+    $("#topo").innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice">${paths}</svg>`;
+  }
+
+  // ---------- Rendering ----------
+  function elevPath(stops, w, h, pad) {
+    const n = stops.length;
+    const pts = stops.map((s, i) => [pad + (i * (w - 2 * pad)) / Math.max(n - 1, 1), h - 8 - s.score * (h - 18)]);
+    return pts;
+  }
+  function renderPicker() {
+    $("#picker").innerHTML = TRAILS.map((t) => {
+      const stops = buildTrail(t);
+      const mins = stops.reduce((s, x) => s + x.a.minutes, 0);
+      const writers = new Set(stops.map((s) => s.a.writer)).size;
+      const done = state.done[t.id].size;
+      const pts = elevPath(stops, 300, 34, 6);
+      const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join("");
+      const area = line + `L${pts[pts.length - 1][0]} 34L${pts[0][0]} 34Z`;
+      return `<button class="tcard" data-trail="${t.id}" aria-pressed="${t.id === state.trail}">
+        ${done === t.stops.length ? `<span class="done-chip">▲ Summited</span>` : done ? `<span class="done-chip">${done}/${t.stops.length}</span>` : ""}
+        <h3>${esc(t.title)}</h3>
+        <div class="meta"><span>${t.stops.length} stops</span><span>${writers} writers</span><span>${mins} min</span></div>
+        <svg viewBox="0 0 300 34" preserveAspectRatio="none" aria-hidden="true">
+          <path d="${area}" fill="var(--forest-soft)"/><path d="${line}" fill="none" stroke="var(--forest)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        </svg>
+      </button>`;
+    }).join("");
+  }
+
+  function renderHeader(stops) {
+    const t = current();
+    const done = state.done[t.id];
+    const mins = stops.reduce((s, x) => s + x.a.minutes, 0);
+    const doneMin = stops.filter((s) => done.has(s.a.id)).reduce((s, x) => s + x.a.minutes, 0);
+    $("#trailTitle").textContent = t.title;
+    $("#trailDesc").textContent = t.desc;
+    $("#progLbl").textContent = done.size === stops.length ? "Summit reached" : `${done.size} of ${stops.length} stops walked`;
+    $("#progMin").textContent = `${doneMin}/${mins} min`;
+    $("#progBar").style.width = (100 * done.size) / stops.length + "%";
+
+    // elevation profile
+    const pts = elevPath(stops, 600, 70, 14);
+    const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join("");
+    const area = line + `L${pts[pts.length - 1][0]} 70L${pts[0][0]} 70Z`;
+    const dots = pts.map((p, i) => {
+      const d = done.has(stops[i].a.id);
+      return `<circle cx="${p[0]}" cy="${p[1]}" r="${i === state.sel ? 6 : 4.5}" fill="${d ? "var(--forest)" : "var(--surface)"}" stroke="${d ? "var(--forest)" : "var(--clay)"}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+    }).join("");
+    $("#elev").innerHTML = `<path d="${area}" fill="var(--forest-soft)" opacity=".7"/><path d="${line}" fill="none" stroke="var(--forest)" stroke-width="2" vector-effect="non-scaling-stroke"/>${dots}`;
+  }
+
+  function mapGeometry(n) {
+    const W = 360, gap = 112, top = 70, bottom = 70;
+    const H = top + bottom + (n - 1) * gap + 40;
+    const narrow = window.matchMedia("(max-width: 560px)").matches;
+    // Phones: stops wiggle up the left edge so labels get the full right-hand width.
+    const xs = narrow ? [52, 92, 46, 88, 50, 94, 48] : [96, 262, 118, 250, 104, 256, 130];
+    const pts = [];
+    for (let i = 0; i < n; i++) pts.push([xs[i % xs.length], H - bottom - 20 - i * gap]);
+    return narrow
+      ? { W, H, pts, narrow, head: [64, H - 22], peak: [70, 26] }
+      : { W, H, pts, narrow, head: [180, H - 22], peak: [180, 26] };
+  }
+  function curve(a, b) {
+    const my = (a[1] + b[1]) / 2;
+    return `M${a[0]} ${a[1]}C${a[0]} ${my} ${b[0]} ${my} ${b[0]} ${b[1]}`;
+  }
+
+  function renderMap(stops) {
+    const t = current();
+    const done = state.done[t.id];
+    const n = stops.length;
+    const g = mapGeometry(n);
+    const all = [g.head, ...g.pts, g.peak];
+    let segs = "";
+    for (let k = 0; k < all.length - 1; k++) {
+      // segment k connects all[k] -> all[k+1]; walked if both ends walked (trailhead counts as walked)
+      const aDone = k === 0 || done.has(stops[k - 1].a.id);
+      const bDone = k < n ? done.has(stops[k].a.id) : done.size === n;
+      const walked = aDone && bDone;
+      segs += `<path d="${curve(all[k], all[k + 1])}" fill="none" stroke="var(--surface)" stroke-width="12" stroke-linecap="round" opacity=".8"/>`;
+      segs += `<path d="${curve(all[k], all[k + 1])}" fill="none" stroke="${walked ? "var(--forest)" : "var(--clay)"}" stroke-width="${walked ? 6 : 3.5}" stroke-linecap="round" ${walked ? "" : 'stroke-dasharray="2 9"'}/>`;
+    }
+    const summited = done.size === n;
+    const peak = `<g transform="translate(${g.peak[0]} ${g.peak[1]})">
+      <path d="M-30 14 -8 -16 2 -4 10 -12 32 14Z" fill="${summited ? "var(--forest)" : "var(--bg-2)"}" stroke="var(--forest)" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M-8 -16 -2 -8 2 -4" fill="none" stroke="var(--surface)" stroke-width="2"/>
+      ${summited ? `<path d="M-8 -16V-36l14 5-14 5" fill="var(--clay)" stroke="var(--clay)" stroke-width="2" stroke-linejoin="round"/>` : ""}
+    </g>`;
+    const head = `<g transform="translate(${g.head[0]} ${g.head[1]})"><rect x="-7" y="-4" width="14" height="16" rx="2" fill="var(--clay)"/><rect x="-24" y="-18" width="48" height="16" rx="3" fill="var(--forest)"/></g>`;
+    const nextIdx = stops.findIndex((s) => !done.has(s.a.id));
+    let html = `<svg viewBox="0 0 ${g.W} ${g.H}" role="img" aria-label="Trail map from trailhead to summit">${segs}${head}${peak}</svg>`;
+    const pct = (p) => `left:${(100 * p[0]) / g.W}%;top:${(100 * p[1]) / g.H}%`;
+    html += `<div class="marker" style="${pct([g.head[0], g.head[1] + 22])}">Trailhead</div>`;
+    html += `<div class="marker" style="${pct([g.peak[0] + 62, g.peak[1] + 2])}">${summited ? "Summit ✓" : "Summit"}</div>`;
+    stops.forEach((s, i) => {
+      const p = g.pts[i];
+      const isDone = done.has(s.a.id);
+      const cls = ["stop", isDone ? "done" : "", i === state.sel ? "sel" : "", i === nextIdx ? "next" : ""].join(" ");
+      html += `<button class="${cls}" style="${pct(p)}" data-stop="${i}" aria-label="Stop ${i + 1}: ${esc(s.a.title)}${isDone ? ", walked" : ""}" aria-current="${i === state.sel ? "step" : "false"}">${isDone ? "✓" : i + 1}</button>`;
+      const right = g.narrow || p[0] < 180;
+      const lp = right ? [p[0] + 30, p[1]] : [p[0] - 30, p[1]];
+      html += `<div class="slabel ${right ? "r" : "l"}" style="${pct(lp)}"><b>${esc(s.a.title)}</b><span>${esc(s.writer.name)} · ${s.a.minutes} min · ${s.g.label}</span></div>`;
+    });
+    if (nextIdx >= 0) html += `<div class="you" style="${pct(g.pts[nextIdx])}">Next</div>`;
+    $("#map").innerHTML = html;
+  }
+
+  function renderPanel(stops) {
+    const t = current();
+    const done = state.done[t.id];
+    const panel = $("#panel");
+    if (state.sel === "summit") return renderSummit(stops);
+    const s = stops[state.sel];
+    const isDone = done.has(s.a.id);
+    const prior = s.a.state === "finished" || s.a.state === "starred";
+    const chips = s.roles.map((r) => `<span class="chip ${r.role}"><em>${r.role === "intro" ? "new" : r.role === "deep" ? "deeper" : "known"}</em>${esc(r.c.label)}</span>`).join("");
+    const isLast = state.sel === stops.length - 1;
+    panel.innerHTML = `
+      <div class="phead">
+        <div class="kicker">Stop ${s.i + 1} of ${stops.length}${isLast ? " · summit piece" : s.i === 0 ? " · trailhead" : ""}</div>
+        <h3>${esc(s.a.title)}</h3>
+        <div class="by">${esc(s.writer.name)}, <i>${esc(s.writer.blog)}</i>${s.writer.subscribed ? "" : " · not in your feeds yet"}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">${gradeHTML(s.g)}<span class="grade">⏱ ${s.a.minutes} min</span>${prior ? `<span class="grade">You ${s.a.state} this</span>` : ""}</div>
+      </div>
+      <div class="body">
+        <p class="summary">${esc(s.a.summary)}</p>
+        <div class="why"><h4>Why this is ${s.i === 0 ? "first" : "next"}</h4><p>${whyNext(s, stops.length)}</p></div>
+        <div class="chips">${chips}</div>
+        <div class="actions">
+          <button class="btn ${isDone ? "" : "primary"}" id="toggleDone">${isDone ? "↺ Unmark" : "✓ Mark walked"}</button>
+          <button class="btn" id="openArt">Open in reader</button>
+          ${isLast ? (done.size === stops.length ? `<button class="btn clay" id="goSummit">▲ Summit</button>` : "") : `<button class="btn" id="nextStop">Next stop →</button>`}
+        </div>
+        <div class="hint"><kbd>↑</kbd><kbd>↓</kbd> move along the trail · <kbd>Space</kbd> mark walked · <kbd>M</kbd> machinery</div>
+      </div>`;
+    $("#toggleDone").onclick = () => toggleDone(s.a.id);
+    $("#openArt").onclick = () => toast(`Would open “${s.a.title}” in the reader. Finishing it marks the stop.`);
+    const ns = $("#nextStop"); if (ns) ns.onclick = () => select(state.sel + 1);
+    const gs = $("#goSummit"); if (gs) gs.onclick = () => select("summit");
+  }
+
+  function knowledgeGains(stops) {
+    const done = state.done[current().id];
+    const gains = {};
+    stops.forEach((s) => {
+      if (!done.has(s.a.id)) return;
+      s.a.concepts.forEach((cid) => { gains[cid] = (gains[cid] || 0) + 1; });
+    });
+    const touched = [...new Set(stops.flatMap((s) => s.a.concepts))].map((cid) => {
+      const c = E.concept(cid);
+      const before = c.known;
+      // each walked stop that covers a concept closes ~35% of the remaining gap (diminishing returns)
+      const after = 1 - (1 - before) * Math.pow(0.65, gains[cid] || 0);
+      return { c, before, after, crossed: before < KNOWN && after >= KNOWN };
+    });
+    return touched.sort((x, y) => (y.after - y.before) - (x.after - x.before));
+  }
+
+  function renderSummit(stops) {
+    const t = current();
+    const rows = knowledgeGains(stops);
+    const writers = [...new Set(stops.map((s) => s.writer.name))];
+    const mins = stops.reduce((s, x) => s + x.a.minutes, 0);
+    const crossed = rows.filter((r) => r.crossed);
+    $("#panel").innerHTML = `
+      <div class="summit-hero">
+        <div class="kicker" style="color:inherit;opacity:.8">Summit reached</div>
+        <h3>${esc(t.title)}</h3>
+        <p>${stops.length} pieces, ${writers.length} writers, ${mins} minutes. This trail is finished; it won't extend itself.</p>
+      </div>
+      <div class="body">
+        <h4 style="margin:4px 0 8px;font-family:var(--f-head);font-size:18px">What you now know</h4>
+        <p style="margin:0 0 10px;color:var(--ink-2);font-size:14px">${crossed.length ? `${listJoin(crossed.map((r) => "<b>" + esc(r.c.label) + "</b>"))} moved from the edge of your map into known territory.` : "Your map got firmer in the places this trail touched."}</p>
+        <div class="know">${rows.map((r) => `
+          <div class="know-row">
+            <div class="top-line"><b>${esc(r.c.label)}${r.crossed ? '<span class="newtag">new to you</span>' : ""}</b><span>${Math.round(r.before * 100)} → ${Math.round(r.after * 100)}</span></div>
+            <div class="kbar"><div class="after" style="width:${r.before * 100}%" data-to="${r.after * 100}"></div><div class="before" style="width:${r.before * 100}%"></div></div>
+          </div>`).join("")}
+        </div>
+        <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">With: ${writers.map(esc).join(", ")}.</p>
+        <div class="actions">
+          <button class="btn primary" id="otherTrail">Choose another trail</button>
+          <button class="btn" id="backStop">Back to stop 1</button>
+        </div>
+      </div>`;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      document.querySelectorAll(".kbar .after").forEach((el) => (el.style.width = el.dataset.to + "%"));
+    }));
+    $("#otherTrail").onclick = () => { const i = TRAILS.findIndex((x) => x.id === t.id); pickTrail(TRAILS[(i + 1) % TRAILS.length].id); };
+    $("#backStop").onclick = () => select(0);
+  }
+
+  function renderMachinery(stops) {
+    const m = $("#machinery");
+    m.classList.toggle("on", state.showMach);
+    $("#machBtn").setAttribute("aria-pressed", state.showMach);
+    if (!state.showMach) return;
+    const t = current();
+    m.innerHTML = `
+      <h3>The machinery</h3>
+      <p>Seed concept <code>${t.seed}</code>. Candidates come from concept bridges and links around it, limited to one piece per writer where possible. Each stop is placed so it only <i>builds on</i> concepts you know (<code>known ≥ 0.5</code>) or that an earlier stop introduced, and <i>introduces</i> at most two new ones. Difficulty is <code>0.55 × depth + 0.25 × (1 − familiarity) + 0.2 × min(minutes / 16, 1)</code>, where depth is an LLM judgement of how much the piece assumes, and familiarity counts concepts you know as 1 and concepts an earlier stop introduced as 0.6; it rises along the trail but is allowed to dip, like a real path. Walking a stop raises each of its concepts by closing 35% of the gap to 1.</p>
+      <div class="mtable-wrap"><table class="mtable">
+        <thead><tr><th>#</th><th>Piece</th><th>Writer</th><th>Depth</th><th>Familiar</th><th>Difficulty</th><th>Introduces</th><th>Builds on</th></tr></thead>
+        <tbody>${stops.map((s) => `<tr>
+          <td>${s.i + 1}</td><td>${esc(s.a.title)}</td><td>${esc(s.writer.name)}</td>
+          <td class="num">${s.depth.toFixed(2)}</td><td class="num">${Math.round(s.fam * 100)}%</td><td class="num">${s.score.toFixed(2)} ${s.g.label}</td>
+          <td>${s.roles.filter((r) => r.role === "intro").map((r) => esc(r.c.label)).join(", ") || "–"}</td>
+          <td>${s.roles.filter((r) => r.role !== "intro").map((r) => esc(r.c.label) + ` <span style="color:var(--ink-3)">(${r.c.known.toFixed(2)})</span>`).join(", ")}</td>
+        </tr>`).join("")}</tbody></table></div>`;
+  }
+
+  function render() {
+    const stops = buildTrail(current());
+    renderPicker();
+    renderHeader(stops);
+    renderMap(stops);
+    renderPanel(stops);
+    renderMachinery(stops);
+  }
+
+  // ---------- Actions ----------
+  let toastT;
+  function toast(msg) {
+    const el = $("#toast");
+    el.textContent = msg; el.classList.add("show");
+    clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("show"), 2600);
+  }
+  function select(i) {
+    const n = current().stops.length;
+    if (i !== "summit") i = Math.max(0, Math.min(n - 1, i));
+    state.sel = i;
+    render();
+    if (i !== "summit") {
+      const btn = document.querySelector(`.stop[data-stop="${i}"]`);
+      if (btn && document.activeElement && document.activeElement.classList.contains("stop")) btn.focus({ preventScroll: false });
+    }
+    if (window.matchMedia("(max-width: 860px)").matches) $("#panel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  function toggleDone(aid) {
+    const t = current();
+    const done = state.done[t.id];
+    const wasAll = done.size === t.stops.length;
+    if (done.has(aid)) done.delete(aid); else done.add(aid);
+    if (!wasAll && done.size === t.stops.length) {
+      state.sel = "summit";
+      render();
+      toast("Summit reached. Trail complete.");
+      return;
+    }
+    if (done.has(aid)) {
+      const nextIdx = t.stops.findIndex((id) => !done.has(id));
+      toast(nextIdx >= 0 ? `Walked. ${t.stops.length - done.size} stop${t.stops.length - done.size === 1 ? "" : "s"} to the summit.` : "Walked.");
+    }
+    render();
+  }
+  function pickTrail(id) {
+    state.trail = id;
+    const t = current();
+    const nextIdx = t.stops.findIndex((x) => !state.done[id].has(x));
+    state.sel = nextIdx < 0 ? "summit" : nextIdx;
+    render();
+  }
+
+  $("#picker").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-trail]");
+    if (b) pickTrail(b.dataset.trail);
+  });
+  $("#map").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-stop]");
+    if (b) { b.focus(); select(+b.dataset.stop); }
+  });
+  $("#machBtn").onclick = () => { state.showMach = !state.showMach; render(); if (state.showMach) $("#machinery").scrollIntoView({ behavior: "smooth", block: "start" }); };
+  document.addEventListener("keydown", (e) => {
+    if (e.target.matches("input, textarea")) return;
+    const n = current().stops.length;
+    const cur = state.sel === "summit" ? n : state.sel;
+    if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); if (cur < n - 1) select(cur + 1); else if (state.done[state.trail].size === n) select("summit"); }
+    else if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); select(cur - 1); }
+    else if ((e.key === " " || e.key === "Enter") && document.activeElement.classList.contains("stop")) { e.preventDefault(); if (state.sel !== "summit") toggleDone(current().stops[state.sel]); }
+    else if (e.key === " " && document.activeElement === document.body && state.sel !== "summit") { e.preventDefault(); toggleDone(current().stops[state.sel]); }
+    else if (e.key.toLowerCase() === "m" && !e.metaKey && !e.ctrlKey) { state.showMach = !state.showMach; render(); }
+  });
+
+  // theme toggle: auto -> light -> dark
+  const themes = ["auto", "light", "dark"];
+  let ti = 0;
+  $("#themeBtn").onclick = () => {
+    ti = (ti + 1) % 3;
+    const th = themes[ti];
+    if (th === "auto") document.documentElement.removeAttribute("data-theme");
+    else document.documentElement.setAttribute("data-theme", th);
+    $("#themeLbl").textContent = th[0].toUpperCase() + th.slice(1);
+  };
+  $("#mockX").onclick = () => {
+    const m = $("#mock"); m.classList.toggle("min");
+    $("#mockX").textContent = m.classList.contains("min") ? "+" : "–";
+  };
+
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });
+  if (window.matchMedia("(max-width: 560px)").matches) { $("#mock").classList.add("min"); $("#mockX").textContent = "+"; }
+  drawTopo();
+  pickTrail(TRAILS[0].id);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ranking Ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..800;1,6..72,400..700&display=swap" rel="stylesheet">
+<script>
+  (() => {
+    let m = null;
+    try { m = localStorage.getItem("elsewhere.doc.mode"); } catch {}
+    const dark = m === "dark" || (m !== "light" && matchMedia("(prefers-color-scheme: dark)").matches);
+    document.documentElement.dataset.mode = dark ? "dark" : "light";
+  })();
+</script>
+<style>
+:root, [data-mode="light"] {
+  --bg: #faf8f3; --paper: #fffefb; --ink: #141210; --muted: #6b655b; --line: #ddd6c8; --faint: #efeae0;
+  --accent: #9b1c1c; --accent-soft: #f4e3dd;
+  --c1: #9b1c1c; --c2: #1f5f8b; --c3: #2f7d4f; --c4: #a1620b; --c5: #6b3fa0; --c6: #4b5563;
+  --c1s: #f4e0dc; --c2s: #dde9f2; --c3s: #dcefe2; --c4s: #f6ead2; --c5s: #ebe2f5; --c6s: #e7e5e1;
+  color-scheme: light;
+}
+[data-mode="dark"] {
+  --bg: #121110; --paper: #171615; --ink: #ece6da; --muted: #9a9286; --line: #2f2c28; --faint: #1d1c1a;
+  --accent: #e46b5f; --accent-soft: #3a1d1a;
+  --c1: #e46b5f; --c2: #7fb0d8; --c3: #74c495; --c4: #e0b45a; --c5: #b89be0; --c6: #a8a29a;
+  --c1s: #3a1d1a; --c2s: #18283a; --c3s: #183024; --c4s: #352a14; --c5s: #2a2038; --c6s: #262422;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 19px/1.6 "Newsreader", "Iowan Old Style", Charter, Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+.measure { max-width: 700px; }
+header.mast { border-bottom: 3px double var(--ink); padding: 48px 0 26px; margin-bottom: 8px; }
+.kicker { font-size: 12.5px; letter-spacing: .18em; text-transform: uppercase; font-weight: 650; color: var(--muted); margin: 0 0 10px; }
+h1 { font-size: clamp(44px, 7vw, 78px); line-height: 1; letter-spacing: -.025em; margin: 0 0 18px; font-weight: 750; font-style: italic; }
+.dek { font-size: 23px; line-height: 1.4; color: var(--muted); margin: 0; max-width: 760px; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+nav.toc a { color: var(--ink); text-decoration: none; }
+nav.toc a:hover { color: var(--accent); }
+nav.toc .n { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 4px; }
+section { padding: 56px 0 10px; border-bottom: 1px solid var(--line); }
+section:last-of-type { border-bottom: 0; }
+h2 { font-size: clamp(30px, 4vw, 42px); line-height: 1.08; letter-spacing: -.015em; margin: 0 0 6px; font-weight: 720; }
+h2 .num { color: var(--accent); font-style: italic; margin-right: 10px; }
+.sub { color: var(--muted); font-size: 20px; margin: 0 0 26px; max-width: 760px; }
+h3 { font-size: 22px; line-height: 1.2; margin: 0 0 6px; font-weight: 700; }
+p { margin: 0 0 16px; }
+.small { font-size: 15px; }
+.muted { color: var(--muted); }
+.lead::first-letter { float: left; font-size: 3.6em; line-height: .86; padding: .06em .08em 0 0; font-weight: 750; }
+figure { margin: 26px 0 30px; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 14.5px; color: var(--muted); margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card { background: var(--paper); border: 1px solid var(--line); padding: 18px 20px; }
+.card p:last-child { margin-bottom: 0; }
+.card .tag { font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 650; }
+.card ul { margin: 6px 0 0; padding-left: 18px; font-size: 16px; }
+.card li { margin: 2px 0; }
+.pill { display: inline-block; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; font-weight: 650; padding: 1px 8px; border: 1px solid currentColor; margin-right: 4px; }
+.good { color: var(--c3); } .warn { color: var(--c4); } .bad { color: var(--c1); } .info { color: var(--c2); }
+table { width: 100%; border-collapse: collapse; font-size: 16px; margin: 10px 0 24px; }
+th, td { text-align: left; padding: 10px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 650; border-bottom: 1px solid var(--ink); }
+td b { font-weight: 680; }
+.pull { font-size: 28px; line-height: 1.25; font-style: italic; border-left: 3px solid var(--accent); padding: 4px 0 4px 22px; margin: 28px 0; max-width: 760px; }
+.formula { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 14.5px; background: var(--faint); border: 1px solid var(--line); padding: 12px 14px; overflow-x: auto; margin: 8px 0 16px; white-space: pre; }
+.mech { display: grid; grid-template-columns: 210px minmax(0,1fr) minmax(0,1fr); gap: 0; border-top: 1px solid var(--ink); }
+.mech > div { padding: 14px 14px 14px 0; border-bottom: 1px solid var(--line); }
+.mech .h { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 650; }
+.mech .k { font-weight: 700; }
+.mech .k span { display: block; font-weight: 400; font-size: 14px; color: var(--muted); font-style: italic; }
+.mech .d, .mech .e { font-size: 16.5px; }
+.line-no { color: var(--c1); }
+/* SVG classes (work in both modes) */
+.s-ink { fill: var(--ink); } .s-muted { fill: var(--muted); } .s-paper { fill: var(--paper); } .s-bg { fill: var(--bg); }
+.st-line { stroke: var(--line); } .st-ink { stroke: var(--ink); } .st-muted { stroke: var(--muted); }
+svg text { font-family: "Newsreader", Georgia, serif; fill: var(--ink); }
+svg .t-muted { fill: var(--muted); }
+svg .t-small { font-size: 12px; }
+svg .t-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; font-weight: 650; }
+/* Composer */
+.composer { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 28px; background: var(--paper); border: 1px solid var(--line); padding: 22px; }
+.composer label { display: block; font-size: 15px; margin-bottom: 14px; }
+.composer label b { display: flex; justify-content: space-between; font-weight: 650; }
+.composer input[type=range] { width: 100%; accent-color: var(--accent); }
+.edition { display: grid; gap: 6px; }
+.slot { display: grid; grid-template-columns: 26px 150px minmax(0,1fr); gap: 10px; align-items: center; padding: 8px 10px; border-left: 4px solid; background: var(--bg); font-size: 15.5px; transition: background .2s; }
+.slot .i { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+.slot .s { font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; }
+.slot .w { color: var(--muted); font-style: italic; font-size: 14px; }
+.edition-end { text-align: center; font-style: italic; color: var(--muted); padding: 10px; border-top: 3px double var(--line); margin-top: 6px; font-size: 15px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+.legend i { display: inline-block; width: 11px; height: 11px; margin-right: 6px; vertical-align: -1px; }
+.mode-btn { position: fixed; top: 14px; right: 14px; z-index: 5; font: inherit; font-size: 13.5px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); padding: 5px 11px; cursor: pointer; }
+.mode-btn:hover { background: var(--ink); color: var(--bg); }
+footer { padding: 40px 0 70px; font-size: 15px; color: var(--muted); }
+footer ol { padding-left: 20px; columns: 2; column-gap: 40px; }
+footer li { margin-bottom: 6px; break-inside: avoid; }
+@media (max-width: 820px) {
+  body { font-size: 17.5px; }
+  .wrap { padding: 0 16px; }
+  .g2, .g3, .composer { grid-template-columns: 1fr; }
+  .mech { grid-template-columns: 1fr; }
+  .mech .h:not(:first-child) { display: none; }
+  .slot { grid-template-columns: 22px 110px minmax(0,1fr); }
+  footer ol { columns: 1; }
+  table { font-size: 14.5px; display: block; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+<button class="mode-btn" id="mode" type="button">◐ Light / dark</button>
+
+<div class="wrap">
+<header class="mast">
+  <p class="kicker">Elsewhere · Design study · November 2026</p>
+  <h1>Ranking ideas, not time</h1>
+  <p class="dek">How Elsewhere could decide what to show you next: the knowledge graph underneath, the ways to pull candidates out of it, what other products have tried, and how to make discovery feel rewarding without turning it into a slot machine.</p>
+</header>
+<nav class="toc">
+  <a href="#problem"><span class="n">1</span>The problem</a>
+  <a href="#graph"><span class="n">2</span>The graph</a>
+  <a href="#pipeline"><span class="n">3</span>Pipeline</a>
+  <a href="#generators"><span class="n">4</span>Candidate sources</a>
+  <a href="#rerank"><span class="n">5</span>Re-ranking</a>
+  <a href="#others"><span class="n">6</span>What others tried</a>
+  <a href="#brain"><span class="n">7</span>Why discovery feels good</a>
+  <a href="#novel"><span class="n">8</span>Novel approaches</a>
+  <a href="#learning"><span class="n">9</span>Learning from you</a>
+  <a href="#composer"><span class="n">10</span>Compose an edition</a>
+  <a href="#plan"><span class="n">11</span>Recommendation</a>
+</nav>
+
+<!-- 1 ─────────────────────────────────────────────────────────── -->
+<section id="problem">
+  <h2><span class="num">1</span>Similarity is the floor, not the goal</h2>
+  <p class="sub">"More like this" from your own feeds is what we can build first. On its own it is the wrong objective.</p>
+  <div class="measure">
+    <p class="lead">Embedding nearest-neighbours, which our eval just tuned, answers one question well: <i>what else talks about the same thing?</i> Shown on its own it produces a familiar failure: the same author three times, two near-duplicates, and nothing you didn't already half-know. Ziegler and colleagues showed back in 2005 that people rated deliberately diversified lists <i>higher</i>, even though the lists scored worse on accuracy metrics. Users don't want the most similar items. They want the most <i>useful next</i> item.</p>
+    <p>So the ranking problem is really several problems, one per surface, each with its own goal:</p>
+  </div>
+  <div class="grid g2">
+    <div class="card"><p class="tag info">Related rail · in the reader</p><h3>"What should I read after this?"</h3><p class="small">Goal: continuation. Same idea from other minds; extends, complicates or contradicts what you just read.</p></div>
+    <div class="card"><p class="tag info">The edition · home</p><h3>"What deserves my attention today?"</h3><p class="small">Goal: a finite, balanced daily read. Fresh posts, depth, one surprise, one from the archive.</p></div>
+    <div class="card"><p class="tag info">Topic pages · the graph</p><h3>"What's known and argued about X?"</h3><p class="small">Goal: map an idea. Key pieces, positions, adjacent topics, open questions.</p></div>
+    <div class="card"><p class="tag info">Discovery inbox · new sources</p><h3>"Who else should I be reading?"</h3><p class="small">Goal: expand the source graph. New writers near your interests, plus some beyond them.</p></div>
+  </div>
+  <p class="small muted" style="margin-top:14px">Across all four, the qualities to balance are <b>relevance</b>, <b>novelty</b> (new to you), <b>diversity</b> (different from each other), <b>serendipity</b> (unexpected <i>and</i> good), <b>depth</b>, <b>freshness</b> and <b>fairness to small writers</b>. No single score captures all seven, which is why the design that follows is a pipeline with several sources and a re-ranker, not one formula.</p>
+</section>
+
+<!-- 2 ─────────────────────────────────────────────────────────── -->
+<section id="graph">
+  <h2><span class="num">2</span>The graph has more than one kind of node</h2>
+  <p class="sub">The useful structure isn't a single "article similarity" graph. It's several node types with typed edges, and you are one of the nodes.</p>
+  <figure>
+    <svg viewBox="0 70 1000 440" role="img" aria-label="Heterogeneous knowledge graph: You connected to articles by read and starred edges; articles connected to authors, concepts, entities, issues and positions, and to each other by links and similarity">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="s-muted"/></marker>
+      </defs>
+      <!-- edges -->
+      <g stroke-width="1.6" fill="none">
+        <path d="M500 260 L330 170" class="st-muted" stroke-dasharray="5 4"/>
+        <path d="M500 260 L330 350" class="st-muted" stroke-dasharray="5 4"/>
+        <path d="M330 170 L330 350" style="stroke:var(--c2)" stroke-dasharray="2 4" stroke-width="2.4"/>
+        <path d="M330 170 L130 110" style="stroke:var(--c6)"/>
+        <path d="M330 350 L130 410" style="stroke:var(--c6)"/>
+        <path d="M130 110 L130 410" style="stroke:var(--c4)" stroke-width="2"/>
+        <path d="M330 170 L640 120" style="stroke:var(--c3)"/>
+        <path d="M390 345 Q 620 330 640 142" fill="none" style="stroke:var(--c3)"/>
+        <path d="M330 350 L640 400" style="stroke:var(--c3)"/>
+        <path d="M640 120 L640 400" style="stroke:var(--c3)" stroke-dasharray="6 4"/>
+        <path d="M330 170 L860 230" style="stroke:var(--c5)"/>
+        <path d="M330 350 L860 300" style="stroke:var(--c5)"/>
+        <path d="M860 230 L860 300" style="stroke:var(--c1)" stroke-width="2.4"/>
+        <path d="M330 170 L470 470" style="stroke:var(--c4)"/>
+        <path d="M330 350 L470 470" class="st-muted" marker-end="url(#arr)"/>
+      </g>
+      <!-- nodes -->
+      <g>
+        <circle cx="500" cy="260" r="40" style="fill:var(--accent)"/>
+        <text x="500" y="266" text-anchor="middle" font-weight="700" style="fill:var(--bg)" font-size="17">You</text>
+
+        <rect x="270" y="148" width="120" height="44" style="fill:var(--paper);stroke:var(--ink)"/>
+        <text x="330" y="167" text-anchor="middle" font-size="14" font-weight="650">Article A</text>
+        <text x="330" y="183" text-anchor="middle" class="t-muted t-small">you starred it</text>
+        <rect x="270" y="328" width="120" height="44" style="fill:var(--paper);stroke:var(--ink)"/>
+        <text x="330" y="347" text-anchor="middle" font-size="14" font-weight="650">Article B</text>
+        <text x="330" y="363" text-anchor="middle" class="t-muted t-small">you read it</text>
+        <rect x="410" y="450" width="120" height="40" style="fill:var(--paper);stroke:var(--muted)" stroke-dasharray="4 3"/>
+        <text x="470" y="474" text-anchor="middle" font-size="14" class="t-muted">Article C (unread)</text>
+
+        <circle cx="130" cy="110" r="30" style="fill:var(--c6s);stroke:var(--c6)"/>
+        <text x="130" y="115" text-anchor="middle" font-size="13">Author</text>
+        <circle cx="130" cy="410" r="30" style="fill:var(--c6s);stroke:var(--c6)"/>
+        <text x="130" y="415" text-anchor="middle" font-size="13">Author</text>
+
+        <rect x="580" y="98" width="120" height="44" rx="22" style="fill:var(--c3s);stroke:var(--c3)"/>
+        <text x="640" y="125" text-anchor="middle" font-size="14">Concept</text>
+        <rect x="580" y="378" width="120" height="44" rx="22" style="fill:var(--c3s);stroke:var(--c3)"/>
+        <text x="640" y="405" text-anchor="middle" font-size="14">Entity (Wikidata)</text>
+
+        <rect x="800" y="208" width="120" height="44" style="fill:var(--c5s);stroke:var(--c5)"/>
+        <text x="860" y="227" text-anchor="middle" font-size="13.5">Position: pro</text>
+        <text x="860" y="243" text-anchor="middle" class="t-muted t-small">on Issue Q</text>
+        <rect x="800" y="278" width="120" height="44" style="fill:var(--c5s);stroke:var(--c5)"/>
+        <text x="860" y="297" text-anchor="middle" font-size="13.5">Position: con</text>
+        <text x="860" y="313" text-anchor="middle" class="t-muted t-small">on Issue Q</text>
+      </g>
+      <!-- edge labels -->
+      <g class="t-small">
+        <text x="395" y="200" class="t-muted">starred</text>
+        <text x="395" y="325" class="t-muted">read</text>
+        <text x="252" y="265" style="fill:var(--c2)">similar (embedding)</text>
+        <text x="190" y="128" class="t-muted">wrote</text>
+        <text x="58" y="265" style="fill:var(--c4)">blogroll</text>
+        <text x="470" y="140" style="fill:var(--c3)">mentions</text>
+        <text x="652" y="265" style="fill:var(--c3)">co-occurs</text>
+        <text x="925" y="270" style="fill:var(--c1)">contrasts</text>
+        <text x="365" y="430" style="fill:var(--c4)">links to</text>
+      </g>
+    </svg>
+    <figcaption>The graph Elsewhere can build cheaply: articles, authors, concepts and entities, plus your own reading as edges. Positions (purple) are the expensive layer and arrive last. Every ranking strategy below is a different way of walking this graph.</figcaption>
+  </figure>
+  <table>
+    <tr><th>Edge</th><th>Where it comes from</th><th>Cost</th><th>What it's good for</th></tr>
+    <tr><td><b>similar</b></td><td>voyage-4 embeddings, kNN</td><td>pennies</td><td>"Same subject." The backbone.</td></tr>
+    <tr><td><b>mentions / co-occurs</b></td><td>noun phrases + Wikidata entity linking, LLM-named clusters</td><td>low</td><td>Topic pages; bridges between articles that share a concept but read differently</td></tr>
+    <tr><td><b>links to</b></td><td>parsed from article HTML</td><td>free</td><td>Authority and co-citation: what writers you trust point at</td></tr>
+    <tr><td><b>blogroll / wrote</b></td><td>OPML blogrolls, feed metadata</td><td>free</td><td>The source graph: writers who recommend writers</td></tr>
+    <tr><td><b>read / starred / finished</b></td><td>your behaviour</td><td>free</td><td>Personalisation; the "You" node anchors random walks</td></tr>
+    <tr><td><b>agrees / contrasts</b></td><td>LLM stance extraction with verbatim quotes</td><td>highest</td><td>Counterpoints and debate pairs (behind a quality bar)</td></tr>
+  </table>
+</section>
+
+<!-- 3 ─────────────────────────────────────────────────────────── -->
+<section id="pipeline">
+  <h2><span class="num">3</span>Generate, score, re-rank, slot</h2>
+  <p class="sub">Every serious recommender separates "find plausible things" from "choose and order them". It's also the cleanest fit for our functional core.</p>
+  <figure>
+    <svg viewBox="0 0 1000 330" role="img" aria-label="Ranking pipeline: many candidate generators feed a scorer, then a re-ranker for diversity and novelty, then slots on a surface, and feedback flows back to the interest model and strategy weights">
+      <defs><marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="s-ink"/></marker></defs>
+      <g font-size="13.5">
+        <text x="20" y="28" class="t-label t-muted">1 · Candidate sources</text>
+        <g>
+          <rect x="20" y="40" width="200" height="30" style="fill:var(--c2s);stroke:var(--c2)"/><text x="30" y="60">Embedding neighbours</text>
+          <rect x="20" y="76" width="200" height="30" style="fill:var(--c3s);stroke:var(--c3)"/><text x="30" y="96">Concept bridges</text>
+          <rect x="20" y="112" width="200" height="30" style="fill:var(--c4s);stroke:var(--c4)"/><text x="30" y="132">Links &amp; co-citation</text>
+          <rect x="20" y="148" width="200" height="30" style="fill:var(--c6s);stroke:var(--c6)"/><text x="30" y="168">Personalised PageRank</text>
+          <rect x="20" y="184" width="200" height="30" style="fill:var(--c5s);stroke:var(--c5)"/><text x="30" y="204">Stance contrast</text>
+          <rect x="20" y="220" width="200" height="30" style="fill:var(--c1s);stroke:var(--c1)"/><text x="30" y="240">Frontier / wildcard</text>
+          <rect x="20" y="256" width="200" height="30" style="fill:var(--faint);stroke:var(--muted)"/><text x="30" y="276">Archive · search the web</text>
+        </g>
+        <path d="M228 163 L282 163" class="st-ink" stroke-width="1.6" marker-end="url(#arr2)"/>
+        <text x="290" y="28" class="t-label t-muted">2 · Score</text>
+        <rect x="290" y="110" width="170" height="106" class="s-paper st-ink"/>
+        <text x="305" y="135" font-weight="700">Feature score</text>
+        <text x="305" y="157" class="t-small t-muted">relevance to you</text>
+        <text x="305" y="174" class="t-small t-muted">quality · depth · freshness</text>
+        <text x="305" y="191" class="t-small t-muted">source trust · novelty</text>
+        <text x="305" y="208" class="t-small t-muted">strategy prior (bandit)</text>
+        <path d="M468 163 L522 163" class="st-ink" stroke-width="1.6" marker-end="url(#arr2)"/>
+        <text x="530" y="28" class="t-label t-muted">3 · Re-rank</text>
+        <rect x="530" y="110" width="170" height="106" class="s-paper st-ink"/>
+        <text x="545" y="135" font-weight="700">Set-level choice</text>
+        <text x="545" y="157" class="t-small t-muted">diversity (MMR / DPP)</text>
+        <text x="545" y="174" class="t-small t-muted">author &amp; feed caps</text>
+        <text x="545" y="191" class="t-small t-muted">calibration to interests</text>
+        <text x="545" y="208" class="t-small t-muted">no near-duplicates</text>
+        <path d="M708 163 L762 163" class="st-ink" stroke-width="1.6" marker-end="url(#arr2)"/>
+        <text x="770" y="28" class="t-label t-muted">4 · Slot</text>
+        <g>
+          <rect x="770" y="70" width="210" height="28" style="fill:var(--c2s)"/><text x="780" y="89">Continue the thread</text>
+          <rect x="770" y="102" width="210" height="28" style="fill:var(--c3s)"/><text x="780" y="121">Go deeper</text>
+          <rect x="770" y="134" width="210" height="28" style="fill:var(--c5s)"/><text x="780" y="153">Counterpoint</text>
+          <rect x="770" y="166" width="210" height="28" style="fill:var(--c1s)"/><text x="780" y="185">Elsewhere (wildcard)</text>
+          <rect x="770" y="198" width="210" height="28" style="fill:var(--faint)"/><text x="780" y="217">From the archive</text>
+          <text x="770" y="246" class="t-small t-muted">each slot says <i>why</i> it's there</text>
+        </g>
+        <path d="M875 262 C 875 320, 120 320, 120 292" fill="none" class="st-muted" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arr2)"/>
+        <text x="430" y="312" class="t-small t-muted" text-anchor="middle">feedback: opened · finished · starred · "less like this" → interest model + strategy weights</text>
+      </g>
+    </svg>
+    <figcaption>Each stage maps onto our architecture: generators are pure functions over graph data, the scorer and re-ranker are pure, and only the feedback writes state. Adding a new idea means adding a generator, not rewriting the ranker.</figcaption>
+  </figure>
+</section>
+
+<!-- 4 ─────────────────────────────────────────────────────────── -->
+<section id="generators">
+  <h2><span class="num">4</span>Ten ways to find candidates</h2>
+  <p class="sub">Arranged by how far each one reaches from what you just read. Near sources are safe and dull; far ones are where the surprises are, and where the misses are too.</p>
+  <figure>
+    <svg viewBox="0 0 1000 470" role="img" aria-label="Reach map: concentric rings around the current article; near ring has embedding neighbours and same author; middle ring has concept bridges, co-citation, personalized pagerank; outer ring has stance contrast, frontier, wildcard, web search">
+      <g fill="none">
+        <circle cx="330" cy="235" r="215" class="st-line" stroke-width="1.5"/>
+        <circle cx="330" cy="235" r="145" class="st-line" stroke-width="1.5"/>
+        <circle cx="330" cy="235" r="75" class="st-line" stroke-width="1.5"/>
+      </g>
+      <rect x="290" y="217" width="80" height="36" style="fill:var(--accent)"/>
+      <text x="330" y="240" text-anchor="middle" font-size="13.5" font-weight="700" style="fill:var(--bg)">This article</text>
+      <g font-size="13">
+        <text x="330" y="176" text-anchor="middle" class="t-label t-muted">near</text>
+        <text x="330" y="105" text-anchor="middle" class="t-label t-muted">middle</text>
+        <text x="330" y="36" text-anchor="middle" class="t-label t-muted">far</text>
+        <circle cx="265" cy="275" r="7" style="fill:var(--c2)"/><text x="190" y="300">Embedding kNN</text>
+        <circle cx="390" cy="280" r="7" style="fill:var(--c6)"/><text x="370" y="305">Same author</text>
+        <circle cx="210" cy="160" r="7" style="fill:var(--c3)"/><text x="125" y="148">Concept bridge</text>
+        <circle cx="455" cy="175" r="7" style="fill:var(--c4)"/><text x="465" y="170">Co-citation</text>
+        <circle cx="440" cy="330" r="7" style="fill:var(--c6)"/><text x="452" y="345">Personalised PageRank</text>
+        <circle cx="200" cy="350" r="7" style="fill:var(--c3)"/><text x="120" y="375">Topic page</text>
+        <circle cx="140" cy="95" r="7" style="fill:var(--c5)"/><text x="40" y="78">Stance contrast</text>
+        <circle cx="520" cy="95" r="7" style="fill:var(--c1)"/><text x="532" y="92">Frontier</text>
+        <circle cx="510" cy="390" r="7" style="fill:var(--c1)"/><text x="522" y="408">Wildcard</text>
+        <circle cx="145" cy="400" r="7" class="s-muted"/><text x="40" y="430">Web search (Exa / Marginalia)</text>
+      </g>
+      <!-- right: tradeoff bars -->
+      <g font-size="13">
+        <text x="640" y="40" class="t-label t-muted">Typical hit rate vs surprise</text>
+        <text x="640" y="72">Near</text>
+        <rect x="720" y="60" width="230" height="16" class="s-bg st-line"/><rect x="720" y="60" width="200" height="16" style="fill:var(--c2)"/>
+        <rect x="720" y="80" width="230" height="8" class="s-bg"/><rect x="720" y="80" width="40" height="8" style="fill:var(--c1)"/>
+        <text x="640" y="122">Middle</text>
+        <rect x="720" y="110" width="230" height="16" class="s-bg st-line"/><rect x="720" y="110" width="150" height="16" style="fill:var(--c2)"/>
+        <rect x="720" y="130" width="230" height="8" class="s-bg"/><rect x="720" y="130" width="120" height="8" style="fill:var(--c1)"/>
+        <text x="640" y="172">Far</text>
+        <rect x="720" y="160" width="230" height="16" class="s-bg st-line"/><rect x="720" y="160" width="80" height="16" style="fill:var(--c2)"/>
+        <rect x="720" y="180" width="230" height="8" class="s-bg"/><rect x="720" y="180" width="210" height="8" style="fill:var(--c1)"/>
+        <rect x="720" y="210" width="12" height="12" style="fill:var(--c2)"/><text x="740" y="221" class="t-small t-muted">hit rate (relevant)</text>
+        <rect x="720" y="230" width="12" height="6" style="fill:var(--c1)"/><text x="740" y="237" class="t-small t-muted">surprise</text>
+        <text x="640" y="280" class="t-small t-muted">Illustrative shape, not measured.</text>
+        <text x="640" y="300" class="t-small t-muted">The whole game is mixing rings so</text>
+        <text x="640" y="318" class="t-small t-muted">the list is reliable <tspan font-style="italic">and</tspan> occasionally</text>
+        <text x="640" y="336" class="t-small t-muted">delightful.</text>
+      </g>
+    </svg>
+  </figure>
+  <div class="grid g2">
+    <div class="card"><p class="tag" style="color:var(--c2)">Near · built next</p><h3>Embedding neighbours</h3><p class="small">kNN over voyage-4 vectors, other feeds preferred. Our eval scored the top models about 1.3/3 on a small corpus; quality rises with corpus size.</p><ul><li class="good">Cheap, robust, works on day one</li><li class="bad">Topic-blind to stance; clumps by author; echo-prone</li></ul></div>
+    <div class="card"><p class="tag" style="color:var(--c3)">Middle</p><h3>Concept bridges</h3><p class="small">Two hops through a shared concept or entity: A → "local-first" → C. Finds pieces that share an <i>idea</i> but not vocabulary.</p><ul><li class="good">Explainable ("both discuss local-first software")</li><li class="bad">Generic concepts ("software") create junk bridges; weight by rarity (IDF)</li></ul></div>
+    <div class="card"><p class="tag" style="color:var(--c4)">Middle</p><h3>Links &amp; co-citation</h3><p class="small">Bibliometrics for blogs. Co-citation (Small, 1973): two posts linked by the same writers are related. Bibliographic coupling (Kessler, 1963): two posts that link to the same things are related. Connected Papers is built on this.</p><ul><li class="good">Human judgement, not model judgement</li><li class="bad">Sparse until the corpus and archive grow</li></ul></div>
+    <div class="card"><p class="tag" style="color:var(--c6)">Middle</p><h3>Personalised PageRank</h3><p class="small">Random walks that restart at your starred and finished articles, wandering across all edge types (Haveliwala 2002; Pinterest's Pixie, 2018, serves billions of recommendations this way). Wherever walkers pile up is relevant to <i>you</i>, not just to one article.</p><ul><li class="good">Combines every signal in one principled score</li><li class="bad">Drifts to hubs unless degree-normalised</li></ul></div>
+    <div class="card"><p class="tag" style="color:var(--c5)">Far · later</p><h3>Stance contrast</h3><p class="small">Same issue, opposite position (Wachsmuth et al. 2018's definition of a counterargument). The signature feature, gated on our own accuracy test.</p><ul><li class="good">The thing no other reader does</li><li class="bad">Misattributing a position is the worst error we can make</li></ul></div>
+    <div class="card"><p class="tag" style="color:var(--c1)">Far</p><h3>Frontier &amp; wildcard</h3><p class="small">Deliberately one step outside your known territory (section 8), or a high-quality piece from a distant cluster. Tuned by a bandit so it learns how much surprise you like.</p><ul><li class="good">Where serendipity comes from</li><li class="bad">Misses feel like noise; keep it to one labelled slot</li></ul></div>
+    <div class="card"><p class="tag muted">Anywhere</p><h3>Archive resurfacing</h3><p class="small">Older posts from your sources that match current interests, plus spaced returns to things you starred. Needs archive backfill.</p><ul><li class="good">Unlocks the "years of good posts lost in the timeline" problem</li><li class="bad">Needs an evergreen judgement; dated news resurfaces badly</li></ul></div>
+    <div class="card"><p class="tag muted">Beyond your feeds</p><h3>Web search</h3><p class="small">An LLM turns an article or open question into search queries (Exa, Marginalia) and the results feed Discovery: "essays arguing <i>against</i> strict visual hierarchy".</p><ul><li class="good">The only way to reach writers you don't follow yet</li><li class="bad">SEO noise; filter with the small-web seed list</li></ul></div>
+  </div>
+  <p class="small muted" style="margin-top:16px"><b>Not available to us:</b> collaborative filtering ("people like you also read"), the engine behind Spotify, Netflix and YouTube, because Elsewhere is single-user and local. <b>Not useful for discovery:</b> popularity and recency formulas like Hacker News's <i>(points − 1) / (age + 2)<sup>1.8</sup></i>. They belong in the timeline, not the graph.</p>
+</section>
+
+<!-- 5 ─────────────────────────────────────────────────────────── -->
+<section id="rerank">
+  <h2><span class="num">5</span>Choosing a set, not a list of winners</h2>
+  <p class="sub">The top five most-relevant items are usually five versions of one item. Re-ranking picks the best <i>set</i>.</p>
+  <figure>
+    <svg viewBox="0 0 1000 250" role="img" aria-label="Relevance-only top 5 is all from one cluster and one author; MMR top 5 spans four clusters">
+      <g font-size="14">
+        <text x="20" y="38" font-weight="700">Relevance only</text>
+        <text x="20" y="58" class="t-small t-muted">top 5 by similarity</text>
+        <g>
+          <rect x="230" y="22" width="130" height="44" style="fill:var(--c2s);stroke:var(--c2)"/><text x="242" y="41" class="t-small">Dan Luu</text><text x="242" y="57" class="t-small t-muted">tail latency</text>
+          <rect x="370" y="22" width="130" height="44" style="fill:var(--c2s);stroke:var(--c2)"/><text x="382" y="41" class="t-small">Dan Luu</text><text x="382" y="57" class="t-small t-muted">tail latency II</text>
+          <rect x="510" y="22" width="130" height="44" style="fill:var(--c2s);stroke:var(--c2)"/><text x="522" y="41" class="t-small">Brooker</text><text x="522" y="57" class="t-small t-muted">tail latency</text>
+          <rect x="650" y="22" width="130" height="44" style="fill:var(--c2s);stroke:var(--c2)"/><text x="662" y="41" class="t-small">Brooker</text><text x="662" y="57" class="t-small t-muted">p99s, again</text>
+          <rect x="790" y="22" width="130" height="44" style="fill:var(--c2s);stroke:var(--c2)"/><text x="802" y="41" class="t-small">Dan Luu</text><text x="802" y="57" class="t-small t-muted">latency (2019)</text>
+        </g>
+        <text x="20" y="148" font-weight="700">Re-ranked (MMR)</text>
+        <text x="20" y="168" class="t-small t-muted">relevance − redundancy</text>
+        <g>
+          <rect x="230" y="132" width="130" height="44" style="fill:var(--c2s);stroke:var(--c2)"/><text x="242" y="151" class="t-small">Dan Luu</text><text x="242" y="167" class="t-small t-muted">tail latency</text>
+          <rect x="370" y="132" width="130" height="44" style="fill:var(--c3s);stroke:var(--c3)"/><text x="382" y="151" class="t-small">Hillel Wayne</text><text x="382" y="167" class="t-small t-muted">formal methods</text>
+          <rect x="510" y="132" width="130" height="44" style="fill:var(--c4s);stroke:var(--c4)"/><text x="522" y="151" class="t-small">Construction Phys.</text><text x="522" y="167" class="t-small t-muted">queueing in factories</text>
+          <rect x="650" y="132" width="130" height="44" style="fill:var(--c2s);stroke:var(--c2)"/><text x="662" y="151" class="t-small">Brooker</text><text x="662" y="167" class="t-small t-muted">tail latency</text>
+          <rect x="790" y="132" width="130" height="44" style="fill:var(--c5s);stroke:var(--c5)"/><text x="802" y="151" class="t-small">Lethain</text><text x="802" y="167" class="t-small t-muted">SLOs as policy</text>
+        </g>
+        <text x="230" y="222" class="t-small t-muted">Illustrative. Colour = cluster. The re-ranked set covers four angles and three new writers, at a small cost in raw similarity.</text>
+      </g>
+    </svg>
+  </figure>
+  <div class="grid g2">
+    <div>
+      <h3>Maximal Marginal Relevance</h3>
+      <p class="small">Carbonell &amp; Goldstein, 1998. Greedily add the item that is relevant <i>and</i> unlike what's already chosen. One parameter, λ, trades the two off. It's ten lines of pure code and the obvious first step.</p>
+      <div class="formula">next = argmax  λ·rel(d) − (1−λ)·max sim(d, chosen)</div>
+      <h3>Determinantal point processes</h3>
+      <p class="small">The principled version: score a whole set by how much "volume" its items span. YouTube published production results with DPPs (Wilhelm et al., 2018). Worth it only if MMR proves too blunt.</p>
+    </div>
+    <div>
+      <h3>Hard constraints</h3>
+      <p class="small">Simple rules people can see: at most one item per author in a rail, at most two per feed in an edition, no two items above 0.92 similarity. These fix most of the "five of the same" problem on their own.</p>
+      <h3>Calibration</h3>
+      <p class="small">Steck, 2018: if 70% of your reading is software and 30% history, the edition should be roughly 70/30, not 100% software because software scores highest. It stops the strongest interest crowding out the rest, which is a quiet form of filter bubble.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 ─────────────────────────────────────────────────────────── -->
+<section id="others">
+  <h2><span class="num">6</span>What others tried, and what they learned</h2>
+  <p class="sub">Most lessons are about format and incentives more than algorithms.</p>
+  <table>
+    <tr><th>Product</th><th>Approach</th><th>Lesson for Elsewhere</th></tr>
+    <tr><td><b>Spotify Discover Weekly</b> (2015–)</td><td>Collaborative filtering + content signals, delivered as a <i>finite</i> 30-track playlist every Monday</td><td>A bounded, regular ritual creates anticipation without infinite scroll. The <b>edition</b> idea copies this.</td></tr>
+    <tr><td><b>StumbleUpon</b> (2001–2018)</td><td>One random-but-rated page per click, tuned by thumbs up/down</td><td>Pure serendipity is thrilling and addictive, and also low-depth. Keep the wildcard as one slot, not the product.</td></tr>
+    <tr><td><b>Google Reader</b> recommendations</td><td>Feed suggestions from co-subscription</td><td>Users complained it suggested feeds they already followed. Always exclude what's known.</td></tr>
+    <tr><td><b>Pinterest Pixie</b> (2018)</td><td>Biased random walks on an item–board graph, in memory</td><td>Graph walks give real-time, explainable recommendations without heavy ML. That's personalised PageRank at our scale.</td></tr>
+    <tr><td><b>YouTube</b> (2016, 2018)</td><td>Deep candidate generation + ranking optimised for watch time; later DPP diversity</td><td>Optimising for time spent produced the rabbit-hole problem. <span class="line-no">We should not optimise for time in app.</span></td></tr>
+    <tr><td><b>Artifact</b> (2023–24)</td><td>ML-ranked news from the Instagram founders</td><td>Good ranking wasn't enough: "the market opportunity isn't big enough." Fine for a free local tool, but don't build expensive infrastructure.</td></tr>
+    <tr><td><b>Connected Papers / Litmaps</b></td><td>Co-citation maps around a paper you pick; Litmaps uses time as the x-axis</td><td>Start from a seed the user chose and show a <i>local</i> map. Our topic pages should work the same way.</td></tr>
+    <tr><td><b>Readwise daily review</b></td><td>Spaced resurfacing of your own highlights</td><td>Revisiting what you already valued is a cheap, much-loved habit. It's the basis for "Return to…".</td></tr>
+    <tr><td><b>Bluesky custom feeds</b></td><td>Anyone can publish a ranking algorithm; users choose</td><td>Making rankers visible and swappable earns trust. We can show strategies as labelled slots and dials.</td></tr>
+    <tr><td><b>MovieLens</b> (Harper et al., 2015)</td><td>Users given popularity and recency sliders</td><td>People rated recommendations much higher when they could steer them, and some wanted more obscure picks. Our readers will.</td></tr>
+  </table>
+</section>
+
+<!-- 7 ─────────────────────────────────────────────────────────── -->
+<section id="brain">
+  <h2><span class="num">7</span>Why discovery feels good</h2>
+  <p class="sub">You asked about dopamine. The neuroscience is real and it's useful, but the mechanism that matters most here isn't the slot machine.</p>
+  <div class="measure">
+    <p>Dopamine neurons don't fire for reward as such. They fire for <b>reward prediction error</b>: something turning out <i>better than expected</i> (Schultz, Dayan &amp; Montague, 1997). A recommendation you saw coming does little. One that surprises you <i>and</i> is good is the jackpot. That's why serendipity feels the way it does, and why a list of obvious neighbours feels flat even when every item is relevant.</p>
+    <p>Curiosity runs on the same circuitry. When people were curious about the answer to a trivia question, dopaminergic regions lit up in anticipation, and they remembered the answer, and even unrelated information shown alongside it, better a day later (Gruber, Gelman &amp; Ranganath, 2014). Curiosity is a learning state, not just a craving.</p>
+  </div>
+  <figure>
+    <svg viewBox="0 0 1000 340" role="img" aria-label="Inverted U curve: interest rises with novelty to a peak in the frontier zone then falls as material becomes baffling">
+      <g>
+        <line x1="70" y1="290" x2="940" y2="290" class="st-ink" stroke-width="1.5"/>
+        <line x1="70" y1="290" x2="70" y2="30" class="st-ink" stroke-width="1.5"/>
+        <rect x="390" y="30" width="230" height="260" style="fill:var(--accent-soft)"/>
+        <path d="M70 270 C 250 260, 330 60, 500 55 C 670 50, 740 230, 940 275" fill="none" style="stroke:var(--accent)" stroke-width="3"/>
+        <text x="505" y="85" text-anchor="middle" font-weight="700" font-size="15">The frontier</text>
+        <text x="505" y="104" text-anchor="middle" class="t-small t-muted">new, but connected to what you know</text>
+        <text x="185" y="150" text-anchor="middle" font-size="14">Boring</text>
+        <text x="185" y="168" text-anchor="middle" class="t-small t-muted">"I've read this already"</text>
+        <text x="185" y="185" text-anchor="middle" class="t-small t-muted">most similar neighbours</text>
+        <text x="840" y="120" text-anchor="middle" font-size="14">Baffling</text>
+        <text x="840" y="138" text-anchor="middle" class="t-small t-muted">no foothold, no reward</text>
+        <text x="840" y="155" text-anchor="middle" class="t-small t-muted">random wildcards</text>
+        <text x="505" y="318" text-anchor="middle" class="t-label t-muted">novelty relative to what you know →</text>
+        <text x="40" y="160" text-anchor="middle" class="t-label t-muted" transform="rotate(-90 40 160)">interest / pleasure</text>
+      </g>
+    </svg>
+    <figcaption>Berlyne's inverted U (the "Wundt curve"): interest peaks at intermediate novelty. Oudeyer and Gottlieb's <b>learning progress</b> hypothesis sharpens it: the intrinsic reward comes from material where you are <i>learning fastest</i>, which is the frontier.</figcaption>
+  </figure>
+  <h3 style="margin-top:10px">Mechanisms, and how Elsewhere could use each humanely</h3>
+  <div class="mech">
+    <div class="h">Mechanism</div><div class="h">What the research says</div><div class="h">Elsewhere version</div>
+    <div class="k">Prediction error<span>Schultz et al. 1997</span></div><div class="d">Better-than-expected outcomes drive dopamine; expected ones fade.</div><div class="e">One labelled "Elsewhere" wildcard slot, tuned so it surprises without missing too often.</div>
+    <div class="k">Information gap<span>Loewenstein 1994</span></div><div class="d">Curiosity spikes when you know enough to see what you're missing.</div><div class="e">"Open questions": surface a question one article raises and link the pieces that answer it.</div>
+    <div class="k">Optimal novelty<span>Berlyne 1960</span></div><div class="d">Interest peaks between familiar and incomprehensible.</div><div class="e">Rank by distance from your known concepts, aiming for the frontier ring.</div>
+    <div class="k">Learning progress<span>Gottlieb, Oudeyer et al. 2013</span></div><div class="d">Curious agents seek where their knowledge improves fastest.</div><div class="e">Score candidates by how much they would expand your concept map.</div>
+    <div class="k">Curiosity → memory<span>Gruber et al. 2014</span></div><div class="d">Curious states improve retention, even of incidental material.</div><div class="e">Pose the question before showing the article ("Why do factories queue like servers?").</div>
+    <div class="k">Variable reward<span>Ferster &amp; Skinner 1957</span></div><div class="d">Unpredictable rewards produce the most persistent behaviour, and the most compulsive.</div><div class="e">Use sparingly and bounded: surprise inside a finite edition, never an endless feed.</div>
+    <div class="k">Completion<span>Zeigarnik 1927 (replications mixed)</span></div><div class="d">Unfinished sets nag; finishing satisfies.</div><div class="e">Trails with visible progress, and an edition that ends: "That's today's edition."</div>
+    <div class="k">Spacing effect<span>Cepeda et al. 2006</span></div><div class="d">Spaced revisits beat massed ones for retention.</div><div class="e">"Return to…": resurface starred ideas at growing intervals, with what's new since.</div>
+    <div class="k">Information scent<span>Pirolli &amp; Card 1999</span></div><div class="d">Foragers follow cues that predict valuable patches.</div><div class="e">Every slot shows its reason: "Brooker also wrote about this", "contradicts what you starred".</div>
+  </div>
+  <p class="pull">Design for the reward of <i>understanding more</i>, not the reward of <i>one more scroll</i>.</p>
+  <div class="grid g2">
+    <div class="card"><p class="tag good">We do</p><ul><li>Finite editions that end</li><li>Surprise as one labelled slot</li><li>Visible reasons and user dials</li><li>Success = things finished and starred</li><li>Quiet: no notifications, no badges</li></ul></div>
+    <div class="card"><p class="tag bad">We don't</p><ul><li>Infinite feeds or autoplay-style "next"</li><li>Streaks that punish a missed day</li><li>Optimising time in app or opens</li><li>Rewarding outrage or clickbait titles</li><li>Hiding why something was shown</li></ul></div>
+  </div>
+</section>
+
+<!-- 8 ─────────────────────────────────────────────────────────── -->
+<section id="novel">
+  <h2><span class="num">8</span>Approaches nobody quite does yet</h2>
+  <p class="sub">Combinations that fall out of having a concept graph <i>and</i> your reading history in one place.</p>
+
+  <div class="grid g2" style="align-items:center">
+    <figure style="margin:0">
+      <svg viewBox="0 0 460 400" role="img" aria-label="Knowledge frontier: inner known region, frontier ring with recommended articles, outer unknown region">
+        <circle cx="230" cy="200" r="185" style="fill:var(--faint)"/>
+        <circle cx="230" cy="200" r="130" style="fill:var(--accent-soft)"/>
+        <circle cx="230" cy="200" r="78" style="fill:var(--c3s);stroke:var(--c3)"/>
+        <text x="230" y="195" text-anchor="middle" font-weight="700" font-size="15">What you know</text>
+        <text x="230" y="214" text-anchor="middle" class="t-small t-muted">concepts read deeply</text>
+        <text x="230" y="102" text-anchor="middle" class="t-label" style="fill:var(--accent)">Frontier</text>
+        <text x="230" y="35" text-anchor="middle" class="t-label t-muted">Unknown</text>
+        <g style="fill:var(--accent)"><circle cx="122" cy="150" r="7"/><circle cx="338" cy="140" r="7"/><circle cx="330" cy="275" r="7"/><circle cx="140" cy="280" r="7"/><circle cx="230" cy="315" r="7"/></g>
+        <g class="s-muted"><circle cx="60" cy="110" r="5"/><circle cx="395" cy="230" r="5"/><circle cx="210" cy="372" r="5"/></g>
+        <g style="fill:var(--c3)"><circle cx="200" cy="170" r="5"/><circle cx="262" cy="232" r="5"/><circle cx="250" cy="160" r="5"/></g>
+      </svg>
+    </figure>
+    <div>
+      <h3>1 · The knowledge frontier</h3>
+      <p class="small">Keep a model of what you <i>know</i>: concepts weighted by how much you've finished and starred about them, decaying slowly over time. Recommend items whose concepts are mostly known but not entirely, about one hop out. This turns Berlyne's curve and learning progress into a ranking feature:</p>
+      <div class="formula">frontier(d) = overlap(d, known) × (1 − overlap(d, known))
+            peaks at about half familiar</div>
+      <p class="small">It explains itself well: "builds on <i>queueing theory</i>, which you know, and introduces <i>Little's law</i>."</p>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:24px">
+    <div class="card"><h3>2 · The edition</h3><p class="small">A finite daily paper with named sections: Front page (fresh), Deeper, Counterpoint, Elsewhere (wildcard), From the archive. It ends. Discover Weekly's ritual plus a newspaper's shape, and the most direct expression of "follow ideas, not time".</p></div>
+    <div class="card"><h3>3 · Trails</h3><p class="small">A generated path of 4–7 pieces by different writers through one idea, from accessible to deep, ordered by the concept graph. Progress is visible and the trail finishes. Think of it as a syllabus assembled from the small web.</p></div>
+    <div class="card"><h3>4 · Open questions</h3><p class="small">An LLM pulls 1–3 questions each article raises or leaves unresolved; questions are matched across articles. A topic page shows "unresolved threads", and a related rail can lead with a question instead of a title. This uses the information-gap effect honestly, because the answer is real.</p></div>
+    <div class="card"><h3>5 · Debate cards</h3><p class="small">Two quote-backed positions on one issue, side by side, from different writers. Behind the stance-accuracy gate. A card that reads "Fowler says X; Wayne says not-X, because…" is the clearest version of the vision's "contrasting knowledge".</p></div>
+    <div class="card"><h3>6 · A map that fills in</h3><p class="small">A local concept map where regions you've read become solid and the frontier glows faintly. Exploration becomes visible progress, the good part of game mechanics without points. Local only, no global hairball.</p></div>
+    <div class="card"><h3>7 · Return to…</h3><p class="small">Spaced resurfacing of ideas you starred, at roughly 1 week, 1 month and 3 months, bundled with what has been written about them since. Your archive becomes a conversation that keeps going.</p></div>
+    <div class="card"><h3>8 · Strategy bandit</h3><p class="small">Treat each candidate source as an arm in a multi-armed bandit. Thompson sampling learns which sources pay off for <i>you</i> (frontier picks get finished, wildcards get skipped), while keeping some exploration. Li et al. (2010) saw a 12.5% lift from a contextual bandit on Yahoo news.</p></div>
+    <div class="card"><h3>9 · Author constellations</h3><p class="small">Writers placed by what they write about and who links to whom, with "bridge" writers highlighted: people who connect two of your interests. Bridges are the best discovery candidates, because they counter link-graph homophily (Adamic &amp; Glance, 2005).</p></div>
+    <div class="card"><h3>10 · Ask the graph</h3><p class="small">An assistant that answers "what have my writers said about X?" with hybrid retrieval, citing passages, then suggests the frontier pieces. The answer itself is a ranking surface.</p></div>
+  </div>
+</section>
+
+<!-- 9 ─────────────────────────────────────────────────────────── -->
+<section id="learning">
+  <h2><span class="num">9</span>Learning from you, quietly</h2>
+  <p class="sub">With one user there's no crowd to learn from, but one careful reader gives strong signals if we read them right.</p>
+  <table>
+    <tr><th>Signal</th><th>Strength</th><th>Notes</th></tr>
+    <tr><td><b>Starred</b></td><td><span class="pill good">strong +</span></td><td>Explicit, rare, the gold label</td></tr>
+    <tr><td><b>Finished</b> (scrolled ≥ 80%)</td><td><span class="pill good">strong +</span></td><td>Better than opens; normalise dwell by article length</td></tr>
+    <tr><td><b>Opened original</b></td><td><span class="pill info">medium +</span></td><td>Interest, or a summary-only feed; check which</td></tr>
+    <tr><td><b>"More like this" / "less like this"</b></td><td><span class="pill good">strong ±</span></td><td>Should change the next edition visibly, or people stop using it</td></tr>
+    <tr><td><b>Opened, left within 10 s</b></td><td><span class="pill warn">weak −</span></td><td>Possible bait; down-weight the <i>strategy</i>, not just the item</td></tr>
+    <tr><td><b>Shown, never opened</b></td><td><span class="pill warn">very weak −</span></td><td>Position bias: lower slots get fewer opens anyway</td></tr>
+    <tr><td><b>Time in app</b></td><td><span class="pill bad">ignored</span></td><td>Deliberately not a signal</td></tr>
+  </table>
+  <figure>
+    <svg viewBox="0 0 1000 250" role="img" aria-label="Strategy bandit: each source has an estimated success rate with uncertainty; Thompson sampling picks by sampling from each">
+      <g font-size="14">
+        <text x="20" y="28" class="t-label t-muted">Strategy bandit: estimated "finished or starred" rate, with uncertainty</text>
+        <g>
+          <text x="20" y="70">Embedding neighbours</text><line x1="260" y1="65" x2="900" y2="65" class="st-line"/><rect x="560" y="57" width="70" height="16" style="fill:var(--c2s);stroke:var(--c2)"/><line x1="595" y1="53" x2="595" y2="77" style="stroke:var(--c2)" stroke-width="2.5"/>
+          <text x="20" y="110">Concept bridges</text><line x1="260" y1="105" x2="900" y2="105" class="st-line"/><rect x="510" y="97" width="150" height="16" style="fill:var(--c3s);stroke:var(--c3)"/><line x1="585" y1="93" x2="585" y2="117" style="stroke:var(--c3)" stroke-width="2.5"/>
+          <text x="20" y="150">Frontier</text><line x1="260" y1="145" x2="900" y2="145" class="st-line"/><rect x="540" y="137" width="230" height="16" style="fill:var(--c1s);stroke:var(--c1)"/><line x1="655" y1="133" x2="655" y2="157" style="stroke:var(--c1)" stroke-width="2.5"/>
+          <text x="20" y="190">Wildcard</text><line x1="260" y1="185" x2="900" y2="185" class="st-line"/><rect x="300" y="177" width="300" height="16" style="fill:var(--faint);stroke:var(--muted)"/><line x1="450" y1="173" x2="450" y2="197" class="st-muted" stroke-width="2.5"/>
+          <text x="260" y="230" class="t-small t-muted">0%</text><text x="880" y="230" class="t-small t-muted">100%</text>
+          <text x="560" y="230" class="t-small t-muted" text-anchor="middle">Wide bars are still uncertain, so they still get tried; that is the exploration.</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>Illustrative. Thompson sampling draws one value from each bar and favours the highest draw. Frontier, with an uncertain but promising estimate, gets explored; the bandit settles on your personal mix without any manual tuning.</figcaption>
+  </figure>
+</section>
+
+<!-- 10 ────────────────────────────────────────────────────────── -->
+<section id="composer">
+  <h2><span class="num">10</span>Compose an edition</h2>
+  <p class="sub">A toy model of how the dials could shape a ten-item daily edition. Move the sliders.</p>
+  <div class="composer">
+    <div>
+      <label><b>Exploration <span id="v-explore"></span></b><input id="explore" type="range" min="0" max="100" value="30"></label>
+      <label><b>Depth <span id="v-depth"></span></b><input id="depth" type="range" min="0" max="100" value="50"></label>
+      <label><b>Counterpoints <span id="v-contrast"></span></b><input id="contrast" type="range" min="0" max="100" value="20"></label>
+      <label><b>Archive <span id="v-archive"></span></b><input id="archive" type="range" min="0" max="100" value="20"></label>
+      <p class="small muted">Fresh posts from your feeds always take at least three slots, and no author appears more than twice. The edition is always exactly ten items and then it ends.</p>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div>
+      <div class="edition" id="edition"></div>
+      <div class="edition-end">That's today's edition. See you tomorrow.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 ────────────────────────────────────────────────────────── -->
+<section id="plan">
+  <h2><span class="num">11</span>What I'd build, in order</h2>
+  <p class="sub">Start with the cheap, explainable pieces; earn the right to the clever ones with our own eval harness.</p>
+  <figure>
+    <svg viewBox="0 0 1000 300" role="img" aria-label="Roadmap of five steps from related rail to frontier and debate cards">
+      <line x1="40" y1="70" x2="960" y2="70" class="st-ink" stroke-width="2"/>
+      <g font-size="14">
+        <g><circle cx="80" cy="70" r="9" style="fill:var(--accent)"/><text x="80" y="40" text-anchor="middle" class="t-label" style="fill:var(--accent)">3a</text>
+          <text x="20" y="110" font-weight="700">Related rail</text><text x="20" y="130" class="t-small t-muted">voyage-4 kNN, other feeds</text><text x="20" y="147" class="t-small t-muted">MMR + author cap</text><text x="20" y="164" class="t-small t-muted">"why this" labels</text><text x="20" y="181" class="t-small t-muted">finish / star signals</text></g>
+        <g><circle cx="280" cy="70" r="9" class="s-ink"/><text x="280" y="40" text-anchor="middle" class="t-label">3b</text>
+          <text x="220" y="110" font-weight="700">Concepts &amp; topics</text><text x="220" y="130" class="t-small t-muted">LLM-named clusters</text><text x="220" y="147" class="t-small t-muted">concept bridges</text><text x="220" y="164" class="t-small t-muted">topic pages, local map</text><text x="220" y="181" class="t-small t-muted">link graph, co-citation</text></g>
+        <g><circle cx="480" cy="70" r="9" class="s-ink"/><text x="480" y="40" text-anchor="middle" class="t-label">3c</text>
+          <text x="420" y="110" font-weight="700">The edition</text><text x="420" y="130" class="t-small t-muted">slots + calibration</text><text x="420" y="147" class="t-small t-muted">personalised PageRank</text><text x="420" y="164" class="t-small t-muted">wildcard slot</text><text x="420" y="181" class="t-small t-muted">dials</text></g>
+        <g><circle cx="680" cy="70" r="9" class="s-ink"/><text x="680" y="40" text-anchor="middle" class="t-label">4–5</text>
+          <text x="620" y="110" font-weight="700">Discovery &amp; archive</text><text x="620" y="130" class="t-small t-muted">blogrolls, seed list, search</text><text x="620" y="147" class="t-small t-muted">bridge writers</text><text x="620" y="164" class="t-small t-muted">backfill, "Return to…"</text><text x="620" y="181" class="t-small t-muted">strategy bandit</text></g>
+        <g><circle cx="880" cy="70" r="9" class="s-ink"/><text x="880" y="40" text-anchor="middle" class="t-label">6</text>
+          <text x="820" y="110" font-weight="700">Frontier &amp; debate</text><text x="820" y="130" class="t-small t-muted">known-concept model</text><text x="820" y="147" class="t-small t-muted">trails, open questions</text><text x="820" y="164" class="t-small t-muted">debate cards (gated)</text><text x="820" y="181" class="t-small t-muted">fill-in map</text></g>
+      </g>
+      <text x="40" y="250" font-size="14" class="t-muted">Every step extends the eval harness: judged relevance plus intra-list diversity, novelty to you, and author spread, so a clever idea has to beat the simple one before it ships.</text>
+    </svg>
+  </figure>
+  <div class="grid g2">
+    <div class="card"><p class="tag good">Recommended first build</p><h3>Related rail = kNN → MMR → caps → reasons</h3><p class="small">voyage-4 neighbours from other feeds, MMR with λ ≈ 0.7, one item per author, a "why" label on each, and finish/star logging from day one, because later learning needs history. It's all pure functions plus one vector index.</p></div>
+    <div class="card"><p class="tag info">The bet</p><h3>Frontier + edition</h3><p class="small">If one idea makes Elsewhere feel different, it's a finite daily edition ranked toward your knowledge frontier: reliable, a little surprising, and done in fifteen minutes. That's the version of "dopamine" worth building.</p></div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p><b>Sources.</b> Illustrative diagrams are labelled as such; product facts come from the viability research in <code>reports/</code>.</p>
+    <ol>
+      <li>Carbonell &amp; Goldstein (1998). The use of MMR, diversity-based reranking. <i>SIGIR</i>.</li>
+      <li>Ziegler, McNee, Konstan &amp; Lausen (2005). Improving recommendation lists through topic diversification. <i>WWW</i>.</li>
+      <li>Wilhelm et al. (2018). Practical diversified recommendations on YouTube with determinantal point processes. <i>CIKM</i>.</li>
+      <li>Steck (2018). Calibrated recommendations. <i>RecSys</i>.</li>
+      <li>Covington, Adams &amp; Sargin (2016). Deep neural networks for YouTube recommendations. <i>RecSys</i>.</li>
+      <li>Eksombatchai et al. (2018). Pixie: a system for recommending 3+ billion items in real-time. <i>WWW</i>.</li>
+      <li>Haveliwala (2002). Topic-sensitive PageRank. <i>WWW</i>.</li>
+      <li>Small (1973). Co-citation in the scientific literature. <i>JASIS</i>. · Kessler (1963). Bibliographic coupling. <i>American Documentation</i>.</li>
+      <li>Li, Chu, Langford &amp; Schapire (2010). A contextual-bandit approach to personalized news recommendation. <i>WWW</i>.</li>
+      <li>Harper et al. (2015). Putting users in control of their recommendations. <i>RecSys</i>.</li>
+      <li>Kaminskas &amp; Bridge (2016). Diversity, serendipity, novelty, and coverage. <i>ACM TiiS</i>.</li>
+      <li>Adamic &amp; Glance (2005). The political blogosphere and the 2004 U.S. election. <i>LinkKDD</i>.</li>
+      <li>Wachsmuth, Syed &amp; Stein (2018). Retrieval of the best counterargument without prior topic knowledge. <i>ACL</i>.</li>
+      <li>Schultz, Dayan &amp; Montague (1997). A neural substrate of prediction and reward. <i>Science</i>.</li>
+      <li>Loewenstein (1994). The psychology of curiosity. <i>Psychological Bulletin</i>.</li>
+      <li>Berlyne (1960). <i>Conflict, Arousal, and Curiosity</i>.</li>
+      <li>Gottlieb, Oudeyer, Lopes &amp; Baranes (2013). Information-seeking, curiosity, and attention. <i>Trends in Cognitive Sciences</i>.</li>
+      <li>Kidd &amp; Hayden (2015). The psychology and neuroscience of curiosity. <i>Neuron</i>.</li>
+      <li>Gruber, Gelman &amp; Ranganath (2014). States of curiosity modulate hippocampus-dependent learning via the dopaminergic circuit. <i>Neuron</i>.</li>
+      <li>Ferster &amp; Skinner (1957). <i>Schedules of Reinforcement</i>.</li>
+      <li>Cepeda et al. (2006). Distributed practice in verbal recall tasks. <i>Psychological Bulletin</i>.</li>
+      <li>Pirolli &amp; Card (1999). Information foraging. <i>Psychological Review</i>.</li>
+    </ol>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // Light/dark toggle
+  const root = document.documentElement;
+  document.getElementById("mode").addEventListener("click", () => {
+    root.dataset.mode = root.dataset.mode === "dark" ? "light" : "dark";
+    try { localStorage.setItem("elsewhere.doc.mode", root.dataset.mode); } catch {}
+  });
+
+  // Edition composer (toy model)
+  const KINDS = {
+    fresh:   { label: "Front page", color: "var(--c2)", why: ["new from a feed you read closely", "posted this morning", "new from a writer you starred"] },
+    deeper:  { label: "Deeper", color: "var(--c3)", why: ["builds on something you finished", "a long read on a concept you know", "the classic piece this topic cites"] },
+    contrast:{ label: "Counterpoint", color: "var(--c5)", why: ["disagrees with something you starred", "the other side of an open question"] },
+    frontier:{ label: "Frontier", color: "var(--c4)", why: ["one step beyond queueing theory", "introduces a concept next to yours"] },
+    wild:    { label: "Elsewhere", color: "var(--c1)", why: ["a wildcard from a distant corner", "a bridge writer between two interests"] },
+    archive: { label: "From the archive", color: "var(--c6)", why: ["from 2019, still relevant", "you starred this 3 months ago"] },
+  };
+  const ids = ["explore", "depth", "contrast", "archive"];
+  const el = (id) => document.getElementById(id);
+
+  function compose(v) {
+    const e = v.explore / 100, d = v.depth / 100, c = v.contrast / 100, a = v.archive / 100;
+    // Weights for the 7 flexible slots; 3 slots are always fresh.
+    const w = {
+      fresh: 1.4 * (1 - e) * (1 - d * 0.5),
+      deeper: 0.3 + 1.6 * d,
+      contrast: 1.4 * c,
+      frontier: 0.2 + 1.4 * e * (0.5 + d * 0.5),
+      wild: 1.2 * e * e,
+      archive: 1.3 * a,
+    };
+    const total = Object.values(w).reduce((x, y) => x + y, 0);
+    // Largest-remainder allocation of 7 slots.
+    const raw = Object.entries(w).map(([k, x]) => [k, (x / total) * 7]);
+    const counts = Object.fromEntries(raw.map(([k, x]) => [k, Math.floor(x)]));
+    let left = 7 - Object.values(counts).reduce((x, y) => x + y, 0);
+    raw.sort((p, q) => (q[1] % 1) - (p[1] % 1)).forEach(([k]) => { if (left > 0) { counts[k]++; left--; } });
+    counts.fresh += 3;
+    // Interleave so similar kinds don't cluster: front page first, wildcard mid-edition.
+    const order = ["fresh", "deeper", "frontier", "contrast", "fresh", "wild", "deeper", "archive", "fresh", "frontier"];
+    const slots = [];
+    const remaining = { ...counts };
+    while (slots.length < 10) {
+      const before = slots.length;
+      for (const k of order) {
+        if (slots.length < 10 && remaining[k] > 0) { slots.push(k); remaining[k]--; }
+      }
+      if (slots.length === before) break;
+    }
+    return slots;
+  }
+
+  function render() {
+    const v = Object.fromEntries(ids.map((id) => [id, Number(el(id).value)]));
+    ids.forEach((id) => { el(`v-${id}`).textContent = v[id]; });
+    const slots = compose(v);
+    const used = {};
+    el("edition").innerHTML = slots.map((k, i) => {
+      const kind = KINDS[k];
+      const n = (used[k] = (used[k] ?? -1) + 1);
+      return `<div class="slot" style="border-color:${kind.color}"><span class="i">${String(i + 1).padStart(2, "0")}</span><span class="s" style="color:${kind.color}">${kind.label}</span><span class="w">${kind.why[n % kind.why.length]}</span></div>`;
+    }).join("");
+  }
+  el("legend").innerHTML = Object.values(KINDS).map((k) => `<span><i style="background:${k.color}"></i>${k.label}</span>`).join("");
+  ids.forEach((id) => el(id).addEventListener("input", render));
+  render();
+})();
+</script>
+</body>
+</html>

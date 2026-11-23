@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Author Constellations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky: #060a19;
+  --sky-2: #0c1330;
+  --ink: #e6ebf8;
+  --ink-dim: #8a93b5;
+  --ink-faint: #4f5880;
+  --star: #f6f8ff;
+  --star-dim: #6b74a0;
+  --gold: #f2c35b;
+  --gold-soft: rgba(242, 195, 91, 0.16);
+  --gold-glow: rgba(242, 195, 91, 0.55);
+  --line: rgba(170, 186, 255, 0.2);
+  --line-strong: rgba(200, 212, 255, 0.6);
+  --grid: rgba(150, 170, 255, 0.05);
+  --dust: rgba(220, 228, 255, 0.55);
+  --panel: rgba(12, 18, 44, 0.92);
+  --panel-solid: #0c1230;
+  --border: rgba(160, 176, 255, 0.16);
+  --accent: #9db8ff;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  --nebula-a: rgba(80, 100, 220, 0.16);
+  --nebula-b: rgba(150, 90, 200, 0.10);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --sky: #eef3fb; --sky-2: #e1e9f6; --ink: #10265a; --ink-dim: #52648f; --ink-faint: #93a2c4;
+    --star: #10265a; --star-dim: #9ba9c9; --gold: #b5730b; --gold-soft: rgba(181, 115, 11, 0.12);
+    --gold-glow: rgba(181, 115, 11, 0.4); --line: rgba(16, 38, 90, 0.2); --line-strong: rgba(16, 38, 90, 0.65);
+    --grid: rgba(16, 38, 90, 0.07); --dust: rgba(16, 38, 90, 0); --panel: rgba(247, 250, 254, 0.95); --panel-solid: #f7fafe;
+    --border: rgba(16, 38, 90, 0.16); --accent: #2a55b8; --shadow: 0 16px 40px rgba(16, 38, 90, 0.16);
+    --nebula-a: rgba(42, 85, 184, 0.06); --nebula-b: rgba(42, 85, 184, 0.03); color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --sky: #eef3fb; --sky-2: #e1e9f6; --ink: #10265a; --ink-dim: #52648f; --ink-faint: #93a2c4;
+  --star: #10265a; --star-dim: #9ba9c9; --gold: #b5730b; --gold-soft: rgba(181, 115, 11, 0.12);
+  --gold-glow: rgba(181, 115, 11, 0.4); --line: rgba(16, 38, 90, 0.2); --line-strong: rgba(16, 38, 90, 0.65);
+  --grid: rgba(16, 38, 90, 0.07); --dust: rgba(16, 38, 90, 0); --panel: rgba(247, 250, 254, 0.95); --panel-solid: #f7fafe;
+  --border: rgba(16, 38, 90, 0.16); --accent: #2a55b8; --shadow: 0 16px 40px rgba(16, 38, 90, 0.16);
+  --nebula-a: rgba(42, 85, 184, 0.06); --nebula-b: rgba(42, 85, 184, 0.03); color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--sky);
+  color: var(--ink);
+  font: 300 15px/1.55 "Outfit", system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+button, select { font: inherit; color: inherit; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.78em; letter-spacing: 0; }
+
+/* ---------- header ---------- */
+header.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 18px 24px 8px;
+}
+.brand { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.brand h1 { margin: 0; font-weight: 200; font-size: clamp(26px, 4vw, 38px); letter-spacing: 0.02em; }
+.brand h1 b { font-weight: 500; }
+.brand .sub { color: var(--ink-dim); font-size: 14px; }
+.top-actions { display: flex; gap: 8px; align-items: center; }
+.pill {
+  border: 1px solid var(--border); background: transparent; border-radius: 999px;
+  padding: 6px 14px; font-size: 13px; font-weight: 400; cursor: pointer; color: var(--ink-dim);
+  transition: color .15s, border-color .15s, background .15s;
+}
+.pill:hover, .pill[aria-pressed="true"] { color: var(--ink); border-color: var(--line-strong); }
+.pill[aria-pressed="true"] { background: var(--gold-soft); border-color: var(--gold); color: var(--gold); }
+
+/* ---------- filter bar ---------- */
+.filterbar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 6px 24px 14px; font-size: 14px; color: var(--ink-dim);
+}
+.filterbar select {
+  background: var(--panel-solid); border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 10px; font-weight: 400; color: var(--ink); max-width: 100%;
+}
+.filterbar .swap { font-size: 18px; color: var(--gold); }
+
+/* ---------- layout ---------- */
+main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 0; padding: 0 24px 90px; }
+@media (max-width: 980px) { main { grid-template-columns: minmax(0, 1fr); padding: 0 16px 110px; } header.top, .filterbar { padding-left: 16px; padding-right: 16px; } }
+
+.sky {
+  position: relative; border: 1px solid var(--border); border-radius: 18px; overflow: hidden;
+  background:
+    radial-gradient(ellipse at 30% 35%, var(--nebula-a), transparent 55%),
+    radial-gradient(ellipse at 75% 70%, var(--nebula-b), transparent 50%),
+    linear-gradient(180deg, var(--sky-2), var(--sky));
+  min-width: 0;
+}
+.sky svg { display: block; width: 100%; height: auto; }
+.sky-caption {
+  position: absolute; left: 14px; bottom: 10px; font-size: 12px; color: var(--ink-faint); pointer-events: none;
+}
+
+/* svg parts */
+.dust circle { fill: var(--dust); }
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.cluster-ring { fill: none; stroke: var(--line); stroke-dasharray: 2 7; stroke-width: 1; }
+.cluster-label { fill: var(--ink-dim); font-weight: 300; font-size: 15px; letter-spacing: 0.22em; text-transform: uppercase; }
+.cluster-label.on { fill: var(--gold); font-weight: 400; }
+.edge { stroke: var(--line); stroke-width: 1.1; transition: stroke .2s, opacity .2s; }
+.edge.cross { stroke-dasharray: 5 5; }
+.edge.hot { stroke: var(--line-strong); stroke-width: 1.6; }
+.edge.gold { stroke: var(--gold); opacity: .85; }
+.edge.faded { opacity: .15; }
+
+.star { cursor: pointer; outline: none; }
+.star .core { fill: var(--star); transition: fill .3s; }
+.star .halo { fill: var(--star); opacity: .12; transition: opacity .3s; }
+.star.unsub .core { fill: var(--sky-2); stroke: var(--star-dim); stroke-width: 1.5; }
+.star.unsub .halo { opacity: 0; }
+.star.bridge .core { fill: var(--gold); stroke: none; }
+.star.bridge .halo { fill: var(--gold); opacity: .28; animation: pulse 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.star.subbridge .ring { stroke: var(--gold); opacity: .8; }
+.star .ring { fill: none; stroke: transparent; stroke-width: 1.2; stroke-dasharray: 3 3; }
+.star .label { fill: var(--ink); font-size: 14px; font-weight: 400; text-anchor: middle; pointer-events: none; }
+.star.unsub .label { fill: var(--ink-dim); font-weight: 300; }
+.star.bridge .label { fill: var(--gold); font-weight: 500; }
+.star .blog { fill: var(--ink-faint); font-size: 11px; text-anchor: middle; pointer-events: none; font-family: "IBM Plex Mono", monospace; }
+.star:hover .halo, .star:focus-visible .halo { opacity: .45; }
+.star:focus-visible .ring { stroke: var(--accent); stroke-dasharray: none; }
+.star.selected .ring { stroke: var(--ink); stroke-dasharray: none; opacity: 1; }
+.star.faded { opacity: .22; }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: .22; } 50% { transform: scale(1.35); opacity: .38; } }
+@media (prefers-reduced-motion: reduce) { .star.bridge .halo { animation: none; } }
+@media (max-width: 640px) {
+  .star .label { font-size: 22px; }
+  .star .blog { display: none; }
+  .cluster-label { font-size: 19px; letter-spacing: .14em; }
+}
+
+/* tooltip */
+.tip {
+  position: absolute; z-index: 5; width: 270px; max-width: calc(100% - 20px); pointer-events: none;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px;
+  box-shadow: var(--shadow); backdrop-filter: blur(8px); opacity: 0; transform: translateY(4px);
+  transition: opacity .12s, transform .12s; font-size: 13px;
+}
+.tip.on { opacity: 1; transform: none; }
+.tip h4 { margin: 0; font-weight: 500; font-size: 15px; }
+.tip .meta { color: var(--ink-dim); font-size: 12px; margin-bottom: 6px; }
+.tip p { margin: 4px 0; }
+.tip .k { color: var(--ink-faint); font-size: 11px; text-transform: uppercase; letter-spacing: .14em; margin-top: 8px; }
+
+/* side panel */
+aside.side { padding: 0 0 0 22px; min-width: 0; }
+@media (max-width: 980px) { aside.side { padding: 20px 0 0; } }
+.card { border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; background: var(--panel); }
+.card h2 { margin: 0 0 4px; font-weight: 400; font-size: 17px; letter-spacing: .01em; }
+.card .hint { color: var(--ink-dim); font-size: 13px; margin: 0 0 12px; }
+.eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; font-weight: 400; }
+.rank { list-style: none; margin: 0; padding: 0; counter-reset: r; }
+.rank li {
+  display: grid; grid-template-columns: 22px 1fr auto; gap: 4px 10px; align-items: baseline;
+  padding: 10px 0; border-top: 1px solid var(--border); cursor: pointer;
+}
+.rank li:first-child { border-top: none; }
+.rank li::before { counter-increment: r; content: counter(r); font-family: "IBM Plex Mono", monospace; color: var(--ink-faint); font-size: 12px; }
+.rank li:hover .nm { color: var(--gold); }
+.rank .nm { font-weight: 400; }
+.rank .why { grid-column: 2 / 4; color: var(--ink-dim); font-size: 13px; }
+.rank .score { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--gold); }
+.rank .tag { font-size: 11px; color: var(--ink-faint); margin-left: 6px; }
+.end-note { color: var(--ink-faint); font-size: 12px; margin-top: 8px; font-style: italic; }
+.legend { display: grid; gap: 8px; font-size: 13px; color: var(--ink-dim); }
+.legend span.sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 8px; }
+.sw.sub { background: var(--star); box-shadow: 0 0 8px var(--star); }
+.sw.uns { border: 1.5px solid var(--star-dim); }
+.sw.br { background: var(--gold); box-shadow: 0 0 10px var(--gold-glow); }
+.sw.sbr { border: 1.5px dashed var(--gold); background: var(--star); }
+.legend span.sw.ln { border-radius: 0; height: 0; border-top: 2px dashed var(--gold); width: 18px; vertical-align: 4px; }
+
+/* machinery */
+.machinery { display: none; grid-column: 1 / -1; margin-top: 18px; }
+.machinery.on { display: block; }
+.machinery .card { background: var(--panel); }
+.mach-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.formula { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; background: var(--gold-soft); border-radius: 8px; padding: 10px 12px; line-height: 1.7; overflow-x: auto; }
+.tbl-wrap { overflow-x: auto; }
+table.t { border-collapse: collapse; width: 100%; font-size: 13px; }
+table.t th, table.t td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+table.t th { font-weight: 400; color: var(--ink-dim); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+table.t td.n { font-family: "IBM Plex Mono", monospace; font-size: 12px; text-align: right; }
+table.t tr.hl td { color: var(--gold); }
+.mix { display: inline-flex; height: 8px; width: 90px; border-radius: 4px; overflow: hidden; vertical-align: middle; background: var(--border); }
+.mix i { display: block; height: 100%; }
+.homo-bar { height: 12px; border-radius: 6px; background: var(--border); overflow: hidden; display: flex; margin: 10px 0 6px; }
+.homo-bar i { display: block; height: 100%; }
+
+/* drawer */
+.scrim { position: fixed; inset: 0; background: rgba(3, 6, 18, 0.45); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100vw); z-index: 31;
+  background: var(--panel-solid); border-left: 1px solid var(--border); box-shadow: var(--shadow);
+  transform: translateX(105%); transition: transform .28s cubic-bezier(.2,.8,.2,1); overflow-y: auto; padding: 22px 24px 40px;
+}
+.drawer.on { transform: none; }
+@media (max-width: 640px) {
+  .drawer { top: auto; left: 0; width: 100vw; max-height: 86vh; border-left: none; border-top: 1px solid var(--border); border-radius: 18px 18px 0 0; transform: translateY(105%); padding: 18px 16px 40px; }
+}
+.drawer .close { position: absolute; top: 14px; right: 14px; background: none; border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; color: var(--ink-dim); }
+.drawer h2 { margin: 6px 0 0; font-weight: 300; font-size: 30px; line-height: 1.15; padding-right: 36px; }
+.drawer .blogline { color: var(--ink-dim); margin-bottom: 12px; }
+.drawer .bio { font-size: 15px; }
+.drawer h3 { font-weight: 400; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-dim); margin: 22px 0 8px; }
+.follow {
+  display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 9px 20px; cursor: pointer;
+  border: 1px solid var(--gold); background: var(--gold); color: var(--sky); font-weight: 500; margin-top: 6px;
+}
+.follow.following { background: transparent; color: var(--gold); }
+.why-box { border: 1px solid var(--gold); background: var(--gold-soft); border-radius: 12px; padding: 12px 14px; }
+.why-box p { margin: 0 0 8px; }
+.why-box p:last-child { margin-bottom: 0; }
+.bars { display: grid; gap: 6px; margin: 10px 0 4px; }
+.bar-row { display: grid; grid-template-columns: 128px 1fr 40px; gap: 8px; align-items: center; font-size: 12.5px; }
+.bar-row .track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.bar-row .fill { height: 100%; background: var(--ink-dim); border-radius: 3px; }
+.bar-row.pick .fill { background: var(--gold); }
+.bar-row.pick { color: var(--gold); }
+.bar-row .v { font-family: "IBM Plex Mono", monospace; font-size: 11.5px; text-align: right; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; }
+.chip.known { border-color: var(--line-strong); }
+.chip.new { border-color: var(--gold); color: var(--gold); }
+.arts { list-style: none; padding: 0; margin: 0; }
+.arts li { padding: 8px 0; border-top: 1px solid var(--border); font-size: 14px; }
+.arts li:first-child { border-top: none; }
+.arts .st { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: .12em; margin-left: 6px; }
+.who { font-size: 14px; color: var(--ink-dim); }
+.who a { color: var(--ink); cursor: pointer; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 3px; }
+.who a:hover { color: var(--gold); }
+
+/* toast */
+.toast {
+  position: fixed; left: 50%; bottom: 70px; transform: translate(-50%, 20px); opacity: 0; z-index: 40;
+  background: var(--panel-solid); border: 1px solid var(--gold); color: var(--ink); border-radius: 12px; padding: 10px 16px;
+  box-shadow: var(--shadow); font-size: 14px; transition: opacity .2s, transform .2s; max-width: calc(100vw - 32px); pointer-events: none;
+}
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* mock badge */
+.mock-badge {
+  position: fixed; left: 12px; bottom: 12px; z-index: 20; max-width: min(380px, calc(100vw - 24px));
+  background: var(--panel-solid); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px;
+  font-size: 12px; color: var(--ink-dim); box-shadow: var(--shadow); line-height: 1.45;
+}
+.mock-badge b { color: var(--gold); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; font-size: 10.5px; margin-right: 6px; }
+.mock-badge a { color: var(--ink); }
+.mock-badge .more { display: block; }
+.mock-badge.min .more { display: none; }
+.mock-badge button { background: none; border: none; color: var(--ink-faint); cursor: pointer; padding: 0 0 0 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Elsewhere <b>·</b> Constellations</h1>
+    <span class="sub">Who your writers link to, and who connects your interests</span>
+  </div>
+  <div class="top-actions">
+    <button class="pill" id="machBtn" aria-pressed="false">Show the machinery</button>
+    <button class="pill" id="themeBtn" aria-label="Toggle light or dark">◐ Chart / sky</button>
+  </div>
+</header>
+
+<div class="filterbar" role="group" aria-label="Find bridges between two interests">
+  <span>Find writers who bridge</span>
+  <select id="fa" aria-label="First interest"></select>
+  <span class="swap" aria-hidden="true">↔</span>
+  <select id="fb" aria-label="Second interest"></select>
+  <button class="pill" id="clearF">Any two interests</button>
+</div>
+
+<main>
+  <section class="sky" id="sky" aria-label="Writer constellation map">
+    <svg id="svg" role="img" aria-label="Writers as stars, positioned by what they write about"></svg>
+    <div class="tip" id="tip" role="tooltip"></div>
+    <div class="sky-caption" id="caption"></div>
+  </section>
+
+  <aside class="side">
+    <div class="card" id="listCard"></div>
+    <div class="card">
+      <div class="eyebrow">Reading the sky</div>
+      <div class="legend">
+        <div><span class="sw sub"></span>A writer you follow</div>
+        <div><span class="sw uns"></span>In your graph, not followed (they were linked to)</div>
+        <div><span class="sw br"></span>Bridge: connects two of your interests</div>
+        <div><span class="sw sbr"></span>A bridge you already follow</div>
+        <div><span class="sw ln"></span>A link that crosses clusters via a bridge</div>
+      </div>
+      <p class="hint" style="margin:12px 0 0">Position = what they write about plus who they link with. Writers drift toward the clusters they touch, so bridges sit between them. Size = articles + incoming links.</p>
+    </div>
+  </aside>
+
+  <section class="machinery" id="machinery" aria-label="Ranking machinery"></section>
+</main>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Writer profile" aria-hidden="true"></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="mock-badge" id="badge">
+  <b>Mock</b><a href="index.html">← All mocks</a> · Strategy: <strong>Author constellations</strong>
+  <button id="badgeMin" aria-label="Collapse note">–</button>
+  <span class="more">Writers are scored by how evenly they straddle two of your interests (in what they write and whom they link), boosted where none of your current writers already connect them.</span>
+</div>
+
+<script src="data.js"></script>
+<script>
+(() => {
+  const E = window.ELSEWHERE;
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const CL = E.clusters.map((c) => c.id);
+  const CLABEL = Object.fromEntries(E.clusters.map((c) => [c.id, c.label]));
+  const SHORT = { systems: "Systems", "local-first": "Local-first", design: "Design", economics: "Incentives", learning: "Learning" };
+  // Sky order: adjacent clusters on the pentagon.
+  const ORDER = ["systems", "local-first", "design", "learning", "economics"];
+  const CLUSTER_HUE = { systems: "#7fa6ff", "local-first": "#7fd8c4", design: "#d59bff", economics: "#ff9f8a", learning: "#f2c35b" };
+
+  // ---------- state ----------
+  const subscribed = Object.fromEntries(E.writers.map((w) => [w.id, w.subscribed]));
+  let filter = null; // {a, b}
+  let selected = null;
+  let machOpen = false;
+
+  // ---------- graph: writer→writer links derived from article links ----------
+  const directed = {}; // "x>y": count
+  for (const a of E.articles) for (const l of a.links) {
+    const b = E.article(l);
+    if (b && b.writer !== a.writer) { const k = a.writer + ">" + b.writer; directed[k] = (directed[k] || 0) + 1; }
+  }
+  const pairs = {}; // undirected "x|y" sorted : weight
+  for (const k in directed) { const [x, y] = k.split(">"); const key = [x, y].sort().join("|"); pairs[key] = (pairs[key] || 0) + directed[k]; }
+  const linksOut = (id) => Object.keys(directed).filter((k) => k.startsWith(id + ">")).map((k) => k.split(">")[1]);
+  const linksIn = (id) => Object.keys(directed).filter((k) => k.endsWith(">" + id)).map((k) => k.split(">")[0]);
+  const neighbours = (id) => [...new Set([...linksOut(id), ...linksIn(id)])];
+  const articlesBy = (id) => E.articles.filter((a) => a.writer === id);
+  const conceptsBy = (id) => {
+    const m = {};
+    for (const a of articlesBy(id)) for (const c of a.concepts) m[c] = (m[c] || 0) + 1;
+    return Object.entries(m).sort((x, y) => y[1] - x[1]).map(([c]) => c);
+  };
+
+  // ---------- scores ----------
+  // Profile: half "what they write" (concept clusters), half "who they link with" (neighbour clusters).
+  const profiles = {};
+  for (const w of E.writers) {
+    const cc = {}; let n = 0;
+    for (const a of articlesBy(w.id)) for (const c of a.concepts) { const k = E.concept(c).cluster; cc[k] = (cc[k] || 0) + 1; n++; }
+    const nb = neighbours(w.id); const lc = {};
+    for (const y of nb) { const k = E.writer(y).cluster; lc[k] = (lc[k] || 0) + 1; }
+    const write = {}, link = {}, p = {};
+    for (const c of CL) {
+      write[c] = n ? (cc[c] || 0) / n : 0;
+      link[c] = nb.length ? (lc[c] || 0) / nb.length : write[c];
+      p[c] = 0.5 * write[c] + 0.5 * link[c];
+    }
+    profiles[w.id] = { write, link, p };
+  }
+  const bridgeAB = (id, a, b) => 2 * Math.min(profiles[id].p[a], profiles[id].p[b]);
+  // Cross-links among writers you follow between clusters a and b (the "gap").
+  const followedCross = (a, b, exclude) => {
+    const out = [];
+    for (const k in pairs) {
+      const [x, y] = k.split("|");
+      if (!subscribed[x] || !subscribed[y] || x === exclude || y === exclude) continue;
+      const cx = E.writer(x).cluster, cy = E.writer(y).cluster;
+      if ((cx === a && cy === b) || (cx === b && cy === a)) out.push([x, y]);
+    }
+    return out;
+  };
+  const gap = (a, b, exclude) => 1 / (1 + followedCross(a, b, exclude).length);
+  function scoreAll() {
+    const res = {};
+    for (const w of E.writers) {
+      let best = { bridge: 0, a: null, b: null, gap: 1, value: 0 };
+      for (let i = 0; i < CL.length; i++) for (let j = i + 1; j < CL.length; j++) {
+        const a = CL[i], b = CL[j];
+        const br = bridgeAB(w.id, a, b);
+        if (br <= 0) continue;
+        const g = gap(a, b, w.id), v = br * g;
+        if (v > best.value || (v === best.value && br > best.bridge)) best = { bridge: br, a, b, gap: g, value: v };
+      }
+      res[w.id] = best;
+    }
+    return res;
+  }
+  const BRIDGE_LINE = 0.45;
+  let S = scoreAll();
+  const isBridge = (id) => !subscribed[id] && S[id].value >= BRIDGE_LINE;
+  const isSubBridge = (id) => subscribed[id] && S[id].bridge >= 0.6;
+
+  // ---------- layout ----------
+  function hash(s) { let h = 2166136261; for (const ch of s) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967295; }
+  function rng(seed) { let x = seed; return () => { x = (x * 1664525 + 1013904223) % 4294967296; return x / 4294967296; }; }
+  let VW = 1000, VH = 660;
+  let pos = {}, centers = {};
+  function layout() {
+    const narrow = window.innerWidth < 640;
+    VW = narrow ? 700 : 1000; VH = narrow ? 900 : 660;
+    const cx = VW / 2, cy = VH / 2 + (narrow ? 10 : 10);
+    const rx = VW * (narrow ? 0.33 : 0.36), ry = VH * (narrow ? 0.33 : 0.34);
+    ORDER.forEach((c, i) => {
+      const ang = -Math.PI / 2 + (i * 2 * Math.PI) / ORDER.length;
+      centers[c] = { x: cx + Math.cos(ang) * rx, y: cy + Math.sin(ang) * ry, dx: Math.cos(ang), dy: Math.sin(ang) };
+    });
+    pos = {};
+    for (const w of E.writers) {
+      const p = profiles[w.id].p;
+      let x = 0, y = 0;
+      for (const c of CL) { x += p[c] * centers[c].x; y += p[c] * centers[c].y; }
+      const home = centers[w.cluster];
+      x = home.x + (x - home.x) * 0.9; y = home.y + (y - home.y) * 0.9;
+      const a = hash(w.id) * Math.PI * 2, r = 40 + hash(w.id + "r") * 30;
+      pos[w.id] = { x: x + Math.cos(a) * r, y: y + Math.sin(a) * r };
+    }
+    // Simple repulsion so labels don't collide.
+    const ids = Object.keys(pos), minD = narrow ? 100 : 80, m = 70;
+    for (let it = 0; it < 120; it++) {
+      for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+        const p = pos[ids[i]], q = pos[ids[j]];
+        // Elliptical metric: labels are wide, so keep stars further apart horizontally.
+        let dx = q.x - p.x, dy = q.y - p.y; const d = Math.hypot(dx / 2, dy) || 0.01;
+        if (d < minD) { const push = (minD - d) / 2; const ux = dx / 2 / d, uy = dy / d; p.x -= ux * push * 2; p.y -= uy * push; q.x += ux * push * 2; q.y += uy * push; }
+      }
+      for (const id of ids) { const p = pos[id]; p.x = Math.max(m, Math.min(VW - m, p.x)); p.y = Math.max(m + 20, Math.min(VH - m, p.y)); }
+    }
+  }
+
+  // ---------- render sky ----------
+  const svg = $("#svg");
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent) { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; }
+  const inboundCount = (id) => linksIn(id).length;
+  const radius = (id) => Math.max(isBridge(id) || S[id].bridge >= 0.6 ? 10 : 0, 5 + articlesBy(id).length * 1.6 + inboundCount(id) * 1.3);
+
+  function renderSky() {
+    svg.innerHTML = "";
+    svg.setAttribute("viewBox", `0 0 ${VW} ${VH}`);
+    const defs = el("defs", {}, svg);
+    const f = el("filter", { id: "glow", x: "-100%", y: "-100%", width: "300%", height: "300%" }, defs);
+    el("feGaussianBlur", { stdDeviation: "4", result: "b" }, f);
+    const mg = el("feMerge", {}, f); el("feMergeNode", { in: "b" }, mg); el("feMergeNode", { in: "SourceGraphic" }, mg);
+
+    // graticule
+    const g0 = el("g", {}, svg);
+    for (let x = 0; x <= VW; x += 50) el("line", { x1: x, y1: 0, x2: x, y2: VH, class: "gridline" }, g0);
+    for (let y = 0; y <= VH; y += 50) el("line", { x1: 0, y1: y, x2: VW, y2: y, class: "gridline" }, g0);
+    // dust
+    const dust = el("g", { class: "dust" }, svg); const r = rng(42);
+    for (let i = 0; i < 170; i++) el("circle", { cx: r() * VW, cy: r() * VH, r: r() < 0.9 ? 0.7 : 1.4, opacity: 0.25 + r() * 0.6 }, dust);
+
+    // cluster rings + labels
+    const gc = el("g", {}, svg);
+    for (const c of ORDER) {
+      const ce = centers[c];
+      el("circle", { cx: ce.x, cy: ce.y, r: 115, class: "cluster-ring" }, gc);
+      let lx = ce.x + ce.dx * 150, ly = ce.y + ce.dy * 135;
+      lx = Math.max(110, Math.min(VW - 110, lx)); ly = Math.max(26, Math.min(VH - 14, ly));
+      const on = filter && (filter.a === c || filter.b === c);
+      const t = el("text", { x: lx, y: ly, "text-anchor": "middle", class: "cluster-label" + (on ? " on" : "") }, gc);
+      t.textContent = SHORT[c];
+    }
+
+    // edges
+    const ge = el("g", {}, svg);
+    for (const k in pairs) {
+      const [x, y] = k.split("|"); const p = pos[x], q = pos[y];
+      const cross = E.writer(x).cluster !== E.writer(y).cluster;
+      let cls = "edge" + (cross ? " cross" : "");
+      if (filter) {
+        const cs = [E.writer(x).cluster, E.writer(y).cluster];
+        const touches = (bridgeAB(x, filter.a, filter.b) > 0 || bridgeAB(y, filter.a, filter.b) > 0) && cs.some((c) => c === filter.a || c === filter.b);
+        if (!touches) cls += " faded"; else if (cross && cs.includes(filter.a) && cs.includes(filter.b)) cls += " gold";
+      } else if (cross && (isBridge(x) || isBridge(y))) cls += " gold";
+      el("line", { x1: p.x, y1: p.y, x2: q.x, y2: q.y, class: cls, "data-a": x, "data-b": y, "stroke-width": 0.8 + pairs[k] * 0.5 }, ge);
+    }
+
+    // stars
+    const gs = el("g", {}, svg);
+    const narrow = VW < 900;
+    for (const w of E.writers) {
+      const p = pos[w.id], rr = radius(w.id);
+      let cls = "star";
+      if (!subscribed[w.id]) cls += " unsub";
+      const showBridge = filter ? bridgeAB(w.id, filter.a, filter.b) > 0 : isBridge(w.id);
+      if (showBridge && !(filter && subscribed[w.id])) cls += " bridge";
+      if (filter && subscribed[w.id] && bridgeAB(w.id, filter.a, filter.b) > 0) cls += " subbridge";
+      if (!filter && isSubBridge(w.id)) cls += " subbridge";
+      if (filter && bridgeAB(w.id, filter.a, filter.b) === 0 && ![filter.a, filter.b].includes(w.cluster)) cls += " faded";
+      if (selected === w.id) cls += " selected";
+      const g = el("g", { class: cls, tabindex: 0, role: "button", "data-id": w.id, "aria-label": `${w.name}, ${w.blog}${subscribed[w.id] ? ", followed" : ""}${cls.includes("bridge") ? ", bridge writer" : ""}` }, gs);
+      el("circle", { cx: p.x, cy: p.y, r: rr * 2.6, class: "halo" }, g);
+      el("circle", { cx: p.x, cy: p.y, r: rr + 6, class: "ring" }, g);
+      el("circle", { cx: p.x, cy: p.y, r: rr, class: "core", filter: subscribed[w.id] || cls.includes("bridge") ? "url(#glow)" : "" }, g);
+      el("circle", { cx: p.x, cy: p.y, r: Math.max(rr * 2.6, 26), fill: "transparent" }, g); // hit area
+      const t = el("text", { x: p.x, y: p.y + rr + (narrow ? 26 : 19), class: "label" }, g);
+      t.textContent = narrow ? w.name.split(" ")[0] : w.name;
+      if (!narrow) { const b = el("text", { x: p.x, y: p.y + rr + 33, class: "blog" }, g); b.textContent = w.blog; }
+    }
+    const nSub = E.writers.filter((w) => subscribed[w.id]).length;
+    $("#caption").textContent = `${E.writers.length} writers · ${nSub} followed · ${Object.keys(pairs).length} link paths`;
+  }
+
+  // ---------- hover tooltip ----------
+  const tip = $("#tip");
+  function showTip(id, target) {
+    const w = E.writer(id);
+    const about = conceptsBy(id).slice(0, 4).map((c) => E.concept(c).label).join(", ");
+    const inn = linksIn(id).map((x) => E.writer(x).name);
+    const out = linksOut(id).map((x) => E.writer(x).name);
+    const s = S[id];
+    tip.innerHTML = `<h4>${esc(w.name)}</h4><div class="meta">${esc(w.blog)} · ${subscribed[id] ? "following" : "not followed"}</div>
+      <p>${esc(w.bio)}</p>
+      <div class="k">Writes about</div><p>${esc(about)}</p>
+      <div class="k">Linked to by</div><p>${inn.length ? esc(inn.join(", ")) : "<span style='color:var(--ink-faint)'>Nobody in your graph yet</span>"}</p>
+      ${out.length ? `<div class="k">Links to</div><p>${esc(out.join(", "))}</p>` : ""}
+      ${s.bridge > 0 ? `<div class="k">Bridge</div><p>${SHORT[s.a]} ↔ ${SHORT[s.b]} · <span class="mono">${s.value.toFixed(2)}</span></p>` : ""}`;
+    const box = $("#sky").getBoundingClientRect(), t = target.querySelector(".core").getBoundingClientRect();
+    tip.classList.add("on");
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = t.left - box.left + t.width / 2 + 18, y = t.top - box.top - 10;
+    if (x + tw > box.width - 8) x = t.left - box.left - tw - 14;
+    if (x < 8) x = 8;
+    if (y + th > box.height - 8) y = box.height - th - 8;
+    if (y < 8) y = 8;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+    svg.querySelectorAll(".edge").forEach((e) => e.classList.toggle("hot", e.dataset.a === id || e.dataset.b === id));
+  }
+  function hideTip() { tip.classList.remove("on"); svg.querySelectorAll(".edge.hot").forEach((e) => e.classList.remove("hot")); }
+  svg.addEventListener("pointerover", (e) => { const g = e.target.closest(".star"); if (g && e.pointerType !== "touch") showTip(g.dataset.id, g); });
+  svg.addEventListener("pointerout", (e) => { const g = e.target.closest(".star"); if (g && !g.contains(e.relatedTarget)) hideTip(); });
+  svg.addEventListener("focusin", (e) => { const g = e.target.closest(".star"); if (g) showTip(g.dataset.id, g); });
+  svg.addEventListener("focusout", hideTip);
+  svg.addEventListener("click", (e) => { const g = e.target.closest(".star"); if (g) { hideTip(); openDrawer(g.dataset.id); } });
+  svg.addEventListener("keydown", (e) => { const g = e.target.closest(".star"); if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); hideTip(); openDrawer(g.dataset.id); } });
+
+  // ---------- side list ----------
+  function renderList() {
+    const card = $("#listCard");
+    if (filter) {
+      const { a, b } = filter;
+      const ranked = E.writers.map((w) => ({ w, s: bridgeAB(w.id, a, b) })).filter((x) => x.s > 0).sort((x, y) => (subscribed[x.w.id] - subscribed[y.w.id]) || y.s - x.s).slice(0, 5);
+      const fc = followedCross(a, b);
+      card.innerHTML = `<div class="eyebrow">Bridges · ${SHORT[a]} ↔ ${SHORT[b]}</div>
+        <h2>Who connects ${esc(CLABEL[a])} and ${esc(CLABEL[b])}?</h2>
+        <p class="hint">${fc.length ? `You already have ${fc.length} followed link${fc.length > 1 ? "s" : ""} across this pair (${fc.map(([x, y]) => E.writer(x).name.split(" ")[0] + "–" + E.writer(y).name.split(" ")[0]).join(", ")}).` : "None of the writers you follow link across this pair yet."}</p>
+        ${ranked.length ? `<ol class="rank">${ranked.map(({ w, s }) => `<li data-id="${w.id}" tabindex="0"><span class="nm">${esc(w.name)}${subscribed[w.id] ? `<span class="tag">following</span>` : ""}</span><span class="score">${s.toFixed(2)}</span>
+          <span class="why">${esc(pct(profiles[w.id].p[a]))} ${SHORT[a]} · ${esc(pct(profiles[w.id].p[b]))} ${SHORT[b]}</span></li>`).join("")}</ol>
+          <p class="end-note">${ranked.length} writer${ranked.length > 1 ? "s" : ""} touch both. That's the whole list.</p>`
+        : `<p class="hint">Nobody in your graph crosses between these yet. That's a gap worth a web search (Discovery would do this).</p>`}`;
+    } else {
+      const ranked = E.writers.filter((w) => isBridge(w.id)).sort((x, y) => S[y.id].value - S[x.id].value).slice(0, 3);
+      card.innerHTML = `<div class="eyebrow">Discovery · bridge writers</div>
+        <h2>Writers who connect your interests</h2>
+        <p class="hint">Ranked by bridge score × how new the connection is to you. Click one for the reasoning.</p>
+        ${ranked.length ? `<ol class="rank">${ranked.map((w) => { const s = S[w.id]; return `<li data-id="${w.id}" tabindex="0"><span class="nm">${esc(w.name)}</span><span class="score">${s.value.toFixed(2)}</span>
+          <span class="why">${esc(CLABEL[s.a])} ↔ ${esc(CLABEL[s.b])}</span></li>`; }).join("")}</ol>
+          <p class="end-note">Only writers above ${BRIDGE_LINE} make the list. That's everyone for now.</p>`
+        : `<p class="hint">You follow every bridge in your graph. New ones arrive as your writers link to new people.</p>`}`;
+    }
+    card.querySelectorAll("li[data-id]").forEach((li) => {
+      li.addEventListener("click", () => openDrawer(li.dataset.id));
+      li.addEventListener("keydown", (e) => { if (e.key === "Enter") openDrawer(li.dataset.id); });
+      li.addEventListener("mouseenter", () => { const g = svg.querySelector(`.star[data-id="${li.dataset.id}"]`); if (g) showTip(li.dataset.id, g); });
+      li.addEventListener("mouseleave", hideTip);
+    });
+  }
+  const pct = (x) => Math.round(x * 100) + "%";
+
+  // ---------- drawer ----------
+  const drawer = $("#drawer"), scrim = $("#scrim");
+  function openDrawer(id) {
+    selected = id; renderDrawer(); drawer.classList.add("on"); scrim.classList.add("on"); drawer.setAttribute("aria-hidden", "false");
+    renderSky();
+    setTimeout(() => drawer.querySelector(".follow")?.focus({ preventScroll: true }), 50);
+  }
+  function closeDrawer() {
+    const id = selected;
+    selected = null; drawer.classList.remove("on"); scrim.classList.remove("on"); drawer.setAttribute("aria-hidden", "true"); renderSky();
+    svg.querySelector(`.star[data-id="${id}"]`)?.focus({ preventScroll: true });
+  }
+  scrim.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && selected) closeDrawer(); });
+
+  function renderDrawer() {
+    const id = selected, w = E.writer(id), s = S[id], prof = profiles[id];
+    const first = w.name.split(" ")[0];
+    const pa = filter ? filter.a : s.a, pb = filter ? filter.b : s.b;
+    const br = pa ? bridgeAB(id, pa, pb) : 0;
+    const g = pa ? gap(pa, pb, id) : 1;
+    const fc = pa ? followedCross(pa, pb, id) : [];
+    const concepts = conceptsBy(id);
+    const known = concepts.filter((c) => E.concept(c).known >= 0.5);
+    const fresh = concepts.filter((c) => E.concept(c).known < 0.5);
+    const inn = linksIn(id), out = linksOut(id);
+    let why;
+    if (br > 0) {
+      why = `<p><strong>${esc(first)} sits between ${esc(CLABEL[pa])} and ${esc(CLABEL[pb])}.</strong> ${pct(prof.p[pa])} of their footprint is ${esc(SHORT[pa].toLowerCase())}, ${pct(prof.p[pb])} is ${esc(SHORT[pb].toLowerCase())}.</p>
+        <p>${fc.length ? `You already reach across this pair through ${fc.map(([x, y]) => esc(E.writer(x).name.split(" ")[0]) + " and " + esc(E.writer(y).name.split(" ")[0])).join("; ")}, so the connection is worth a bit less (gap ${g.toFixed(2)}).` : `None of the writers you follow link across this pair, ${subscribed[id] ? `so ${esc(first)} is your only path between them (gap 1.00).` : `so ${esc(first)} would be a new path between two things you read (gap 1.00).`}`}</p>
+        <p class="mono">bridge = 2 × min(${prof.p[pa].toFixed(2)}, ${prof.p[pb].toFixed(2)}) = ${br.toFixed(2)} × gap ${g.toFixed(2)} = <strong>${(br * g).toFixed(2)}</strong></p>`;
+    } else {
+      why = `<p><strong>${esc(first)} writes squarely inside ${esc(CLABEL[w.cluster])}.</strong> Not a bridge: every concept and link stays in one cluster. Good for depth, not for widening your graph.</p><p class="mono">bridge = 0.00</p>`;
+    }
+    drawer.innerHTML = `<button class="close" aria-label="Close profile">✕</button>
+      <div class="eyebrow">${esc(CLABEL[w.cluster])}${br >= 0.45 ? " · bridge" : ""}</div>
+      <h2>${esc(w.name)}</h2>
+      <div class="blogline">${esc(w.blog)} · ${articlesBy(id).length} article${articlesBy(id).length > 1 ? "s" : ""} in your graph</div>
+      <div class="bio">${esc(w.bio)}</div>
+      <button class="follow ${subscribed[id] ? "following" : ""}" aria-pressed="${subscribed[id]}">${subscribed[id] ? "✓ Following" : "+ Follow"}</button>
+      <h3>Why you might follow</h3>
+      <div class="why-box">${why}
+        <div class="bars">${ORDER.filter((c) => prof.p[c] > 0).map((c) => `<div class="bar-row ${c === pa || c === pb ? "pick" : ""}"><span>${esc(SHORT[c])}</span><span class="track"><span class="fill" style="width:${prof.p[c] * 100}%;display:block"></span></span><span class="v">${prof.p[c].toFixed(2)}</span></div>`).join("")}</div>
+        <p style="font-size:12px;color:var(--ink-dim)">Footprint = ½ concepts they write about + ½ clusters of writers they link with.</p>
+      </div>
+      <h3>Shared ground</h3>
+      ${known.length ? `<p class="who">Concepts you already know well:</p><div class="chips">${known.map((c) => `<span class="chip known">${esc(E.concept(c).label)}</span>`).join("")}</div>` : `<p class="who">No concepts you know well yet.</p>`}
+      ${fresh.length ? `<p class="who" style="margin-top:10px">New to you:</p><div class="chips">${fresh.map((c) => `<span class="chip new">${esc(E.concept(c).label)}</span>`).join("")}</div>` : ""}
+      <h3>Who links here</h3>
+      <p class="who">${inn.length ? `Linked to by ${inn.map((x) => `<a data-go="${x}">${esc(E.writer(x).name)}</a>${subscribed[x] ? "" : " (not followed)"}`).join(", ")}.` : "Nobody in your graph links here yet."}
+      ${out.length ? `<br>Links out to ${out.map((x) => `<a data-go="${x}">${esc(E.writer(x).name)}</a>`).join(", ")}.` : ""}</p>
+      <h3>In your graph</h3>
+      <ul class="arts">${articlesBy(id).map((a) => `<li>${esc(a.title)}<span class="st">${a.state} · ${a.minutes} min</span></li>`).join("")}</ul>`;
+    drawer.querySelector(".close").addEventListener("click", closeDrawer);
+    drawer.querySelector(".follow").addEventListener("click", () => toggleFollow(id));
+    drawer.querySelectorAll("[data-go]").forEach((a) => a.addEventListener("click", () => openDrawer(a.dataset.go)));
+  }
+
+  function toggleFollow(id) {
+    const before = S[id];
+    subscribed[id] = !subscribed[id];
+    S = scoreAll();
+    const w = E.writer(id);
+    let msg;
+    if (subscribed[id]) {
+      msg = before.bridge > 0 ? `Following ${w.name}. ${SHORT[before.a]} ↔ ${SHORT[before.b]} now has a path through your own feeds.` : `Following ${w.name}.`;
+    } else msg = `Unfollowed ${w.name}. Their articles stay in your graph.`;
+    toast(msg);
+    renderAll(); renderDrawer();
+  }
+  let toastT;
+  function toast(m) { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 3600); }
+
+  // ---------- machinery ----------
+  function renderMachinery() {
+    const m = $("#machinery");
+    m.classList.toggle("on", machOpen);
+    if (!machOpen) return;
+    let within = 0, cross = 0;
+    for (const k in directed) { const [x, y] = k.split(">"); if (E.writer(x).cluster === E.writer(y).cluster) within += directed[k]; else cross += directed[k]; }
+    const total = within + cross;
+    // Chance a link lands in the same cluster if writers linked at random.
+    let chance = 0;
+    for (const w of E.writers) { const same = E.writers.filter((v) => v.id !== w.id && v.cluster === w.cluster).length; chance += same / (E.writers.length - 1); }
+    chance /= E.writers.length;
+    const rows = E.writers.slice().sort((a, b) => S[b.id].value - S[a.id].value);
+    m.innerHTML = `<div class="mach-grid">
+      <div class="card"><div class="eyebrow">Why bridges</div><h2>Links echo</h2>
+        <p class="hint" style="margin-bottom:6px">Adamic &amp; Glance (2005) mapped the 2004 U.S. political blogosphere and found liberal and conservative blogs linked overwhelmingly within their own side. Link graphs are homophilous: following links alone keeps you in the room you're already in.</p>
+        <div class="homo-bar" aria-hidden="true"><i style="width:${(within / total) * 100}%;background:var(--ink-dim)"></i><i style="width:${(cross / total) * 100}%;background:var(--gold)"></i></div>
+        <p style="margin:0;font-size:13px">In your graph, <strong>${within} of ${total}</strong> links (${pct(within / total)}) stay inside one cluster. If writers linked at random, about ${pct(chance)} would. Only <span style="color:var(--gold)">${cross}</span> cross over, and bridge writers carry most of them.</p>
+      </div>
+      <div class="card"><div class="eyebrow">Scoring</div><h2>How a bridge is scored</h2>
+        <div class="formula">footprint(w,c) = ½·share of w's concepts in c<br>&nbsp;&nbsp;+ ½·share of w's linked writers in c<br>bridge(w,A,B) = 2·min(footprint A, footprint B)<br>gap(A,B) = 1 / (1 + followed links A↔B)<br>value(w) = max over pairs of bridge·gap</div>
+        <p class="hint" style="margin:10px 0 0">An even 50/50 split scores 1.0; a writer who's 75/25 scores 0.5. The gap term favours connections you don't already have, so following a bridge lowers the value of the next one on the same pair. Gold = not followed and value ≥ ${BRIDGE_LINE}.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px"><div class="eyebrow">Every writer</div><h2>Footprints and scores</h2>
+      <div class="tbl-wrap"><table class="t"><thead><tr><th>Writer</th><th>Footprint</th><th>Best pair</th><th style="text-align:right">Bridge</th><th style="text-align:right">Gap</th><th style="text-align:right">Value</th></tr></thead><tbody>
+      ${rows.map((w) => { const s = S[w.id], p = profiles[w.id].p; return `<tr class="${isBridge(w.id) ? "hl" : ""}"><td>${esc(w.name)}${subscribed[w.id] ? " ·" : ""}</td>
+        <td><span class="mix" title="${ORDER.map((c) => SHORT[c] + " " + pct(p[c])).join(", ")}">${ORDER.map((c) => `<i style="width:${p[c] * 100}%;background:${CLUSTER_HUE[c]}"></i>`).join("")}</span></td>
+        <td>${s.a ? SHORT[s.a] + " ↔ " + SHORT[s.b] : "—"}</td><td class="n">${s.bridge.toFixed(2)}</td><td class="n">${s.a ? s.gap.toFixed(2) : "—"}</td><td class="n">${s.value.toFixed(2)}</td></tr>`; }).join("")}
+      </tbody></table></div>
+      <p class="hint" style="margin:10px 0 0">· = followed. Footprint colours: ${ORDER.map((c) => `<span style="color:${CLUSTER_HUE[c]}">■</span> ${SHORT[c]}`).join(" &nbsp;")}</p>
+    </div>`;
+  }
+
+  // ---------- controls ----------
+  const fa = $("#fa"), fb = $("#fb");
+  const opts = `<option value="">choose…</option>` + E.clusters.map((c) => `<option value="${c.id}">${esc(c.label)}</option>`).join("");
+  fa.innerHTML = opts; fb.innerHTML = opts;
+  function onFilter() {
+    if (fa.value && fb.value && fa.value !== fb.value) filter = { a: fa.value, b: fb.value };
+    else filter = null;
+    $("#clearF").setAttribute("aria-pressed", String(!filter));
+    renderAll();
+  }
+  fa.addEventListener("change", onFilter); fb.addEventListener("change", onFilter);
+  $("#clearF").addEventListener("click", () => { fa.value = ""; fb.value = ""; onFilter(); });
+  $("#clearF").setAttribute("aria-pressed", "true");
+
+  $("#machBtn").addEventListener("click", (e) => {
+    machOpen = !machOpen; e.currentTarget.setAttribute("aria-pressed", String(machOpen)); renderMachinery();
+    if (machOpen) $("#machinery").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  $("#themeBtn").addEventListener("click", () => {
+    const root = document.documentElement;
+    const cur = root.dataset.theme || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    root.dataset.theme = cur === "light" ? "dark" : "light";
+  });
+  $("#badgeMin").addEventListener("click", (e) => {
+    const b = $("#badge"); b.classList.toggle("min"); e.currentTarget.textContent = b.classList.contains("min") ? "+" : "–";
+  });
+  if (window.innerWidth < 640) { $("#badge").classList.add("min"); $("#badgeMin").textContent = "+"; }
+
+  function renderAll() { renderSky(); renderList(); renderMachinery(); }
+  let lastNarrow = window.innerWidth < 640;
+  window.addEventListener("resize", () => { const n = window.innerWidth < 640; if (n !== lastNarrow) { lastNarrow = n; layout(); renderSky(); } });
+  layout(); renderAll();
+})();
+</script>
+</body>
+</html>
